@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="card">
+    <h2 style="margin-top:0;">Schrijver</h2>
+    <p>Overzicht van beschikbare papers (dummy):</p>
+    <ul>
+      {% for p in papers %}
+        <li><strong>{{ p.title }}</strong> — {{ p.author }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;">Link een paper aan een bedrijf</h3>
+    <form method="post">
+      <!-- Kleine uitleg (MVP) -->
+      <p style="margin-top:0;">Dit is een simpele testactie die de link in geheugen bewaart.</p>
+
+      <label for="paper_id">Paper</label><br>
+      <select id="paper_id" name="paper_id" required>
+        <option value="" disabled selected>Kies een paper…</option>
+        {% for p in papers %}
+          <option value="{{ p.id }}">{{ p.title }} — {{ p.author }}</option>
+        {% endfor %}
+      </select>
+
+      <br><br>
+
+      <label for="company_id">Bedrijf</label><br>
+      <select id="company_id" name="company_id" required>
+        <option value="" disabled selected>Kies een bedrijf…</option>
+        {% for c in companies %}
+          <option value="{{ c.id }}">{{ c.name }}</option>
+        {% endfor %}
+      </select>
+
+      <br><br>
+      <button type="submit" class="btn btn-primary">Linken</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;">Reeds gelinkt</h3>
+    {% if links %}
+      <ul>
+        {% for row in links %}
+          <li><strong>{{ row.paper }}</strong> → {{ row.company }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>Er zijn nog geen links gemaakt.</p>
+    {% endif %}
+  </div>
+{% endblock %}

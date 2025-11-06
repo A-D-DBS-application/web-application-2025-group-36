@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="card">
+    <h2 style="margin-top:0;">Wie ben je?</h2>
+    <p>Kies je rol om verder te gaan:</p>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="{{ url_for('main.author') }}">Ik ben schrijver ✍️</a>
+      <a class="btn btn-secondary" href="{{ url_for('main.company') }}">Ik ben bedrijf 🏢</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;">Wat doet dit MVP?</h3>
+    <ul>
+      <li>Toont <span class="badge">dummy</span> papers en bedrijven.</li>
+      <li>Laat je een paper “linken” aan een bedrijf (in-memory, verdwijnt bij herstart).</li>
+      <li>Geen database nodig; Supabase volgt later.</li>
+    </ul>
+  </div>
+{% endblock %}

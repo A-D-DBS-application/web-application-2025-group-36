@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <title>{{ title or "Paper ↔ Bedrijf MVP" }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body>
+  <header class="container-narrow" style="padding: 24px 0;">
+    <h1 style="margin:0;">Paper ↔ Bedrijf (MVP)</h1>
+    <nav style="margin-top:8px;">
+      <a class="btn" href="{{ url_for('main.index') }}">Home</a>
+      <a class="btn" href="{{ url_for('main.author') }}">Schrijver</a>
+      <a class="btn" href="{{ url_for('main.company') }}">Bedrijf</a>
+    </nav>
+  </header>
+
+  <main class="container-narrow">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="card" 
+               
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="container-narrow" style="padding: 24px 0; font-size: 0.9rem; color:#666;">
+    <hr>
+    <p>MVP met dummy data. Back-end (Supabase) volgt later.</p>
+  </footer>
+</body>
+</html>
