@@ -33,3 +33,4 @@ CREATE TABLE Review (
     comments TEXT,
     date_submitted TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
