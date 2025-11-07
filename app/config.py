@@ -1,5 +1,5 @@
 
 class Config:
-    SUPABASE_URL = "https://ebokqkhwotfewvpsfemj.supabase.co"  # jouw Supabase URL
+    SUPABASE_URL = "https://ebokqkhwotfewvpsfemj.supabase.co"  
     SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVib2txa2h3b3RmZXd2cHNmZW1qIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTY0MjQxOCwiZXhwIjoyMDc3MjE4NDE4fQ.THk44izi0OPqEp6T5VMazLBVqd7J3NlKWRj44RUBGpA"  # service_role key
-    SECRET_KEY = "supergeheimesleutel"  # gedeeld met alle groepsgenoten
+    SECRET_KEY = "supergeheimesleutel"  
