@@ -1,5 +1,7 @@
 from flask import Flask
-from .routes import bp  # blueprint met alle routes
+from .config import Config
+from .models import db  # now safe, because db is defined inside models.py
+from .routes import bp
 
 def create_app():
     """
