@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from .config import DUMMY_PAPERS, DUMMY_COMPANIES, LINKS
+from .config import Config, DUMMY_PAPERS, DUMMY_COMPANIES, LINKS
 
 bp = Blueprint("main", __name__)
 
