@@ -1,9 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-<<<<<<< HEAD
 from datetime import datetime
 
-=======
->>>>>>> 44b9b62bbaac8296fc3093dc82f7b713cc3f4b48
 db = SQLAlchemy()
 
 class User(db.Model):
