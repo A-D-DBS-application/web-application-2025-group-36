@@ -11,7 +11,3 @@ class Config:
         f"@{os.getenv('HOST')}:{os.getenv('PORT')}/{os.getenv('DBNAME')}?sslmode=require"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-DUMMY_PAPERS = []
-DUMMY_COMPANIES = []
-LINKS = {}
