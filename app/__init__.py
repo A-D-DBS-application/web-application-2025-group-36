@@ -1,6 +1,5 @@
 from flask import Flask
-from .models import db
-from .routes import bp
+from .routes import bp  # blueprint met alle routes
 
 def create_app():
     app = Flask(__name__)
