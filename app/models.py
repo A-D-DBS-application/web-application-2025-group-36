@@ -81,3 +81,4 @@ class Review(db.Model):
 
     def __repr__(self):
         return f"<Review Paper={self.paper_id}, Score={self.score}>"
+test
