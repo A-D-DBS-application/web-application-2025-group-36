@@ -7,7 +7,7 @@ Reviewr is a web platform that simplifies and improves the academic peer review 
 It allows researchers to upload their papers, receive structured feedback, and gain visibility for their work, while reviewers can easily browse available papers and share valuable insights.
 Our goal is to make academic reviewing faster, fairer, and more transparent, fostering collaboration and trust within the research community.
 ### Vision
-> To create a world where academic knowledge flows freely and feedback drives innovation. Making research more open, collaborative, and impactful for everyone.
+> To create a world where academic knowledge flows freely and feedback drives innovation. (Making research more open, collaborative, and impactful for everyone.)
 
 ## Kanban board
 URL_Miro = https://miro.com/app/board/uXjVJwVsXsc=/ 
