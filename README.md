@@ -3,10 +3,11 @@
 # Project A&D - DBS _ ReviewR (Group 36)
 
 ## Description
-> ReviewR is a simple platform where users (writers) can upload papers that are linked to companies.  
-> Users can review these papers and provide feedback.  
-> ...
-
+Reviewr is a web platform that simplifies and improves the academic peer review process.
+It allows researchers to upload their papers, receive structured feedback, and gain visibility for their work, while reviewers can easily browse available papers and share valuable insights.
+Our goal is to make academic reviewing faster, fairer, and more transparent, fostering collaboration and trust within the research community.
+### Vision
+> To create a world where academic knowledge flows freely and feedback drives innovation. Making research more open, collaborative, and impactful for everyone.
 
 ## Kanban board
 URL_Miro = https://miro.com/app/board/uXjVJwVsXsc=/ 
