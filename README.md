@@ -16,7 +16,7 @@ URL_Miro = https://miro.com/app/board/uXjVJwVsXsc=/
 URL = https://lovable.dev/projects/4b212f05-6181-4bad-b4f4-01cc5bc567d5 
 
 ## Audio/Video Recording of feedback sessions
---> Feedback session 1: On whatsapp (forgot to record) (duration: 7min24s)
+--> Feedback session 1: On whatsapp (forgot to record) (duration: 7min24s)               
 --> Feedback session 2 (on teams): ...
 
 ## Other Links/Info
