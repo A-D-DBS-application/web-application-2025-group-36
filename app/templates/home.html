@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- HERO SECTION -->
+<section class="text-center mb-20">
+  <h1 class="text-5xl font-extrabold mb-6">
+    Welkom bij <span class="text-accent">REVIEWR</span>
+  </h1>
+  <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+    De brug tussen onderzoekers en bedrijven. Vind relevante papers, koppel expertise aan industrie en versnel innovatie.
+  </p>
+
+  <div class="mt-10 flex justify-center space-x-6">
+    <a href="/login"
+       class="px-6 py-3 bg-accent text-darkbg rounded-xl font-semibold hover:bg-red-600 transition">
+      Get Started
+    </a>
+    <a href="/register"
+       class="px-6 py-3 border-2 border-accent rounded-xl hover:bg-accent hover:text-darkbg transition font-semibold">
+      Create Account
+    </a>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="grid md:grid-cols-3 gap-10 mt-16">
+
+  <div class="p-8 bg-darkbg2/60 rounded-xl shadow-lg border border-red-800/40">
+    <h3 class="text-2xl mb-4 font-bold text-accent">Papers Verkennen</h3>
+    <p class="text-gray-300">
+      Ontdek onderzoekspapers en vind relevante wetenschappelijke inzichten met één druk op de knop.
+    </p>
+  </div>
+
+  <div class="p-8 bg-darkbg2/60 rounded-xl shadow-lg border border-red-800/40">
+    <h3 class="text-2xl mb-4 font-bold text-accent">Koppel aan Bedrijven</h3>
+    <p class="text-gray-300">
+      Bedrijven kunnen papers linken aan hun noden, projecten en innovatie-uitdagingen.
+    </p>
+  </div>
+
+  <div class="p-8 bg-darkbg2/60 rounded-xl shadow-lg border border-red-800/40">
+    <h3 class="text-2xl mb-4 font-bold text-accent">Samen Vooruit</h3>
+    <p class="text-gray-300">
+      Wij brengen academie en industrie dichter bij elkaar voor meer impact.
+    </p>
+  </div>
+
+</section>
+
+{% endblock %}
