@@ -17,7 +17,7 @@ URL = https://lovable.dev/projects/4b212f05-6181-4bad-b4f4-01cc5bc567d5
 
 ## Audio/Video Recording of feedback sessions
 --> Feedback session 1: On whatsapp (forgot to record) (duration: 7min24s)
---> Feedback session 2 (on teams): https://teams.microsoft.com/l/meetingrecap?driveId=b%21lxCMlSfmy0StqgHXWX7mBchISZ-mv6FAm2LMEgLCSPbSuxLACvlaSolIcJGnUPZ5&driveItemId=01LBXYYPDDZ52EFRPXRZBI3R63JPV3SFRK&sitePath=https%3A%2F%2Fhouseofhr-my.sharepoint.com%2F%3Av%3A%2Fg%2Fpersonal%2Ffrederic_pattyn_accentjobs_be%2FIQBjz3RCxfeOQo3H20vruRYqAet-OUUj3lmqKmidRB1LWn4&fileUrl=https%3A%2F%2Fhouseofhr-my.sharepoint.com%2F%3Av%3A%2Fg%2Fpersonal%2Ffrederic_pattyn_accentjobs_be%2FIQBjz3RCxfeOQo3H20vruRYqAet-OUUj3lmqKmidRB1LWn4&iCalUid=040000008200E00074C5B7101A82E008000000002C5BE606C153DC0100000000000000001000000037F1E33F0E0BCF42BAB673EB37E65EFB&threadId=19%3Ameeting_NDljZmFmMWYtMGViZC00ZDAyLWIwNDYtMGJiMjYyNDZjM2Vh%40thread.v2&organizerId=d9a53d3f-d4ed-4bba-85e4-a25c52418010&tenantId=3fe99b51-e7b8-4586-ac15-d51c0df4d4a4&callId=fed4dfc9-d35b-493f-abdd-929a6e63e48d&threadType=Meeting&meetingType=Scheduled&subType=RecapSharingLink_RecapChiclet 
+--> Feedback session 2 (on teams): ...
 
 ## Other Links/Info
 ### Supabase
