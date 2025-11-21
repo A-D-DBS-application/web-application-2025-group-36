@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div style="display:flex; justify-content:center; margin-top:80px;">
+  <div style="
+      background-color:#0d1b2a;
+      padding:40px;
+      border-radius:12px;
+      width:420px;
+      box-shadow:0 8px 20px rgba(0,0,0,0.3);
+      color:white;
+      ">
+      
+    <h2 style="text-align:center; margin-bottom:20px; color:#ffd60a;">Login</h2>
+
+    <form method="post" style="display:flex; flex-direction:column; gap:15px;">
+
+      <div>
+        <label>Email</label><br>
+        <input type="email" name="email" required
+          style="width:100%; padding:10px; border-radius:6px; border:none; margin-top:5px; background:white; color:#000;">
+      </div>
+
+      <button type="submit"
+        style="
+          margin-top:10px;
+          background-color:#ffd60a;
+          padding:12px;
+          border:none;
+          color:#0d1b2a;
+          font-weight:bold;
+          border-radius:6px;
+          cursor:pointer;
+          transition:0.2s;
+        "
+        onmouseover="this.style.opacity='0.8';"
+        onmouseout="this.style.opacity='1';">
+        Login
+      </button>
+    </form>
+
+    <p style="text-align:center; margin-top:15px;">
+      No account yet?
+      <a href="{{ url_for('main.register') }}" style="color:#ffd60a;">Create one</a>
+    </p>
+
+  </div>
+</div>
+
+{% endblock %}
+
+
