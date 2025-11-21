@@ -39,20 +39,75 @@
 
   <!-- NAVBAR -->
   <header class="w-full fixed top-0 z-50 bg-darkbg/80 backdrop-blur">
-    <nav class="max-w-7xl mx-auto px-8 py-5 flex justify-between items-center text-lg">
-      <div class="text-2xl font-extrabold tracking-wide">
-        REVIEW<span class="text-accent">R</span>
-      </div>
+  <nav class="max-w-7xl mx-auto px-8 py-5 grid grid-cols-3 items-center text-lg">
 
-      <div class="flex items-center space-x-8">
-        <a href="{{ url_for('main.index') }}" class="hover:text-accent transition">Home</a>
-        <a href="{{ url_for('main.vision') }}" class="hover:text-accent transition">Vision</a>
-      </div>
+    <!-- LOGO (links) -->
+    <div class="text-2xl font-extrabold tracking-wide">
+      REVIEW<span class="text-accent">R</span>
+    </div>
 
-      <a class="border-2 border-accent px-4 py-1.5 rounded-lg text-accent hover:bg-accent hover:text-darkbg transition"
-         href="#">
-        Subscribe
-      </a>
+    <!-- MIDDEN: NAV LINKS -->
+    <div class="flex justify-center space-x-10">
+      <a href="{{ url_for('main.index') }}" class="hover:text-accent transition">Home</a>
+      <a href="{{ url_for('main.vision') }}" class="hover:text-accent transition">Vision</a>
+    </div>
+
+    <!-- RECHTS: LOGIN / ACCOUNT -->
+    <div class="flex justify-end items-center space-x-4">
+
+      {% if not session.get('user_id') %}
+        <!-- Niet ingelogd -->
+        <a href="{{ url_for('main.register') }}"
+           class="border-2 border-accent px-3 py-1.5 rounded-lg text-accent hover:bg-accent hover:text-darkbg transition">
+          Create Account
+        </a>
+
+        <a href="{{ url_for('main.login') }}"
+           class="px-3 py-1.5 bg-accent text-darkbg rounded-lg font-semibold hover:bg-yellow-500 transition">
+          Login
+        </a>
+
+      {% else %}
+        <!-- Ingelogd -->
+        <span class="text-sm text-gray-300 mr-2">
+          Logged in as <strong>{{ session.get('user_name') }}</strong>
+          ({{ session.get('user_role') }})
+        </span>
+
+        <a href="{{ url_for('main.logout') }}"
+           class="border-2 border-accent px-3 py-1.5 rounded-lg text-accent hover:bg-accent hover:text-darkbg transition">
+          Logout
+        </a>
+      {% endif %}
+
+    </div>
+  </nav>
+</header>
+
+
+      {% if not session.get('user_id') %}
+  <!-- Niet ingelogd: toon Create Account + Login -->
+  <a href="{{ url_for('main.register') }}"
+     class="border-2 border-accent px-4 py-1.5 rounded-lg text-accent hover:bg-accent hover:text-darkbg transition">
+    Create Account
+  </a>
+
+  <a href ="{{ url_for('main.login') }}"
+     class="ml-3 px-4 py-1.5 rounded-lg bg-accent text-darkbg hover:bg-yellow-500 transition">
+    Login
+  </a>
+{% else %}
+  <!-- Ingelogd: toon Logout met naam -->
+  <span class="mr-3 text-sm text-gray-300">
+    Logged in as <strong>{{ session.get('user_name') }}</strong> ({{ session.get('user_role') }})
+  </span>
+
+  <a href="{{ url_for('main.logout') }}"
+     class="border-2 border-accent px-4 py-1.5 rounded-lg text-accent hover:bg-accent hover:text-darkbg transition">
+    Logout
+  </a>
+{% endif %}
+
     </nav>
   </header>
 

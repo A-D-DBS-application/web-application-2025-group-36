@@ -21,6 +21,49 @@ def index():
 def vision():
     return render_template("vision.html", title="Vision")
 
+# ---------------------------------------------------
+# SEARCH PAPERS – iedereen mag kijken
+# ---------------------------------------------------
+@main.route("/search_papers")
+def search_papers():
+    papers = Paper.query.all()
+    return render_template("search_papers.html", title="Search Papers", papers=papers)
+
+
+# ---------------------------------------------------
+# UPLOAD PAPER – alleen Researcher
+# ---------------------------------------------------
+@main.route("/upload_paper", methods=["GET", "POST"])
+def upload_paper():
+    # Moet ingelogd zijn
+    if not session.get("user_id"):
+        flash("Please log in first.", "error")
+        return redirect(url_for("main.login"))
+
+    # Moet Researcher zijn
+    if session.get("user_role") != "Researcher":
+        return render_template("error_role.html", title="Access denied", required="Researcher")
+
+    if request.method == "POST":
+        title = request.form.get("title")
+        abstract = request.form.get("abstract")
+
+        if not title or not abstract:
+            flash("Fill in all fields.", "error")
+            return redirect(url_for("main.upload_paper"))
+
+        paper = Paper(
+            title=title,
+            abstract=abstract,
+            user_id=session.get("user_id")
+        )
+        db.session.add(paper)
+        db.session.commit()
+        flash("Paper uploaded successfully.", "success")
+        return redirect(url_for("main.search_papers"))
+
+    # GET: formulier tonen
+    return render_template("upload_paper.html", title="Upload Paper")
 
 # ---------------------------------------------------
 # ABOUT US PAGE
@@ -37,8 +80,8 @@ def about():
 @main.route("/logout")
 def logout():
     session.clear()
-    flash("Je bent uitgelogd.", "info")
     return redirect(url_for("main.index"))
+
 
 
 # ---------------------------------------------------
@@ -49,25 +92,24 @@ def login():
     if request.method == "POST":
         email = request.form.get("email")
 
-        if not email:
-            flash("Vul je e-mailadres in.", "error")
-            return redirect(url_for("main.login"))
-
+        # user zoeken
         user = User.query.filter_by(email=email).first()
 
         if not user:
-            flash("Geen account gevonden. Maak eerst een account aan.", "error")
-            return redirect(url_for("main.register"))
+            flash("No account found with this email.", "error")
+            return redirect(url_for("main.login"))
 
-        # inloggen
+        # user in session plaatsen
         session["user_id"] = user.user_id
         session["user_name"] = user.name
         session["user_role"] = user.role
 
-        flash(f"Ingelogd als {user.name} ({user.role})", "success")
+        # Redirect naar home!
         return redirect(url_for("main.index"))
 
+    # GET -> login formulier tonen
     return render_template("login.html", title="Login")
+
 
 
 
@@ -81,32 +123,28 @@ def register():
         email = request.form.get("email")
         role = request.form.get("role")
 
-        # heel basic checks
-        if not name or not email or not role:
-            flash("Vul alle velden in.", "error")
-            return redirect(url_for("main.register"))
-
-        # bestaat er al een user met die email?
+        # bestaat email al?
         existing = User.query.filter_by(email=email).first()
         if existing:
-            flash("Er bestaat al een account met dit e-mailadres. Log gewoon in.", "info")
-            return redirect(url_for("main.login"))
+            flash("Email already exists.", "error")
+            return redirect(url_for("main.register"))
 
-        # nieuwe user aanmaken
+        # nieuwe user
         user = User(name=name, email=email, role=role)
         db.session.add(user)
         db.session.commit()
 
-        # user inloggen via session
+        # login na registreren
         session["user_id"] = user.user_id
         session["user_name"] = user.name
         session["user_role"] = user.role
 
-        flash(f"Welkom, {user.name}!", "success")
+        # redirect naar home
         return redirect(url_for("main.index"))
 
-    # GET: enkel formulier tonen
+    # GET → formulier tonen
     return render_template("register.html", title="Register")
+
 
 
 

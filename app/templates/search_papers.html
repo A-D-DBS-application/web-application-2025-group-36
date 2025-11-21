@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1 class="text-3xl font-extrabold mb-6">Available Papers</h1>
+
+{% if papers %}
+  <div class="space-y-4">
+    {% for p in papers %}
+      <div class="p-4 bg-darkbg/70 rounded-xl border border-accent/30">
+        <h2 class="text-xl font-bold text-accent">{{ p.title }}</h2>
+        {% if p.author %}
+          <p class="text-sm text-gray-300">By {{ p.author.name }}</p>
+        {% endif %}
+        {% if p.abstract %}
+          <p class="mt-2 text-gray-200">{{ p.abstract }}</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="text-gray-300">Er zijn nog geen papers opgeladen.</p>
+{% endif %}
+
+{% endblock %}

@@ -10,36 +10,49 @@
     De brug tussen onderzoekers en bedrijven. Vind relevante papers, koppel expertise aan industrie en versnel innovatie.
   </p>
 
+  <!-- ACTIEKNOPPEN: SEARCH & UPLOAD -->
   <div class="mt-10 flex justify-center space-x-6">
-    <a href="/login"
-       class="px-6 py-3 bg-accent text-darkbg rounded-xl font-semibold hover:bg-red-600 transition">
-      Get Started
+
+    <!-- Iedereen: Search Papers -->
+    <a href="{{ url_for('main.search_papers') }}"
+       class="px-6 py-3 bg-accent text-darkbg rounded-xl font-semibold hover:bg-yellow-500 transition">
+      Search Papers
     </a>
-    <a href="/register"
-       class="px-6 py-3 border-2 border-accent rounded-xl hover:bg-accent hover:text-darkbg transition font-semibold">
-      Create Account
-    </a>
+
+    <!-- Upload Paper: alleen Researchers actief -->
+    {% if session.get('user_role') == 'Researcher' %}
+      <a href="{{ url_for('main.upload_paper') }}"
+         class="px-6 py-3 border-2 border-accent rounded-xl hover:bg-accent hover:text-darkbg transition font-semibold">
+        Upload Paper
+      </a>
+    {% else %}
+      <a href="{{ url_for('main.upload_paper') }}"
+         class="px-6 py-3 border-2 border-gray-600 text-gray-500 rounded-xl cursor-not-allowed opacity-60">
+        Upload Paper
+      </a>
+    {% endif %}
+
   </div>
 </section>
 
 <!-- FEATURES -->
 <section class="grid md:grid-cols-3 gap-10 mt-16">
 
-  <div class="p-8 bg-darkbg2/60 rounded-xl shadow-lg border border-red-800/40">
+  <div class="p-8 bg-darkbg/70 rounded-xl shadow-lg border border-accent/30">
     <h3 class="text-2xl mb-4 font-bold text-accent">Papers Verkennen</h3>
     <p class="text-gray-300">
       Ontdek onderzoekspapers en vind relevante wetenschappelijke inzichten met één druk op de knop.
     </p>
   </div>
 
-  <div class="p-8 bg-darkbg2/60 rounded-xl shadow-lg border border-red-800/40">
+  <div class="p-8 bg-darkbg/70 rounded-xl shadow-lg border border-accent/30">
     <h3 class="text-2xl mb-4 font-bold text-accent">Koppel aan Bedrijven</h3>
     <p class="text-gray-300">
       Bedrijven kunnen papers linken aan hun noden, projecten en innovatie-uitdagingen.
     </p>
   </div>
 
-  <div class="p-8 bg-darkbg2/60 rounded-xl shadow-lg border border-red-800/40">
+  <div class="p-8 bg-darkbg/70 rounded-xl shadow-lg border border-accent/30">
     <h3 class="text-2xl mb-4 font-bold text-accent">Samen Vooruit</h3>
     <p class="text-gray-300">
       Wij brengen academie en industrie dichter bij elkaar voor meer impact.
@@ -49,3 +62,4 @@
 </section>
 
 {% endblock %}
+
