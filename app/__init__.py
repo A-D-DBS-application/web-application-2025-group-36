@@ -1,24 +1,22 @@
+# app/__init__.py
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from .config import Config
-from .models import db  # now safe, because db is defined inside models.py
-from .routes import bp
+from .models import db
+
+migrate = Migrate()
 
 def create_app():
-    """
-    Application factory:
-    - maakt de Flask-app
-    - laadt config
-    - registreert routes (blueprint)
-    """
     app = Flask(__name__)
-    app.config.from_object("app.config.Config")
+    app.config.from_object(Config)
 
-    # Blueprints registreren (alle routes komen uit routes.py)
-    app.register_blueprint(bp)
+    db.init_app(app)
+    migrate.init_app(app, db)
 
-    # Debug: toon welke routes geladen zijn
-    # (handig zolang we ontwikkelen)
-    print("✅ Geregistreerde routes:")
-    print(app.url_map)
+    with app.app_context():
+        from .routes import main
+        app.register_blueprint(main)
 
     return app
+

@@ -25,3 +25,7 @@ instance/
 # OS files
 .DS_Store
 Thumbs.db
+
+
+# Database migrations
+migrations/versions/
