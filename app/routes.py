@@ -1,7 +1,11 @@
 # app/routes.py
-
-from flask import Blueprint, request, redirect, url_for, render_template, session
+from flask import Blueprint, request, redirect, url_for, render_template, session, flash, current_app
 from .models import db, User, Company, Paper, Review, PaperCompany
+
+from werkzeug.utils import secure_filename
+import os
+import time
+
 
 main = Blueprint('main', __name__)
 
@@ -31,6 +35,14 @@ def search_papers():
 
 
 # ---------------------------------------------------
+# HELPERS FUNCTION (UPLOAD PAPERS)
+# ---------------------------------------------------
+ALLOWED_EXTENSIONS = {"pdf"}
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# ---------------------------------------------------
 # UPLOAD PAPER – alleen Researcher
 # ---------------------------------------------------
 @main.route("/upload_paper", methods=["GET", "POST"])
@@ -47,23 +59,48 @@ def upload_paper():
     if request.method == "POST":
         title = request.form.get("title")
         abstract = request.form.get("abstract")
+        file = request.files.get("file")
 
         if not title or not abstract:
-            flash("Fill in all fields.", "error")
+            flash("Fill in title and abstract.", "error")
             return redirect(url_for("main.upload_paper"))
+
+        if not file or file.filename == "":
+            flash("Please select a PDF file.", "error")
+            return redirect(url_for("main.upload_paper"))
+
+        if not allowed_file(file.filename):
+            flash("Only PDF files are allowed.", "error")
+            return redirect(url_for("main.upload_paper"))
+
+        # veilige bestandsnaam
+        filename = secure_filename(file.filename)
+        # uniek maken (user_id + timestamp)
+        unique_name = f"{session.get('user_id')}_{int(time.time())}_{filename}"
+
+        # fysieke opslag
+        upload_folder = current_app.config["UPLOAD_FOLDER"]
+        full_path = os.path.join(upload_folder, unique_name)
+        file.save(full_path)
+
+        # relatieve path opslaan in DB (t.o.v. static/)
+        relative_path = f"papers/{unique_name}"
 
         paper = Paper(
             title=title,
             abstract=abstract,
-            user_id=session.get("user_id")
+            user_id=session.get("user_id"),
+            file_path=relative_path
         )
         db.session.add(paper)
         db.session.commit()
+
         flash("Paper uploaded successfully.", "success")
         return redirect(url_for("main.search_papers"))
 
     # GET: formulier tonen
     return render_template("upload_paper.html", title="Upload Paper")
+
 
 # ---------------------------------------------------
 # ABOUT US PAGE
@@ -158,3 +195,5 @@ def test_db():
         return f"DB werkt! Aantal users in tabel User: {len(users)}"
     except Exception as e:
         return f"Fout bij DB-verbinding: {e}"
+    
+

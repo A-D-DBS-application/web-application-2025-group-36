@@ -45,12 +45,12 @@ class Paper(db.Model):
     abstract = db.Column(db.Text)
     upload_date = db.Column(db.DateTime, server_default=db.func.now())
 
+    file_path = db.Column(db.String(512), nullable=False) 
+
     # Relationships
     reviews = db.relationship('Review', backref='paper', lazy=True)
     companies = db.relationship('PaperCompany', back_populates='paper')
 
-    def __repr__(self):
-        return f"<Paper {self.title}>"
 
 
 # ================================
