@@ -30,8 +30,19 @@ def vision():
 # ---------------------------------------------------
 @main.route("/search_papers")
 def search_papers():
-    papers = Paper.query.all()
-    return render_template("search_papers.html", title="Search Papers", papers=papers)
+    query = request.args.get("q", "").strip()
+
+    if query:
+        papers = Paper.query.filter(
+            (
+                Paper.title.ilike(f"%{query}%") |
+                Paper.abstract.ilike(f"%{query}%")
+            )
+        ).all()
+    else:
+        papers = Paper.query.all()
+
+    return render_template("search_papers.html", title="Search Papers", papers=papers, query=query)
 
 
 # ---------------------------------------------------
