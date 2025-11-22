@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1 class="text-3xl font-extrabold mb-8">Change Your Role</h1>
+
+<div class="bg-darkbg/70 border border-accent/30 p-8 rounded-xl max-w-lg mx-auto">
+
+  <form method="post" class="space-y-6">
+
+    <div>
+      <label class="text-lg font-semibold text-accent">Select new role</label>
+      <select name="role"
+              class="w-full mt-2 px-4 py-2 rounded-lg bg-darkbg border border-accent/40 text-white">
+        {% for r in roles %}
+          <option value="{{ r }}" {% if user.role == r %} selected {% endif %}>{{ r }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <button type="submit"
+            class="w-full py-3 bg-accent text-darkbg rounded-xl font-bold hover:bg-yellow-500 transition">
+      Update Role
+    </button>
+
+  </form>
+
+</div>
+
+{% endblock %}

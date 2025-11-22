@@ -207,4 +207,33 @@ def test_db():
     except Exception as e:
         return f"Fout bij DB-verbinding: {e}"
     
+#DIT IS VOOR DE CHANGE-ROLE
+@main.route("/change_role", methods=["GET", "POST"])
+def change_role():
+    if not session.get("user_id"):
+        flash("Please log in first.", "error")
+        return redirect(url_for("main.login"))
 
+    user = User.query.get(session.get("user_id"))
+
+    if request.method == "POST":
+        new_role = request.form.get("role")
+
+        if not new_role:
+            flash("Choose a valid role.", "error")
+            return redirect(url_for("main.change_role"))
+
+        # Update permanent in database
+        user.role = new_role
+        db.session.commit()
+
+        # Update session
+        session["user_role"] = new_role
+
+        flash("Role updated successfully.", "success")
+        return redirect(url_for("main.index"))
+
+    # List all available roles
+    roles = ["Researcher", "Reviewer", "User", "System/Admin", "Founder"]
+
+    return render_template("change_role.html", title="Change Role", roles=roles, user=user)

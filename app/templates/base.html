@@ -69,15 +69,37 @@
 
         {% else %}
           <!-- Ingelogd -->
-          <span class="text-sm text-gray-300 mr-2">
-            Logged in as <strong>{{ session.get('user_name') }}</strong>
-            ({{ session.get('user_role') }})
-          </span>
+          <!-- PROFILE DROPDOWN -->
+<div class="relative" x-data="{ open: false }">
 
-          <a href="{{ url_for('main.logout') }}"
-             class="border-2 border-accent px-3 py-1.5 rounded-lg text-accent hover:bg-accent hover:text-darkbg transition">
-            Logout
-          </a>
+  <!-- BUTTON -->
+  <button @click="open = !open"
+          class="flex items-center space-x-2 px-4 py-2 bg-accent text-darkbg rounded-lg font-semibold hover:bg-yellow-500 transition">
+    <span>{{ session.get('user_name') }}</span>
+    <span class="text-sm opacity-80">({{ session.get('user_role') }})</span>
+  </button>
+
+  <!-- DROPDOWN MENU -->
+  <div x-show="open"
+       @click.outside="open = false"
+       class="absolute right-0 mt-3 w-48 bg-darkbg border border-accent/40 rounded-lg shadow-lg py-2 z-50">
+
+    <a href="{{ url_for('main.change_role') }}"
+       class="block px-4 py-2 text-white hover:bg-accent hover:text-darkbg transition">
+       Change Role
+    </a>
+
+    <a href="{{ url_for('main.logout') }}"
+       class="block px-4 py-2 text-white hover:bg-red-600 transition">
+       Log Out
+    </a>
+  </div>
+
+</div>
+
+<!-- Alpine.js for dropdown -->
+<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
         {% endif %}
 
       </div>
