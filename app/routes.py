@@ -237,3 +237,38 @@ def change_role():
     roles = ["Researcher", "Reviewer", "User", "System/Admin", "Founder"]
 
     return render_template("change_role.html", title="Change Role", roles=roles, user=user)
+# ---------------------------------------------------
+# UPDATE PAPER – alleen auteur of admin
+# ---------------------------------------------------
+@main.route("/update_paper/<int:paper_id>", methods=["GET", "POST"])
+def update_paper(paper_id):
+    # Moet ingelogd zijn
+    if not session.get("user_id"):
+        flash("Please log in first.", "error")
+        return redirect(url_for("main.login"))
+
+    paper = Paper.query.get_or_404(paper_id)
+
+    # Alleen auteur of admin/Founder mag updaten
+    if session.get("user_id") != paper.user_id and session.get("user_role") not in ["System/Admin", "Founder"]:
+        flash("Access denied.", "error")
+        return redirect(url_for("main.search_papers"))
+
+    if request.method == "POST":
+        title = request.form.get("title")
+        abstract = request.form.get("abstract")
+
+        if not title or not abstract:
+            flash("Fill in title and abstract.", "error")
+            return redirect(url_for("main.update_paper", paper_id=paper_id))
+
+        # Update database
+        paper.title = title
+        paper.abstract = abstract
+        db.session.commit()
+
+        flash("Paper updated successfully.", "success")
+        return redirect(url_for("main.search_papers"))
+
+    # GET: formulier tonen met bestaande data
+    return render_template("update_paper.html", paper=paper, title="Update Paper")
