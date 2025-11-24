@@ -17,9 +17,11 @@
     {% for p in papers %}
       <div class="p-4 bg-darkbg/70 rounded-xl border border-accent/30">
         <h2 class="text-xl font-bold text-accent">{{ p.title }}</h2>
+
         {% if p.author %}
           <p class="text-sm text-gray-300">By {{ p.author.name }}</p>
         {% endif %}
+
         {% if p.abstract %}
           <p class="mt-2 text-gray-200">{{ p.abstract }}</p>
         {% endif %}
@@ -30,13 +32,26 @@
              class="inline-block mt-3 px-4 py-2 bg-accent text-darkbg rounded-lg font-semibold hover:bg-yellow-500 transition">
             View PDF
           </a>
+        {% endif %}
 
-          {% if session.get("user_id") == p.user_id or session.get("user_role") in ["System/Admin", "Founder"] %}
-            <a href="{{ url_for('main.update_paper', paper_id=p.paper_id) }}" 
-               class="inline-block mt-3 ml-2 px-4 py-2 bg-yellow-500 text-darkbg rounded-lg font-semibold hover:bg-accent transition">
-               Edit
-            </a>
-          {% endif %}
+        <!-- EDIT & DELETE BUTTONS (alleen auteur of admin) -->
+        {% if session.get("user_id") == p.user_id or session.get("user_role") in ["System/Admin", "Founder"] %}
+          
+          <!-- EDIT -->
+          <a href="{{ url_for('main.update_paper', paper_id=p.paper_id) }}" 
+             class="inline-block mt-3 ml-2 px-4 py-2 bg-yellow-500 text-darkbg rounded-lg font-semibold hover:bg-accent transition">
+             Edit
+          </a>
+
+          <!-- DELETE -->
+          <form method="POST" 
+                action="{{ url_for('main.delete_paper', paper_id=p.paper_id) }}"
+                style="display:inline;">
+            <button type="submit"
+                    class="inline-block mt-3 ml-2 px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition">
+              Delete
+            </button>
+          </form>
 
         {% endif %}
       </div>

@@ -272,3 +272,19 @@ def update_paper(paper_id):
 
     # GET: formulier tonen met bestaande data
     return render_template("update_paper.html", paper=paper, title="Update Paper")
+@main.route("/paper/<int:paper_id>/delete", methods=["POST"])
+def delete_paper(paper_id):
+    if not session.get("user_id"):
+        return redirect(url_for("main.login"))
+
+    paper = Paper.query.get_or_404(paper_id)
+
+    # Alleen eigenaar of admin/founder
+    if session.get("user_id") != paper.user_id and session.get("user_role") not in ["System/Admin", "Founder"]:
+        abort(403)
+
+    db.session.delete(paper)
+    db.session.commit()
+
+    flash("Paper deleted successfully.", "success")
+    return redirect(url_for("main.search_papers"))
