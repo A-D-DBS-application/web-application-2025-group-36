@@ -2,64 +2,110 @@
 {% block content %}
 
 <!-- HERO SECTION -->
-<section class="text-center mb-20">
-  <h1 class="text-5xl font-extrabold mb-6">
-    Welkom bij <span class="text-accent">REVIEWR</span>
-  </h1>
-  <p class="text-xl text-gray-300 max-w-2xl mx-auto">
-    De brug tussen onderzoekers en bedrijven. Vind relevante papers, koppel expertise aan industrie en versnel innovatie.
-  </p>
+<section class="text-center py-20 bg-white">
+    <h1 class="text-5xl font-extrabold text-gray-800 leading-tight mb-6">
+        Streamline Your Paper <span class="text-teal-500">Review Process</span>
+    </h1>
 
-  <!-- ACTIEKNOPPEN: SEARCH & UPLOAD -->
-  <div class="mt-10 flex justify-center space-x-6">
+    <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        Connect writers, reviewers, and companies in one professional platform.
+        Submit papers, link them to companies, and manage reviews efficiently.
+    </p>
 
-    <!-- Iedereen: Search Papers -->
-    <a href="{{ url_for('main.search_papers') }}"
-       class="px-6 py-3 bg-accent text-darkbg rounded-xl font-semibold hover:bg-yellow-500 transition">
-      Search Papers
-    </a>
+    <!-- Buttons -->
+    <div class="mt-10 flex justify-center space-x-4">
+        <a href="{{ url_for('main.upload_paper') }}"
+           class="px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition">
+            Submit Paper →
+        </a>
 
-    <!-- Upload Paper: alleen Researchers actief -->
-    {% if session.get('user_role') == 'Researcher' %}
-      <a href="{{ url_for('main.upload_paper') }}"
-         class="px-6 py-3 border-2 border-accent rounded-xl hover:bg-accent hover:text-darkbg transition font-semibold">
-        Upload Paper
-      </a>
-    {% else %}
-      <a href="{{ url_for('main.upload_paper') }}"
-         class="px-6 py-3 border-2 border-gray-600 text-gray-500 rounded-xl cursor-not-allowed opacity-60">
-        Upload Paper
-      </a>
-    {% endif %}
-
-  </div>
+        <a href="{{ url_for('main.search_papers') }}"
+           class="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition">
+            View Dashboard
+        </a>
+    </div>
 </section>
 
-<!-- FEATURES -->
-<section class="grid md:grid-cols-3 gap-10 mt-16">
+<!-- FEATURES SECTION -->
+<section class="grid md:grid-cols-3 gap-8 mt-20">
 
-  <div class="p-8 bg-darkbg/70 rounded-xl shadow-lg border border-accent/30">
-    <h3 class="text-2xl mb-4 font-bold text-accent">Papers Verkennen</h3>
-    <p class="text-gray-300">
-      Ontdek onderzoekspapers en vind relevante wetenschappelijke inzichten met één druk op de knop.
-    </p>
-  </div>
+    <!-- Card 1 -->
+    <div class="p-8 bg-white rounded-2xl shadow-md border border-gray-200">
+        <div class="text-blue-500 text-4xl mb-4">📄</div>
+        <h3 class="text-2xl font-semibold text-gray-800 mb-2">Submit Papers</h3>
+        <p class="text-gray-600">
+            Writers can easily submit their papers through our intuitive interface.
+        </p>
+    </div>
 
-  <div class="p-8 bg-darkbg/70 rounded-xl shadow-lg border border-accent/30">
-    <h3 class="text-2xl mb-4 font-bold text-accent">Koppel aan Bedrijven</h3>
-    <p class="text-gray-300">
-      Bedrijven kunnen papers linken aan hun noden, projecten en innovatie-uitdagingen.
-    </p>
-  </div>
+    <!-- Card 2 -->
+    <div class="p-8 bg-white rounded-2xl shadow-md border border-gray-200">
+        <div class="text-green-500 text-4xl mb-4">🏢</div>
+        <h3 class="text-2xl font-semibold text-gray-800 mb-2">Link to Companies</h3>
+        <p class="text-gray-600">
+            Every paper is connected to a company, maintaining clear organizational relationships.
+        </p>
+    </div>
 
-  <div class="p-8 bg-darkbg/70 rounded-xl shadow-lg border border-accent/30">
-    <h3 class="text-2xl mb-4 font-bold text-accent">Samen Vooruit</h3>
-    <p class="text-gray-300">
-      Wij brengen academie en industrie dichter bij elkaar voor meer impact.
-    </p>
-  </div>
+    <!-- Card 3 -->
+    <div class="p-8 bg-white rounded-2xl shadow-md border border-gray-200">
+        <div class="text-teal-500 text-4xl mb-4">✔️</div>
+        <h3 class="text-2xl font-semibold text-gray-800 mb-2">Review & Feedback</h3>
+        <p class="text-gray-600">
+            Reviewers can provide detailed feedback and evaluations on submitted papers.
+        </p>
+    </div>
 
 </section>
+
+<!-- HOW IT WORKS -->
+<section class="mt-24 py-16 bg-gray-50 rounded-2xl">
+
+    <h2 class="text-center text-3xl font-extrabold text-gray-800 mb-3">
+        How It Works
+    </h2>
+    <p class="text-center text-gray-600 mb-12">
+        Simple, efficient paper management in three steps.
+    </p>
+
+    <div class="grid md:grid-cols-3 gap-10 max-w-5xl mx-auto">
+
+        <!-- STEP 1 -->
+        <div class="flex flex-col items-center text-center">
+            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-blue-500 text-white text-lg font-bold mb-4">
+                1
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">Writers Submit</h3>
+            <p class="text-gray-600">
+                Authors submit their papers and link them to relevant companies.
+            </p>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="flex flex-col items-center text-center">
+            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-green-500 text-white text-lg font-bold mb-4">
+                2
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">Organize</h3>
+            <p class="text-gray-600">
+                Papers are organized by company, status, and date.
+            </p>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="flex flex-col items-center text-center">
+            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-teal-500 text-white text-lg font-bold mb-4">
+                3
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">Review</h3>
+            <p class="text-gray-600">
+                Reviewers provide feedback and complete the evaluation process.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
 
 {% endblock %}
-
