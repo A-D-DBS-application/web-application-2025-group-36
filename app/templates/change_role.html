@@ -10,7 +10,7 @@
     <div>
       <label class="text-lg font-semibold text-accent">Select new role</label>
       <select name="role"
-              class="w-full mt-2 px-4 py-2 rounded-lg bg-darkbg border border-accent/40 text-white">
+              class="w-full mt-2 px-4 py-2 rounded-lg bg-darkbg border border-accent/40 text-black">
         {% for r in roles %}
           <option value="{{ r }}" {% if user.role == r %} selected {% endif %}>{{ r }}</option>
         {% endfor %}
