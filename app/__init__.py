@@ -21,6 +21,8 @@ def create_app():
     with app.app_context():
         from .routes import main
         app.register_blueprint(main)
+        # For local SQLite fallback, ensure tables exist without needing Alembic
+        if app.config["SQLALCHEMY_DATABASE_URI"].startswith("sqlite"):
+            db.create_all()
 
     return app
-

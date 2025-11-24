@@ -42,13 +42,14 @@
     <nav class="max-w-7xl mx-auto px-8 py-5 grid grid-cols-3 items-center text-lg">
 
       <!-- LOGO -->
-      <div class="text-2xl font-extrabold tracking-wide text-gray-900">
+      <a href="{{ url_for('main.index') }}" class="text-2xl font-extrabold tracking-wide text-gray-900 hover:text-accent transition">
         REVIEW<span class="text-accent">R</span>
-      </div>
+      </a>
 
       <!-- NAV LINKS -->
       <div class="flex justify-center space-x-10 text-gray-700">
         <a href="{{ url_for('main.index') }}" class="hover:text-accent transition">Home</a>
+        <a href="{{ url_for('main.dashboard') }}" class="hover:text-accent transition">Dashboard</a>
         <a href="{{ url_for('main.vision') }}" class="hover:text-accent transition">Vision</a>
       </div>
 

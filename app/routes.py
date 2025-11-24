@@ -1,7 +1,9 @@
 # app/routes.py
-from flask import Blueprint, request, redirect, url_for, render_template, session, flash, current_app
+from flask import Blueprint, request, redirect, url_for, render_template, session, flash, current_app, abort
 from .models import db, User, Company, Paper, Review, PaperCompany
 
+from sqlalchemy import or_, func
+from sqlalchemy.orm import joinedload
 from werkzeug.utils import secure_filename
 import os
 import time
@@ -26,23 +28,104 @@ def vision():
     return render_template("vision.html", title="Vision")
 
 # ---------------------------------------------------
-# SEARCH PAPERS – iedereen mag kijken
+# DASHBOARD / ARCHIEF
 # ---------------------------------------------------
+@main.route("/dashboard")
+def dashboard():
+    ensure_demo_content()
+
+    search = request.args.get("q", "").strip()
+    selected_domain = request.args.get("domain", "all")
+    selected_company = request.args.get("company", "").strip()
+    min_score = request.args.get("min_score", "").strip()
+    sort = request.args.get("sort", "newest")
+
+    avg_subq = (
+        db.session.query(
+            Review.paper_id.label("paper_id"),
+            func.avg(Review.score).label("avg_score"),
+            func.count(Review.review_id).label("score_count"),
+        )
+        .group_by(Review.paper_id)
+        .subquery()
+    )
+
+    query = Paper.query
+
+    if search:
+        query = query.filter(
+            or_(
+                Paper.title.ilike(f"%{search}%"),
+                Paper.abstract.ilike(f"%{search}%"),
+                Paper.research_domain.ilike(f"%{search}%"),
+            )
+        )
+
+    if selected_domain and selected_domain != "all":
+        query = query.filter(Paper.research_domain.ilike(f"%{selected_domain}%"))
+
+    if selected_company:
+        query = query.join(PaperCompany).join(Company).filter(Company.name.ilike(f"%{selected_company}%"))
+
+    query = query.outerjoin(avg_subq, Paper.paper_id == avg_subq.c.paper_id)
+
+    min_score_val = None
+    if min_score:
+        try:
+            min_score_val = float(min_score)
+            query = query.filter(func.coalesce(avg_subq.c.avg_score, 0) >= min_score_val)
+        except ValueError:
+            min_score_val = None
+
+    if sort == "best":
+        query = query.order_by(func.coalesce(avg_subq.c.avg_score, 0).desc())
+    else:
+        query = query.order_by(Paper.upload_date.desc())
+
+    papers = (
+        query.options(
+            joinedload(Paper.author),
+            joinedload(Paper.reviews).joinedload(Review.reviewer),
+            joinedload(Paper.reviews).joinedload(Review.company),
+            joinedload(Paper.companies).joinedload(PaperCompany.company),
+        )
+        .distinct()
+        .all()
+    )
+
+    avg_rows = db.session.query(avg_subq.c.paper_id, avg_subq.c.avg_score, avg_subq.c.score_count).all()
+    score_map = {
+        row.paper_id: {
+            "avg": round(float(row.avg_score), 1) if row.avg_score is not None else None,
+            "count": row.score_count,
+        }
+        for row in avg_rows
+    }
+
+    domain_rows = db.session.query(Paper.research_domain).distinct().all()
+    domain_filters = sorted({d.research_domain for d in domain_rows if d.research_domain}.union(set(POPULAR_DOMAINS)))
+    companies = Company.query.order_by(Company.name).all()
+
+    return render_template(
+        "dashboard.html",
+        title="Dashboard",
+        papers=papers,
+        score_map=score_map,
+        domains=domain_filters,
+        companies=companies,
+        selected_domain=selected_domain,
+        selected_company=selected_company,
+        min_score=min_score_val if min_score_val is not None else "",
+        sort=sort,
+        query=search,
+    )
+
+
 @main.route("/search_papers")
 def search_papers():
-    query = request.args.get("q", "").strip()
-
-    if query:
-        papers = Paper.query.filter(
-            (
-                Paper.title.ilike(f"%{query}%") |
-                Paper.abstract.ilike(f"%{query}%")
-            )
-        ).all()
-    else:
-        papers = Paper.query.all()
-
-    return render_template("search_papers.html", title="Search Papers", papers=papers, query=query)
+    # Old endpoint now routes to the new dashboard, preserving search queries.
+    incoming = request.args.get("q", "").strip()
+    return redirect(url_for("main.dashboard", q=incoming))
 
 
 # ---------------------------------------------------
@@ -53,6 +136,148 @@ ALLOWED_EXTENSIONS = {"pdf"}
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
+
+# ---------------------------------------------------
+# DEMO SEEDING FOR DASHBOARD
+# ---------------------------------------------------
+DEMO_PAPERS = [
+    {
+        "title": "Learning Dexterous In-Hand Manipulation",
+        "abstract": "OpenAI's robotics team demonstrates how deep reinforcement learning can master in-hand object reorientation on a Shadow Dexterous Hand, with sim-to-real transfer and domain randomization.",
+        "file_path": "https://arxiv.org/pdf/1808.00177.pdf",
+        "research_domain": "Robotics",
+        "company": "Atlas Robotics"
+    },
+    {
+        "title": "GraphDTA: prediction of drug-target binding affinity using graph convolutional networks",
+        "abstract": "GraphDTA replaces molecular fingerprints with graph neural networks to predict binding affinity, improving biotech screening pipelines with end-to-end learned representations.",
+        "file_path": "https://arxiv.org/pdf/1912.07047.pdf",
+        "research_domain": "Biotech",
+        "company": "BioNexus Labs"
+    },
+]
+
+DEMO_COMPANIES = [
+    {"name": "Atlas Robotics", "industry": "Autonomous systems"},
+    {"name": "BioNexus Labs", "industry": "Biotech & drug discovery"},
+    {"name": "Aether Insight", "industry": "AI research collective"},
+]
+
+def ensure_demo_content():
+    """Populate the database with two high-quality demo papers and sample reviews."""
+    created = False
+
+    demo_researcher = User.query.filter_by(email="demo.researcher@reviewr.ai").first()
+    if not demo_researcher:
+        demo_researcher = User(
+            name="Demo Researcher",
+            email="demo.researcher@reviewr.ai",
+            role="Researcher"
+        )
+        db.session.add(demo_researcher)
+        created = True
+
+    demo_reviewer = User.query.filter_by(email="demo.reviewer@reviewr.ai").first()
+    if not demo_reviewer:
+        demo_reviewer = User(
+            name="Guest Reviewer",
+            email="demo.reviewer@reviewr.ai",
+            role="Reviewer"
+        )
+        db.session.add(demo_reviewer)
+        created = True
+
+    demo_founder = User.query.filter_by(email="demo.founder@reviewr.ai").first()
+    if not demo_founder:
+        demo_founder = User(
+            name="Venture Partner",
+            email="demo.founder@reviewr.ai",
+            role="Founder"
+        )
+        db.session.add(demo_founder)
+        created = True
+
+    company_map = {}
+    for entry in DEMO_COMPANIES:
+        company = Company.query.filter_by(name=entry["name"]).first()
+        if not company:
+            company = Company(name=entry["name"], industry=entry["industry"])
+            db.session.add(company)
+            created = True
+        company_map[entry["name"]] = company
+
+    db.session.flush()
+
+    for paper_data in DEMO_PAPERS:
+        paper = Paper.query.filter_by(title=paper_data["title"]).first()
+        if not paper:
+            paper = Paper(
+                title=paper_data["title"],
+                abstract=paper_data["abstract"],
+                research_domain=paper_data["research_domain"],
+                user_id=demo_researcher.user_id,
+                file_path=paper_data["file_path"],
+            )
+            db.session.add(paper)
+            created = True
+        else:
+            # keep demo content fresh if already exists
+            paper.abstract = paper_data["abstract"]
+            paper.research_domain = paper_data["research_domain"]
+            paper.file_path = paper_data["file_path"]
+
+        db.session.flush()
+
+        company = company_map.get(paper_data["company"])
+        if company and not PaperCompany.query.filter_by(
+            paper_id=paper.paper_id, company_id=company.company_id
+        ).first():
+            db.session.add(PaperCompany(paper_id=paper.paper_id, company_id=company.company_id))
+            created = True
+
+    sample_reviews = [
+        {
+            "paper_title": DEMO_PAPERS[0]["title"],
+            "score": 9.1,
+            "comments": "Sterk stuk: robuuste sim-to-real pipeline en duidelijke metrics. Zou meteen een POC willen draaien in onze productielijn.",
+            "reviewer": demo_reviewer,
+            "company": company_map["Atlas Robotics"],
+        },
+        {
+            "paper_title": DEMO_PAPERS[1]["title"],
+            "score": 8.7,
+            "comments": "Veelbelovende biotech stack; graph representaties geven betere precisie. Interesse in samenwerking voor FTI screening.",
+            "reviewer": demo_founder,
+            "company": company_map["BioNexus Labs"],
+        },
+    ]
+
+    for review_data in sample_reviews:
+        paper = Paper.query.filter_by(title=review_data["paper_title"]).first()
+        if not paper:
+            continue
+
+        exists = Review.query.filter_by(
+            paper_id=paper.paper_id,
+            reviewer_id=review_data["reviewer"].user_id,
+            company_id=review_data["company"].company_id,
+        ).first()
+
+        if not exists:
+            review = Review(
+                paper_id=paper.paper_id,
+                reviewer_id=review_data["reviewer"].user_id,
+                company_id=review_data["company"].company_id,
+                score=review_data["score"],
+                comments=review_data["comments"],
+            )
+            db.session.add(review)
+            created = True
+
+    if created:
+        db.session.commit()
+
+POPULAR_DOMAINS = ["AI", "Robotics", "Biotech", "Climate", "Security", "Data & Analytics"]
 # ---------------------------------------------------
 # UPLOAD PAPER – alleen Researcher
 # ---------------------------------------------------
@@ -67,10 +292,20 @@ def upload_paper():
     if session.get("user_role") != "Researcher":
         return render_template("error_role.html", title="Access denied", required="Researcher")
 
+    companies = Company.query.order_by(Company.name).all()
+
     if request.method == "POST":
         title = request.form.get("title")
         abstract = request.form.get("abstract")
+        research_domain = request.form.get("research_domain") or "General"
+        custom_domain = (request.form.get("custom_domain") or "").strip()
         file = request.files.get("file")
+        selected_company_id = request.form.get("company_id")
+        new_company_name = (request.form.get("new_company") or "").strip()
+        new_company_industry = (request.form.get("new_company_industry") or "").strip()
+
+        if research_domain == "Other" and custom_domain:
+            research_domain = custom_domain
 
         if not title or not abstract:
             flash("Fill in title and abstract.", "error")
@@ -100,17 +335,36 @@ def upload_paper():
         paper = Paper(
             title=title,
             abstract=abstract,
+            research_domain=research_domain,
             user_id=session.get("user_id"),
             file_path=relative_path
         )
         db.session.add(paper)
+        db.session.flush()
+
+        # Koppel aan een bestaande of nieuwe company
+        company_obj = None
+        if new_company_name:
+            company_obj = Company(name=new_company_name, industry=new_company_industry or None)
+            db.session.add(company_obj)
+            db.session.flush()
+        elif selected_company_id:
+            company_obj = Company.query.get(int(selected_company_id))
+
+        if company_obj:
+            link_exists = PaperCompany.query.filter_by(
+                paper_id=paper.paper_id, company_id=company_obj.company_id
+            ).first()
+            if not link_exists:
+                db.session.add(PaperCompany(paper_id=paper.paper_id, company_id=company_obj.company_id))
+
         db.session.commit()
 
         flash("Paper uploaded successfully.", "success")
-        return redirect(url_for("main.search_papers"))
+        return redirect(url_for("main.dashboard"))
 
     # GET: formulier tonen
-    return render_template("upload_paper.html", title="Upload Paper")
+    return render_template("upload_paper.html", title="Upload Paper", domains=POPULAR_DOMAINS, companies=companies)
 
 
 # ---------------------------------------------------
@@ -234,7 +488,7 @@ def change_role():
         return redirect(url_for("main.index"))
 
     # List all available roles
-    roles = ["Researcher", "Reviewer", "User", "System/Admin", "Founder"]
+    roles = ["Researcher", "Reviewer", "Company", "User", "System/Admin", "Founder"]
 
     return render_template("change_role.html", title="Change Role", roles=roles, user=user)
 # ---------------------------------------------------
@@ -252,26 +506,49 @@ def update_paper(paper_id):
     # Alleen auteur of admin/Founder mag updaten
     if session.get("user_id") != paper.user_id and session.get("user_role") not in ["System/Admin", "Founder"]:
         flash("Access denied.", "error")
-        return redirect(url_for("main.search_papers"))
+        return redirect(url_for("main.dashboard"))
 
     if request.method == "POST":
         title = request.form.get("title")
         abstract = request.form.get("abstract")
+        research_domain = request.form.get("research_domain") or paper.research_domain
+        custom_domain = (request.form.get("custom_domain") or "").strip()
+        selected_company_id = request.form.get("company_id")
+        new_company_name = (request.form.get("new_company") or "").strip()
+        new_company_industry = (request.form.get("new_company_industry") or "").strip()
 
         if not title or not abstract:
             flash("Fill in title and abstract.", "error")
             return redirect(url_for("main.update_paper", paper_id=paper_id))
 
+        if research_domain == "Other" and custom_domain:
+            research_domain = custom_domain
+
         # Update database
         paper.title = title
         paper.abstract = abstract
+        paper.research_domain = research_domain
+
+        company_obj = None
+        if new_company_name:
+            company_obj = Company(name=new_company_name, industry=new_company_industry or None)
+            db.session.add(company_obj)
+            db.session.flush()
+        elif selected_company_id:
+            company_obj = Company.query.get(int(selected_company_id))
+
+        if company_obj:
+            PaperCompany.query.filter_by(paper_id=paper.paper_id).delete()
+            db.session.add(PaperCompany(paper_id=paper.paper_id, company_id=company_obj.company_id))
+
         db.session.commit()
 
         flash("Paper updated successfully.", "success")
-        return redirect(url_for("main.search_papers"))
+        return redirect(url_for("main.dashboard"))
 
     # GET: formulier tonen met bestaande data
-    return render_template("update_paper.html", paper=paper, title="Update Paper")
+    companies = Company.query.order_by(Company.name).all()
+    return render_template("update_paper.html", paper=paper, title="Update Paper", domains=POPULAR_DOMAINS, companies=companies)
 @main.route("/paper/<int:paper_id>/delete", methods=["POST"])
 def delete_paper(paper_id):
     if not session.get("user_id"):
@@ -287,7 +564,88 @@ def delete_paper(paper_id):
     db.session.commit()
 
     flash("Paper deleted successfully.", "success")
-    return redirect(url_for("main.search_papers"))
+    return redirect(url_for("main.dashboard"))
+
+
+# ---------------------------------------------------
+# PAPER DETAIL + REVIEWS
+# ---------------------------------------------------
+@main.route("/papers/<int:paper_id>", methods=["GET", "POST"])
+def paper_detail(paper_id):
+    ensure_demo_content()
+
+    paper = Paper.query.options(
+        joinedload(Paper.author),
+        joinedload(Paper.reviews).joinedload(Review.reviewer),
+        joinedload(Paper.reviews).joinedload(Review.company),
+        joinedload(Paper.companies).joinedload(PaperCompany.company),
+    ).get_or_404(paper_id)
+
+    companies = Company.query.order_by(Company.name).all()
+    can_review_roles = ["Reviewer", "Company", "System/Admin", "Founder"]
+    can_review = session.get("user_role") in can_review_roles
+
+    if request.method == "POST":
+        if not session.get("user_id"):
+            flash("Please log in first.", "error")
+            return redirect(url_for("main.login"))
+
+        if not can_review:
+            flash("Only reviewers or company users can leave a score/comment.", "error")
+            return redirect(url_for("main.paper_detail", paper_id=paper_id))
+
+        score_raw = request.form.get("score")
+        comments = (request.form.get("comments") or "").strip()
+        company_id = request.form.get("company_id")
+
+        if not score_raw and not comments:
+            flash("Add at least a score or a comment.", "error")
+            return redirect(url_for("main.paper_detail", paper_id=paper_id))
+
+        score_value = None
+        if score_raw:
+            try:
+                score_value = float(score_raw)
+            except ValueError:
+                flash("Score must be a number between 0 and 10.", "error")
+                return redirect(url_for("main.paper_detail", paper_id=paper_id))
+
+            if score_value < 0 or score_value > 10:
+                flash("Score must be between 0 and 10.", "error")
+                return redirect(url_for("main.paper_detail", paper_id=paper_id))
+
+        company_obj = None
+        if company_id:
+            company_obj = Company.query.get(int(company_id))
+
+        review = Review(
+            paper_id=paper.paper_id,
+            reviewer_id=session.get("user_id"),
+            company_id=company_obj.company_id if company_obj else None,
+            score=score_value,
+            comments=comments,
+        )
+        db.session.add(review)
+        db.session.commit()
+
+        flash("Review gepubliceerd en zichtbaar voor iedereen.", "success")
+        return redirect(url_for("main.paper_detail", paper_id=paper.paper_id))
+
+    scored = [r.score for r in paper.reviews if r.score is not None]
+    average_score = round(sum(scored) / len(scored), 1) if scored else None
+    score_count = len(scored)
+    reviews_sorted = sorted(paper.reviews, key=lambda r: r.date_submitted, reverse=True)
+
+    return render_template(
+        "paper_detail.html",
+        title=paper.title,
+        paper=paper,
+        companies=companies,
+        can_review=can_review,
+        average_score=average_score,
+        score_count=score_count,
+        reviews_sorted=reviews_sorted,
+    )
 # ---------------------------------------------------
 # ADD COMPANY
 # ---------------------------------------------------

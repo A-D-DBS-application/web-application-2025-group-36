@@ -43,6 +43,7 @@ class Paper(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('User.user_id', ondelete='CASCADE'))
     title = db.Column(db.String(255), nullable=False)
     abstract = db.Column(db.Text)
+    research_domain = db.Column(db.String(120), default="General", nullable=False)
     upload_date = db.Column(db.DateTime, server_default=db.func.now())
 
     file_path = db.Column(db.String(512), nullable=False) 
@@ -76,9 +77,12 @@ class Review(db.Model):
     review_id = db.Column(db.Integer, primary_key=True)
     paper_id = db.Column(db.Integer, db.ForeignKey('Paper.paper_id', ondelete='CASCADE'))
     reviewer_id = db.Column(db.Integer, db.ForeignKey('User.user_id', ondelete='CASCADE'))
+    company_id = db.Column(db.Integer, db.ForeignKey('Company.company_id', ondelete='SET NULL'), nullable=True)
     score = db.Column(db.Float)
     comments = db.Column(db.Text)
     date_submitted = db.Column(db.DateTime, server_default=db.func.now())
+
+    company = db.relationship('Company')
 
     def __repr__(self):
         return f"<Review Paper={self.paper_id}, Score={self.score}>"

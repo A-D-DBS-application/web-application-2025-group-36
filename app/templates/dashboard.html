@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="bg-gradient-to-r from-teal-50 via-white to-blue-50 border border-gray-200 rounded-3xl shadow-xl p-10">
+  <div class="flex flex-col gap-6">
+    <div class="flex justify-between flex-wrap gap-4 items-start">
+      <div>
+        <p class="text-xs uppercase tracking-[0.35em] text-gray-500">Dashboard</p>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mt-2">Archief van papers en reviews</h1>
+        <p class="text-gray-600 max-w-3xl mt-3">Filter op onderzoeksdomein (robotica, AI, biotech, ...), check scores en duik meteen in de paper-detailpagina om te reviewen of te scoren.</p>
+      </div>
+      <div class="flex gap-3">
+        <a href="{{ url_for('main.upload_paper') }}" class="px-5 py-3 bg-accent text-white rounded-xl font-semibold hover:bg-teal-600 transition">+ Paper indienen</a>
+        <a href="{{ url_for('main.about') }}" class="px-5 py-3 bg-white border border-gray-200 text-gray-800 rounded-xl font-semibold hover:bg-gray-100 transition">Over het platform</a>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-white/70 border border-gray-200 rounded-2xl p-4">
+        <p class="text-xs text-gray-500">Totaal papers</p>
+        <p class="text-2xl font-bold text-gray-900">{{ papers|length }}</p>
+      </div>
+      <div class="bg-white/70 border border-gray-200 rounded-2xl p-4">
+        <p class="text-xs text-gray-500">Beschikbare domeinen</p>
+        <p class="text-2xl font-bold text-gray-900">{{ domains|length }}</p>
+      </div>
+      <div class="bg-white/70 border border-gray-200 rounded-2xl p-4">
+        <p class="text-xs text-gray-500">Companies</p>
+        <p class="text-2xl font-bold text-gray-900">{{ companies|length }}</p>
+      </div>
+      <div class="bg-white/70 border border-gray-200 rounded-2xl p-4">
+        <p class="text-xs text-gray-500">Filters actief</p>
+        <p class="text-2xl font-bold text-gray-900">
+          {% set active_filters = 0 %}
+          {% if query %}{% set active_filters = active_filters + 1 %}{% endif %}
+          {% if selected_domain and selected_domain != 'all' %}{% set active_filters = active_filters + 1 %}{% endif %}
+          {% if selected_company %}{% set active_filters = active_filters + 1 %}{% endif %}
+          {% if min_score %}{% set active_filters = active_filters + 1 %}{% endif %}
+          {{ active_filters }}
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FILTERS -->
+<form method="get" class="mt-8 bg-white border border-gray-200 rounded-2xl shadow-sm p-6 grid md:grid-cols-5 gap-4">
+  <div class="md:col-span-2">
+    <label class="text-sm text-gray-600">Zoeken</label>
+    <input type="text" name="q" placeholder="Zoek op titel, abstract of domein" value="{{ query }}"
+           class="w-full mt-2 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent text-black">
+  </div>
+
+  <div>
+    <label class="text-sm text-gray-600">Domein</label>
+    <select name="domain" class="w-full mt-2 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent text-black bg-white">
+      <option value="all" {% if selected_domain == 'all' %}selected{% endif %}>Alle domeinen</option>
+      {% for d in domains %}
+        <option value="{{ d }}" {% if selected_domain == d %}selected{% endif %}>{{ d }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div>
+    <label class="text-sm text-gray-600">Company</label>
+    <select name="company" class="w-full mt-2 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent text-black bg-white">
+      <option value="" {% if not selected_company %}selected{% endif %}>Alle companies</option>
+      {% for company in companies %}
+        <option value="{{ company.name }}" {% if selected_company == company.name %}selected{% endif %}>{{ company.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div>
+    <label class="text-sm text-gray-600">Min. score</label>
+    <input type="number" step="0.1" min="0" max="10" name="min_score" value="{{ min_score }}"
+           class="w-full mt-2 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent text-black">
+  </div>
+
+  <div>
+    <label class="text-sm text-gray-600">Sorteren</label>
+    <select name="sort" class="w-full mt-2 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent text-black bg-white">
+      <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Nieuwste eerst</option>
+      <option value="best" {% if sort == 'best' %}selected{% endif %}>Hoogste score</option>
+    </select>
+  </div>
+
+  <div class="md:col-span-5 flex flex-wrap gap-3 justify-end">
+    <a href="{{ url_for('main.dashboard') }}" class="px-4 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition">Reset filters</a>
+    <button type="submit" class="px-5 py-3 bg-accent text-white rounded-xl font-semibold hover:bg-teal-600 transition">Filter toepassen</button>
+  </div>
+</form>
+
+<!-- PAPERS GRID -->
+<div class="mt-10 grid md:grid-cols-2 gap-8">
+  {% for p in papers %}
+    {% set file_ref = p.file_path|default('') %}
+    {% if file_ref %}
+      {% set pdf_url = file_ref if file_ref.startswith('http') else url_for('static', filename=file_ref) %}
+    {% else %}
+      {% set pdf_url = '#' %}
+    {% endif %}
+    {% set stats = score_map.get(p.paper_id) %}
+    <article class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition overflow-hidden">
+      <div class="p-6 flex flex-col gap-4 h-full">
+        <div class="flex justify-between items-start gap-3">
+          <span class="px-3 py-1 text-xs font-semibold rounded-full bg-accent/10 text-accent">{{ p.research_domain }}</span>
+          <span class="text-xs text-gray-500">{{ p.upload_date.strftime('%d %b %Y') if p.upload_date else '' }}</span>
+        </div>
+
+        {% set preview = p.abstract or '' %}
+        <div class="space-y-2">
+          <h3 class="text-xl font-bold text-gray-900 group-hover:text-accent transition">
+            <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id) }}" class="hover:underline">{{ p.title }}</a>
+          </h3>
+          <p class="text-gray-600 leading-relaxed">{{ preview[:220] }}{% if preview|length > 220 %}...{% endif %}</p>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          {% if p.companies %}
+            {% for link in p.companies %}
+              <span class="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700 border border-gray-200">🏢 {{ link.company.name }}</span>
+            {% endfor %}
+          {% else %}
+            <span class="px-3 py-1 text-xs rounded-full bg-gray-50 text-gray-500 border border-dashed border-gray-200">Nog geen company gelinkt</span>
+          {% endif %}
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2">
+            <div class="w-10 h-10 rounded-full bg-accent/10 border border-accent/30 flex items-center justify-center text-accent font-bold">
+              {% if stats and stats.avg is not none %}{{ stats.avg }}{% else %}--{% endif %}
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-gray-800">Score /10</p>
+              <p class="text-xs text-gray-500">{{ stats.count if stats else 0 }} reviews</p>
+            </div>
+          </div>
+          <div class="text-sm text-gray-500">Door {{ p.author.name if p.author else 'Onbekend' }}</div>
+        </div>
+
+        <div class="flex flex-wrap gap-3 mt-auto">
+          <a href="{{ pdf_url }}" target="_blank" class="px-4 py-2 rounded-lg bg-gray-100 text-gray-800 font-semibold hover:bg-gray-200 transition">Bekijk PDF</a>
+          <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id) }}" class="px-4 py-2 rounded-lg bg-accent text-white font-semibold hover:bg-teal-600 transition">Details & review</a>
+        </div>
+      </div>
+    </article>
+  {% else %}
+    <div class="md:col-span-2 bg-white border border-gray-200 rounded-2xl p-10 text-center text-gray-600">
+      Nog geen papers gevonden met deze filters. Dien er eentje in of reset de filters.
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

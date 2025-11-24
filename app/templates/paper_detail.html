@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block content %}
+{% set file_ref = paper.file_path|default('') %}
+{% if file_ref %}
+  {% set pdf_url = file_ref if file_ref.startswith('http') else url_for('static', filename=file_ref) %}
+{% else %}
+  {% set pdf_url = '#' %}
+{% endif %}
+
+<section class="bg-white border border-gray-200 rounded-3xl shadow-xl overflow-hidden">
+  <div class="bg-gradient-to-r from-accent/10 via-white to-blue-50 p-10 flex flex-col gap-4">
+    <div class="flex flex-wrap gap-3 items-center">
+      <span class="px-3 py-1 text-xs font-semibold rounded-full bg-accent text-white">Scorebaar paper</span>
+      <span class="px-3 py-1 text-xs font-semibold rounded-full bg-white text-accent border border-accent">{{ paper.research_domain }}</span>
+      {% for link in paper.companies %}
+        <span class="px-3 py-1 text-xs rounded-full bg-white text-gray-800 border border-gray-200">🏢 {{ link.company.name }}</span>
+      {% endfor %}
+    </div>
+    <h1 class="text-4xl font-extrabold text-gray-900 leading-tight">{{ paper.title }}</h1>
+    <p class="text-gray-600 max-w-4xl">{{ paper.abstract }}</p>
+    <div class="flex flex-wrap gap-3">
+      <a href="{{ pdf_url }}" target="_blank" class="px-5 py-3 bg-accent text-white rounded-xl font-semibold hover:bg-teal-600 transition">Open PDF</a>
+      <a href="{{ url_for('main.dashboard') }}" class="px-5 py-3 bg-white border border-gray-200 text-gray-800 rounded-xl font-semibold hover:bg-gray-100 transition">← Terug naar archief</a>
+    </div>
+  </div>
+
+  <div class="p-10 grid md:grid-cols-3 gap-8">
+    <div class="md:col-span-2 space-y-6">
+      <div class="grid grid-cols-3 gap-4">
+        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4">
+          <p class="text-xs text-gray-500">Gemiddelde score</p>
+          <p class="text-3xl font-extrabold text-gray-900">{{ average_score if average_score else '--' }}</p>
+        </div>
+        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4">
+          <p class="text-xs text-gray-500">Aantal scores</p>
+          <p class="text-3xl font-extrabold text-gray-900">{{ score_count }}</p>
+        </div>
+        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4">
+          <p class="text-xs text-gray-500">Auteur</p>
+          <p class="text-lg font-semibold text-gray-900">{{ paper.author.name if paper.author else 'Onbekend' }}</p>
+          <p class="text-xs text-gray-500">{{ paper.upload_date.strftime('%d %b %Y') if paper.upload_date else '' }}</p>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-2xl font-bold text-gray-900">Openbare reviews</h2>
+          <span class="text-sm text-gray-500">Iedereen ziet naam + company</span>
+        </div>
+
+        {% if reviews_sorted %}
+          <div class="space-y-4">
+            {% for review in reviews_sorted %}
+              <div class="border border-gray-200 rounded-2xl p-5 bg-white shadow-sm">
+                <div class="flex justify-between items-start">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-accent/10 text-accent font-bold flex items-center justify-center">
+                      {% if review.score is not none %}{{ review.score }}{% else %}--{% endif %}
+                    </div>
+                    <div>
+                      <p class="font-semibold text-gray-900">
+                        {% if review.company %}{{ review.company.name }}{% else %}{{ review.reviewer.name }}{% endif %}
+                      </p>
+                      <p class="text-xs text-gray-500">{{ review.reviewer.name }} • {{ review.date_submitted.strftime('%d %b %Y') if review.date_submitted else '' }}</p>
+                    </div>
+                  </div>
+                </div>
+                {% if review.comments %}
+                  <p class="text-gray-700 mt-3 leading-relaxed">{{ review.comments }}</p>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="border border-dashed border-gray-300 rounded-2xl p-6 text-gray-500 bg-gray-50">Nog geen reviews. Wees de eerste om te scoren.</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="md:col-span-1">
+      <div class="bg-gray-900 text-white rounded-2xl p-6 shadow-lg sticky top-32">
+        <h3 class="text-xl font-bold mb-2">Review / score</h3>
+        <p class="text-sm text-gray-200 mb-4">Als reviewer of company kan je een score op 10 geven en een comment plaatsen. Dit blijft voor iedereen zichtbaar.</p>
+
+        {% if can_review %}
+          <form method="post" class="space-y-4">
+            <div>
+              <label class="text-sm text-gray-200">Score (0-10)</label>
+              <input type="number" name="score" step="0.1" min="0" max="10"
+                     class="w-full mt-2 px-3 py-2 rounded-lg text-black">
+            </div>
+
+            <div>
+              <label class="text-sm text-gray-200">Comment</label>
+              <textarea name="comments" rows="4" class="w-full mt-2 px-3 py-2 rounded-lg text-black" placeholder="Wat viel op? Wat zijn de next steps?"></textarea>
+            </div>
+
+            <div>
+              <label class="text-sm text-gray-200">Company (optioneel)</label>
+              <select name="company_id" class="w-full mt-2 px-3 py-2 rounded-lg text-black">
+                <option value="">- Zonder company -</option>
+                {% for company in companies %}
+                  <option value="{{ company.company_id }}">{{ company.name }}</option>
+                {% endfor %}
+              </select>
+              <p class="text-xs text-gray-300 mt-1">De companynaam wordt zichtbaar naast je review.</p>
+            </div>
+
+            <button type="submit" class="w-full py-3 bg-accent text-gray-900 font-semibold rounded-lg hover:bg-white transition">Review publiceren</button>
+          </form>
+        {% else %}
+          <div class="bg-white text-gray-800 rounded-xl p-4">
+            <p class="font-semibold">Login als reviewer of company om te scoren.</p>
+            <div class="flex gap-2 mt-3">
+              <a href="{{ url_for('main.login') }}" class="px-4 py-2 bg-accent text-white rounded-lg font-semibold hover:bg-teal-600 transition">Login</a>
+              <a href="{{ url_for('main.register') }}" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg font-semibold hover:bg-gray-200 transition">Registreer</a>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
