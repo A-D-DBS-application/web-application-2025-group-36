@@ -288,3 +288,38 @@ def delete_paper(paper_id):
 
     flash("Paper deleted successfully.", "success")
     return redirect(url_for("main.search_papers"))
+# ---------------------------------------------------
+# ADD COMPANY
+# ---------------------------------------------------
+@main.route("/add_company", methods=["GET", "POST"])
+def add_company():
+    # Controleer of ingelogd en rol
+    if not session.get("user_id") or session.get("user_role") not in ["System/Admin", "Founder"]:
+        flash("Access denied.", "error")
+        return redirect(url_for("main.index"))
+
+    if request.method == "POST":
+        name = request.form.get("name")
+        industry = request.form.get("industry")
+
+        if not name:
+            flash("Name is required.", "error")
+            return redirect(url_for("main.add_company"))
+
+        company = Company(name=name, industry=industry)
+        db.session.add(company)
+        db.session.commit()
+
+        flash("Company added successfully.", "success")
+        return redirect(url_for("main.list_companies"))
+
+    return render_template("add_company.html", title="Add Company")
+
+
+# ---------------------------------------------------
+# LIST COMPANIES
+# ---------------------------------------------------
+@main.route("/companies")
+def list_companies():
+    companies = Company.query.all()
+    return render_template("list_companies.html", title="Companies", companies=companies)

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1 class="text-3xl font-extrabold mb-6">Companies</h1>
+
+{% if companies %}
+  <div class="space-y-4">
+    {% for c in companies %}
+      <div class="p-4 bg-darkbg/70 rounded-xl border border-accent/30">
+        <h2 class="text-xl font-bold text-accent">{{ c.name }}</h2>
+        {% if c.industry %}
+          <p class="mt-1 text-gray-200">{{ c.industry }}</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="text-gray-300">No companies added yet.</p>
+{% endif %}
+
+{% endblock %}

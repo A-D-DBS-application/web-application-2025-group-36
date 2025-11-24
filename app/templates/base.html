@@ -14,15 +14,14 @@
       theme: {
         extend: {
           colors: {
-            accent: "#3bbfb5",   /* teal accent like your reference */
-            darkbg: "#ffffff"    /* no longer used, but kept to avoid breaking code */
+            accent: "#3bbfb5",
+            darkbg: "#ffffff"
           }
         }
       }
     }
   </script>
 
-  <!-- Remove dark forced background -->
   <style>
     html, body {
       background-color: #f5f8fc !important;
@@ -32,14 +31,13 @@
     }
   </style>
 
-  <!-- VANTA (set light background) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
 </head>
 
 <body class="text-gray-800">
 
-  <!-- NAVBAR (light) -->
+  <!-- NAVBAR -->
   <header class="w-full fixed top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-200">
     <nav class="max-w-7xl mx-auto px-8 py-5 grid grid-cols-3 items-center text-lg">
 
@@ -71,9 +69,16 @@
 
         {% else %}
 
+          <!-- ADD COMPANY BUTTON (Admins/Founders only) -->
+          {% if session.get('user_role') in ["System/Admin", "Founder"] %}
+            <a href="{{ url_for('main.add_company') }}"
+               class="border border-accent px-3 py-1.5 rounded-lg text-accent hover:bg-accent hover:text-white transition mr-2">
+               Add Company
+            </a>
+          {% endif %}
+
           <!-- PROFILE DROPDOWN -->
           <div class="relative" x-data="{ open: false }">
-
             <button @click="open = !open"
                     class="flex items-center space-x-2 px-4 py-2 bg-accent text-white rounded-lg font-semibold hover:bg-teal-600 transition">
               <span>{{ session.get('user_name') }}</span>
@@ -94,7 +99,6 @@
                  Log Out
               </a>
             </div>
-
           </div>
 
           <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
@@ -105,21 +109,19 @@
     </nav>
   </header>
 
-  <!-- LIGHT VANTA BACKGROUND (optional subtle effect) -->
   <div id="vanta-bg" class="absolute top-0 left-0 w-full h-full -z-10 opacity-20"></div>
 
   <script>
     VANTA.NET({
       el: "#vanta-bg",
       color: 0x3bbfb5,
-      backgroundColor: 0xf5f8fc,      // light background, not dark!
+      backgroundColor: 0xf5f8fc,
       points: 8.00,
       maxDistance: 18.00,
       spacing: 20.00
     })
   </script>
 
-  <!-- PAGE CONTENT -->
   <main class="pt-40 pb-20 px-8 max-w-6xl mx-auto">
     {% block content %}{% endblock %}
   </main>
