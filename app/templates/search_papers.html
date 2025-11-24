@@ -35,7 +35,7 @@
         {% endif %}
 
         <!-- EDIT & DELETE BUTTONS (alleen auteur of admin) -->
-        {% if session.get("user_id") == p.user_id or session.get("user_role") in ["System/Admin", "Founder"] %}
+        {% if session.get("user_id") == p.user_id or session.get("user_role") in ["System/Admin"] %}
           
           <!-- EDIT -->
           <a href="{{ url_for('main.update_paper', paper_id=p.paper_id) }}" 
