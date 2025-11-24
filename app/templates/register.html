@@ -1,36 +1,39 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div style="display:flex; justify-content:center; margin-top:80px;">
-  <div style="
-      background-color:#0d1b2a;
-      padding:40px;
-      border-radius:12px;
-      width:420px;
-      box-shadow:0 8px 20px rgba(0,0,0,0.3);
-      color:white;
-      ">
-      
-    <h2 style="text-align:center; margin-bottom:20px; color:#ffd60a;">Create Your Account</h2>
+<div class="flex justify-center mt-24">
+  <div class="bg-white p-10 rounded-2xl shadow-xl w-full max-w-md">
 
-    <form method="post" style="display:flex; flex-direction:column; gap:15px;">
+    <!-- TITLE -->
+    <h2 class="text-center text-2xl font-bold text-gray-800 mb-6">
+      Create Your Account
+    </h2>
 
+    <!-- FORM -->
+    <form method="post" class="flex flex-col gap-6">
+
+      <!-- NAME -->
       <div>
-        <label>Name</label><br>
+        <label class="text-gray-700 font-medium">Name</label>
         <input type="text" name="name" required
-          style="width:100%; padding:10px; border-radius:6px; border:none; margin-top:5px; background:white; color:#000;">
+               class="w-full mt-2 px-4 py-2 border border-gray-300 rounded-lg
+                      focus:ring-2 focus:ring-teal-400 focus:outline-none">
       </div>
 
+      <!-- EMAIL -->
       <div>
-        <label>Email</label><br>
+        <label class="text-gray-700 font-medium">Email</label>
         <input type="email" name="email" required
-          style="width:100%; padding:10px; border-radius:6px; border:none; margin-top:5px; background:white; color:#000;">
+               class="w-full mt-2 px-4 py-2 border border-gray-300 rounded-lg
+                      focus:ring-2 focus:ring-teal-400 focus:outline-none">
       </div>
 
+      <!-- ROLE -->
       <div>
-        <label>Role</label><br>
+        <label class="text-gray-700 font-medium">Role</label>
         <select name="role" required
-          style="width:100%; padding:10px; border-radius:6px; border:none; margin-top:5px; background:white; color:#000;">
+                class="w-full mt-2 px-4 py-2 border border-gray-300 rounded-lg bg-white
+                       focus:ring-2 focus:ring-teal-400 focus:outline-none">
           <option value="">-- Select your role --</option>
           <option value="Researcher">Researcher</option>
           <option value="Reviewer">Reviewer</option>
@@ -40,32 +43,26 @@
         </select>
       </div>
 
+      <!-- SUBMIT BUTTON -->
       <button type="submit"
-        style="
-          margin-top:10px;
-          background-color:#ffd60a;
-          padding:12px;
-          border:none;
-          color:#0d1b2a;
-          font-weight:bold;
-          border-radius:6px;
-          cursor:pointer;
-          transition:0.2s;
-        "
-        onmouseover="this.style.opacity='0.8';"
-        onmouseout="this.style.opacity='1';">
+              class="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-lg transition">
         Create Account
       </button>
+
     </form>
 
-    <p style="text-align:center; margin-top:15px;">
+    <!-- LOGIN LINK -->
+    <p class="text-center mt-5 text-gray-600">
       Already have an account?
-      <a href="{{ url_for('main.login') }}" style="color:#ffd60a;">Login here</a>
+      <a href="{{ url_for('main.login') }}" class="text-teal-500 font-semibold hover:underline">
+        Login here
+      </a>
     </p>
 
   </div>
 </div>
 
 {% endblock %}
+
 
 
