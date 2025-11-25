@@ -22,4 +22,7 @@ URL = https://lovable.dev/projects/4b212f05-6181-4bad-b4f4-01cc5bc567d5
 
 ## Other Links/Info
 ### Supabase
-https://supabase.com/dashboard/project/ebokqkhwotfewvpsfemj 
+https://supabase.com/dashboard/project/ebokqkhwotfewvpsfemj
+
+### Testgebruikers (Antwoorden)
+https://docs.google.com/spreadsheets/d/11K7iOIe6oSJGhSPdlgt530r-ltxOYVHAc8Jt30kQidU/edit?usp=sharing
