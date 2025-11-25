@@ -18,7 +18,7 @@
       <span class="px-3 py-1 text-xs font-semibold rounded-full bg-accent text-white">Scorebaar paper</span>
       <span class="px-3 py-1 text-xs font-semibold rounded-full bg-white text-accent border border-accent">{{ paper.research_domain }}</span>
       {% for link in paper.companies %}
-        <span class="px-3 py-1 text-xs rounded-full bg-white text-gray-800 border border-gray-200">🏢 {{ link.company.name }}</span>
+        <span class="px-3 py-1 text-xs rounded-full bg-white text-gray-800 border border-gray-200">🏥 Research facility: {{ link.company.name }}</span>
       {% endfor %}
     </div>
     <h1 class="text-4xl font-extrabold text-gray-900 leading-tight">{{ paper.title }}</h1>
@@ -50,7 +50,7 @@
       <div class="space-y-4">
         <div class="flex items-center justify-between">
           <h2 class="text-2xl font-bold text-gray-900">Openbare reviews</h2>
-          <span class="text-sm text-gray-500">Iedereen ziet naam + company</span>
+          <span class="text-sm text-gray-500">Iedereen ziet naam + research facility</span>
         </div>
 
         {% if reviews_sorted %}
@@ -101,14 +101,14 @@
             </div>
 
             <div>
-              <label class="text-sm text-gray-200">Company (optioneel)</label>
+              <label class="text-sm text-gray-200">Research facility (optioneel)</label>
               <select name="company_id" class="w-full mt-2 px-3 py-2 rounded-lg text-black">
-                <option value="">- Zonder company -</option>
+                <option value="">- Geen facility koppelen -</option>
                 {% for company in companies %}
                   <option value="{{ company.company_id }}">{{ company.name }}</option>
                 {% endfor %}
               </select>
-              <p class="text-xs text-gray-300 mt-1">De companynaam wordt zichtbaar naast je review.</p>
+              <p class="text-xs text-gray-300 mt-1">Toont de onderzoekslocatie bij je review, niet het bedrijf dat de paper ontvangt.</p>
             </div>
 
             <button type="submit" class="w-full py-3 bg-accent text-gray-900 font-semibold rounded-lg hover:bg-white transition">Review publiceren</button>
