@@ -2,6 +2,7 @@
 from flask import Blueprint, request, redirect, url_for, render_template, session, flash, current_app, abort
 from .models import db, User, Company, Paper, Review, PaperCompany
 
+from types import SimpleNamespace
 from sqlalchemy import or_, func
 from sqlalchemy.orm import joinedload
 from werkzeug.utils import secure_filename
@@ -32,93 +33,140 @@ def vision():
 # ---------------------------------------------------
 @main.route("/dashboard")
 def dashboard():
-    ensure_demo_content()
-
     search = request.args.get("q", "").strip()
     selected_domain = request.args.get("domain", "all")
     selected_company = request.args.get("company", "").strip()
     min_score = request.args.get("min_score", "").strip()
     sort = request.args.get("sort", "newest")
 
-    avg_subq = (
-        db.session.query(
-            Review.paper_id.label("paper_id"),
-            func.avg(Review.score).label("avg_score"),
-            func.count(Review.review_id).label("score_count"),
-        )
-        .group_by(Review.paper_id)
-        .subquery()
-    )
+    try:
+        ensure_demo_content()
 
-    query = Paper.query
-
-    if search:
-        query = query.filter(
-            or_(
-                Paper.title.ilike(f"%{search}%"),
-                Paper.abstract.ilike(f"%{search}%"),
-                Paper.research_domain.ilike(f"%{search}%"),
+        avg_subq = (
+            db.session.query(
+                Review.paper_id.label("paper_id"),
+                func.avg(Review.score).label("avg_score"),
+                func.count(Review.review_id).label("score_count"),
             )
+            .group_by(Review.paper_id)
+            .subquery()
         )
 
-    if selected_domain and selected_domain != "all":
-        query = query.filter(Paper.research_domain.ilike(f"%{selected_domain}%"))
+        query = Paper.query
 
-    if selected_company:
-        query = query.join(PaperCompany).join(Company).filter(Company.name.ilike(f"%{selected_company}%"))
+        if search:
+            query = query.filter(
+                or_(
+                    Paper.title.ilike(f"%{search}%"),
+                    Paper.abstract.ilike(f"%{search}%"),
+                    Paper.research_domain.ilike(f"%{search}%"),
+                )
+            )
 
-    query = query.outerjoin(avg_subq, Paper.paper_id == avg_subq.c.paper_id)
+        if selected_domain and selected_domain != "all":
+            query = query.filter(Paper.research_domain.ilike(f"%{selected_domain}%"))
 
-    min_score_val = None
-    if min_score:
-        try:
-            min_score_val = float(min_score)
-            query = query.filter(func.coalesce(avg_subq.c.avg_score, 0) >= min_score_val)
-        except ValueError:
-            min_score_val = None
+        if selected_company:
+            query = query.join(PaperCompany).join(Company).filter(Company.name.ilike(f"%{selected_company}%"))
 
-    if sort == "best":
-        query = query.order_by(func.coalesce(avg_subq.c.avg_score, 0).desc())
-    else:
-        query = query.order_by(Paper.upload_date.desc())
+        query = query.outerjoin(avg_subq, Paper.paper_id == avg_subq.c.paper_id)
 
-    papers = (
-        query.options(
-            joinedload(Paper.author),
-            joinedload(Paper.reviews).joinedload(Review.reviewer),
-            joinedload(Paper.reviews).joinedload(Review.company),
-            joinedload(Paper.companies).joinedload(PaperCompany.company),
+        min_score_val = None
+        if min_score:
+            try:
+                min_score_val = float(min_score)
+                query = query.filter(func.coalesce(avg_subq.c.avg_score, 0) >= min_score_val)
+            except ValueError:
+                min_score_val = None
+
+        if sort == "best":
+            query = query.order_by(func.coalesce(avg_subq.c.avg_score, 0).desc())
+        else:
+            query = query.order_by(Paper.upload_date.desc())
+
+        papers = (
+            query.options(
+                joinedload(Paper.author),
+                joinedload(Paper.reviews).joinedload(Review.reviewer),
+                joinedload(Paper.reviews).joinedload(Review.company),
+                joinedload(Paper.companies).joinedload(PaperCompany.company),
+            )
+            .distinct()
+            .all()
         )
-        .distinct()
-        .all()
-    )
 
-    avg_rows = db.session.query(avg_subq.c.paper_id, avg_subq.c.avg_score, avg_subq.c.score_count).all()
-    score_map = {
-        row.paper_id: {
-            "avg": round(float(row.avg_score), 1) if row.avg_score is not None else None,
-            "count": row.score_count,
+        avg_rows = db.session.query(avg_subq.c.paper_id, avg_subq.c.avg_score, avg_subq.c.score_count).all()
+        score_map = {
+            row.paper_id: {
+                "avg": round(float(row.avg_score), 1) if row.avg_score is not None else None,
+                "count": row.score_count,
+            }
+            for row in avg_rows
         }
-        for row in avg_rows
-    }
 
-    domain_rows = db.session.query(Paper.research_domain).distinct().all()
-    domain_filters = sorted({d.research_domain for d in domain_rows if d.research_domain}.union(set(POPULAR_DOMAINS)))
-    companies = Company.query.order_by(Company.name).all()
+        domain_rows = db.session.query(Paper.research_domain).distinct().all()
+        domain_filters = sorted({d.research_domain for d in domain_rows if d.research_domain}.union(set(POPULAR_DOMAINS)))
+        companies = Company.query.order_by(Company.name).all()
 
-    return render_template(
-        "dashboard.html",
-        title="Dashboard",
-        papers=papers,
-        score_map=score_map,
-        domains=domain_filters,
-        companies=companies,
-        selected_domain=selected_domain,
-        selected_company=selected_company,
-        min_score=min_score_val if min_score_val is not None else "",
-        sort=sort,
-        query=search,
-    )
+        return render_template(
+            "dashboard.html",
+            title="Dashboard",
+            papers=papers,
+            score_map=score_map,
+            domains=domain_filters,
+            companies=companies,
+            selected_domain=selected_domain,
+            selected_company=selected_company,
+            min_score=min_score_val if min_score_val is not None else "",
+            sort=sort,
+            query=search,
+            offline=False,
+            offline_error=None,
+        )
+    except Exception as exc:
+        # Fallback to an offline demo view if the database is unreachable
+        demo_companies = [SimpleNamespace(company_id=i + 1, name=c["name"]) for i, c in enumerate(DEMO_COMPANIES)]
+        demo_company_lookup = {c.name: c for c in demo_companies}
+
+        fallback_papers = []
+        for i, p in enumerate(DEMO_PAPERS, start=1):
+            company_link = SimpleNamespace(company=demo_company_lookup.get(p["company"]))
+            paper_obj = SimpleNamespace(
+                paper_id=i,
+                title=p["title"],
+                abstract=p["abstract"],
+                research_domain=p["research_domain"],
+                upload_date=None,
+                file_path=p["file_path"],
+                author=SimpleNamespace(name="Demo Author"),
+                reviews=[],
+                companies=[company_link],
+                user_id=0,
+            )
+            fallback_papers.append(paper_obj)
+
+        fallback_scores = {
+            1: {"avg": 9.1, "count": 1},
+            2: {"avg": 8.7, "count": 1},
+        }
+
+        domain_filters = sorted({p["research_domain"] for p in DEMO_PAPERS}.union(set(POPULAR_DOMAINS)))
+
+        return render_template(
+            "dashboard.html",
+            title="Dashboard (offline demo)",
+            papers=fallback_papers,
+            score_map=fallback_scores,
+            domains=domain_filters,
+            companies=demo_companies,
+            selected_domain="all",
+            selected_company="",
+            min_score="",
+            sort="newest",
+            query="",
+            offline=True,
+            offline_error="Database niet bereikbaar, tonen demo data. Detailpagina's zijn klikbaar maar niet schrijfbaar.",
+        )
 
 
 @main.route("/search_papers")
@@ -572,80 +620,142 @@ def delete_paper(paper_id):
 # ---------------------------------------------------
 @main.route("/papers/<int:paper_id>", methods=["GET", "POST"])
 def paper_detail(paper_id):
-    ensure_demo_content()
+    try:
+        ensure_demo_content()
 
-    paper = Paper.query.options(
-        joinedload(Paper.author),
-        joinedload(Paper.reviews).joinedload(Review.reviewer),
-        joinedload(Paper.reviews).joinedload(Review.company),
-        joinedload(Paper.companies).joinedload(PaperCompany.company),
-    ).get_or_404(paper_id)
+        paper = Paper.query.options(
+            joinedload(Paper.author),
+            joinedload(Paper.reviews).joinedload(Review.reviewer),
+            joinedload(Paper.reviews).joinedload(Review.company),
+            joinedload(Paper.companies).joinedload(PaperCompany.company),
+        ).get_or_404(paper_id)
 
-    companies = Company.query.order_by(Company.name).all()
-    can_review_roles = ["Reviewer", "Company", "System/Admin", "Founder"]
-    can_review = session.get("user_role") in can_review_roles
+        companies = Company.query.order_by(Company.name).all()
+        can_review_roles = ["Reviewer", "Company", "System/Admin", "Founder"]
+        can_review = session.get("user_role") in can_review_roles
 
-    if request.method == "POST":
-        if not session.get("user_id"):
-            flash("Please log in first.", "error")
-            return redirect(url_for("main.login"))
+        if request.method == "POST":
+            if not session.get("user_id"):
+                flash("Please log in first.", "error")
+                return redirect(url_for("main.login"))
 
-        if not can_review:
-            flash("Only reviewers or company users can leave a score/comment.", "error")
-            return redirect(url_for("main.paper_detail", paper_id=paper_id))
-
-        score_raw = request.form.get("score")
-        comments = (request.form.get("comments") or "").strip()
-        company_id = request.form.get("company_id")
-
-        if not score_raw and not comments:
-            flash("Add at least a score or a comment.", "error")
-            return redirect(url_for("main.paper_detail", paper_id=paper_id))
-
-        score_value = None
-        if score_raw:
-            try:
-                score_value = float(score_raw)
-            except ValueError:
-                flash("Score must be a number between 0 and 10.", "error")
+            if not can_review:
+                flash("Only reviewers or company users can leave a score/comment.", "error")
                 return redirect(url_for("main.paper_detail", paper_id=paper_id))
 
-            if score_value < 0 or score_value > 10:
-                flash("Score must be between 0 and 10.", "error")
+            score_raw = request.form.get("score")
+            comments = (request.form.get("comments") or "").strip()
+            company_id = request.form.get("company_id")
+
+            if not score_raw and not comments:
+                flash("Add at least a score or a comment.", "error")
                 return redirect(url_for("main.paper_detail", paper_id=paper_id))
 
-        company_obj = None
-        if company_id:
-            company_obj = Company.query.get(int(company_id))
+            score_value = None
+            if score_raw:
+                try:
+                    score_value = float(score_raw)
+                except ValueError:
+                    flash("Score must be a number between 0 and 10.", "error")
+                    return redirect(url_for("main.paper_detail", paper_id=paper_id))
 
-        review = Review(
-            paper_id=paper.paper_id,
-            reviewer_id=session.get("user_id"),
-            company_id=company_obj.company_id if company_obj else None,
-            score=score_value,
-            comments=comments,
+                if score_value < 0 or score_value > 10:
+                    flash("Score must be between 0 and 10.", "error")
+                    return redirect(url_for("main.paper_detail", paper_id=paper_id))
+
+            company_obj = None
+            if company_id:
+                company_obj = Company.query.get(int(company_id))
+
+            review = Review(
+                paper_id=paper.paper_id,
+                reviewer_id=session.get("user_id"),
+                company_id=company_obj.company_id if company_obj else None,
+                score=score_value,
+                comments=comments,
+            )
+            db.session.add(review)
+            db.session.commit()
+
+            flash("Review gepubliceerd en zichtbaar voor iedereen.", "success")
+            return redirect(url_for("main.paper_detail", paper_id=paper.paper_id))
+
+        scored = [r.score for r in paper.reviews if r.score is not None]
+        average_score = round(sum(scored) / len(scored), 1) if scored else None
+        score_count = len(scored)
+        reviews_sorted = sorted(paper.reviews, key=lambda r: r.date_submitted, reverse=True)
+
+        return render_template(
+            "paper_detail.html",
+            title=paper.title,
+            paper=paper,
+            companies=companies,
+            can_review=can_review,
+            average_score=average_score,
+            score_count=score_count,
+            reviews_sorted=reviews_sorted,
+            offline=False,
+            offline_error=None,
         )
-        db.session.add(review)
-        db.session.commit()
+    except Exception:
+        # Offline/demo fallback for detail page
+        demo_companies = [SimpleNamespace(company_id=i + 1, name=c["name"]) for i, c in enumerate(DEMO_COMPANIES)]
+        demo_company_lookup = {c.name: c for c in demo_companies}
 
-        flash("Review gepubliceerd en zichtbaar voor iedereen.", "success")
-        return redirect(url_for("main.paper_detail", paper_id=paper.paper_id))
+        # Map paper_id to demo paper (1..n)
+        if paper_id < 1 or paper_id > len(DEMO_PAPERS):
+            abort(404)
 
-    scored = [r.score for r in paper.reviews if r.score is not None]
-    average_score = round(sum(scored) / len(scored), 1) if scored else None
-    score_count = len(scored)
-    reviews_sorted = sorted(paper.reviews, key=lambda r: r.date_submitted, reverse=True)
+        p = DEMO_PAPERS[paper_id - 1]
+        company_link = SimpleNamespace(company=demo_company_lookup.get(p["company"]))
+        paper_obj = SimpleNamespace(
+            paper_id=paper_id,
+            title=p["title"],
+            abstract=p["abstract"],
+            research_domain=p["research_domain"],
+            upload_date=None,
+            file_path=p["file_path"],
+            author=SimpleNamespace(name="Demo Author"),
+            reviews=[],
+            companies=[company_link],
+            user_id=0,
+        )
 
-    return render_template(
-        "paper_detail.html",
-        title=paper.title,
-        paper=paper,
-        companies=companies,
-        can_review=can_review,
-        average_score=average_score,
-        score_count=score_count,
-        reviews_sorted=reviews_sorted,
-    )
+        # fallback review snippets
+        sample_review = None
+        if paper_id == 1:
+            sample_review = SimpleNamespace(
+                score=9.1,
+                comments="Sterk stuk: robuuste sim-to-real pipeline en duidelijke metrics.",
+                reviewer=SimpleNamespace(name="Guest Reviewer"),
+                company=demo_company_lookup.get("Atlas Robotics"),
+                date_submitted=None,
+            )
+        elif paper_id == 2:
+            sample_review = SimpleNamespace(
+                score=8.7,
+                comments="Graph representaties leveren duidelijk betere biotech affiniteit.",
+                reviewer=SimpleNamespace(name="Venture Partner"),
+                company=demo_company_lookup.get("BioNexus Labs"),
+                date_submitted=None,
+            )
+
+        reviews_sorted = [sample_review] if sample_review else []
+        average_score = sample_review.score if sample_review else None
+        score_count = 1 if sample_review else 0
+
+        return render_template(
+            "paper_detail.html",
+            title=paper_obj.title,
+            paper=paper_obj,
+            companies=demo_companies,
+            can_review=False,
+            average_score=average_score,
+            score_count=score_count,
+            reviews_sorted=reviews_sorted,
+            offline=True,
+            offline_error="Database niet bereikbaar – tonen demo detail. Review indienen is tijdelijk uitgeschakeld.",
+        )
 # ---------------------------------------------------
 # ADD COMPANY
 # ---------------------------------------------------

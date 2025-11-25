@@ -21,8 +21,14 @@ def create_app():
     with app.app_context():
         from .routes import main
         app.register_blueprint(main)
-        # For local SQLite fallback, ensure tables exist without needing Alembic
-        if app.config["SQLALCHEMY_DATABASE_URI"].startswith("sqlite"):
-            db.create_all()
+
+        # CLI helper to seed demo data into the currently configured database
+        @app.cli.command("seed_demo")
+        def seed_demo():
+            """Seed the demo papers/companies/reviews in the active database."""
+            from .routes import ensure_demo_content
+            ensure_demo_content()
+            print("Demo content ensured.")
 
     return app
+

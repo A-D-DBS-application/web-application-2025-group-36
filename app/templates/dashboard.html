@@ -43,6 +43,12 @@
   </div>
 </section>
 
+{% if offline %}
+  <div class="mt-4 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl">
+    {{ offline_error }}
+  </div>
+{% endif %}
+
 <!-- FILTERS -->
 <form method="get" class="mt-8 bg-white border border-gray-200 rounded-2xl shadow-sm p-6 grid md:grid-cols-5 gap-4">
   <div class="md:col-span-2">
@@ -86,9 +92,9 @@
   </div>
 
   <div class="md:col-span-5 flex flex-wrap gap-3 justify-end">
-    <a href="{{ url_for('main.dashboard') }}" class="px-4 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition">Reset filters</a>
-    <button type="submit" class="px-5 py-3 bg-accent text-white rounded-xl font-semibold hover:bg-teal-600 transition">Filter toepassen</button>
-  </div>
+          <a href="{{ url_for('main.dashboard') }}" class="px-4 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition">Reset filters</a>
+          <button type="submit" class="px-5 py-3 bg-accent text-white rounded-xl font-semibold hover:bg-teal-600 transition" {% if offline %}disabled class="opacity-60 cursor-not-allowed"{% endif %}>Filter toepassen</button>
+        </div>
 </form>
 
 <!-- PAPERS GRID -->

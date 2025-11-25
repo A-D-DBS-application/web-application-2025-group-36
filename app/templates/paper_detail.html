@@ -9,6 +9,11 @@
 
 <section class="bg-white border border-gray-200 rounded-3xl shadow-xl overflow-hidden">
   <div class="bg-gradient-to-r from-accent/10 via-white to-blue-50 p-10 flex flex-col gap-4">
+    {% if offline %}
+      <div class="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl">
+        {{ offline_error }}
+      </div>
+    {% endif %}
     <div class="flex flex-wrap gap-3 items-center">
       <span class="px-3 py-1 text-xs font-semibold rounded-full bg-accent text-white">Scorebaar paper</span>
       <span class="px-3 py-1 text-xs font-semibold rounded-full bg-white text-accent border border-accent">{{ paper.research_domain }}</span>
@@ -82,7 +87,7 @@
         <h3 class="text-xl font-bold mb-2">Review / score</h3>
         <p class="text-sm text-gray-200 mb-4">Als reviewer of company kan je een score op 10 geven en een comment plaatsen. Dit blijft voor iedereen zichtbaar.</p>
 
-        {% if can_review %}
+        {% if can_review and not offline %}
           <form method="post" class="space-y-4">
             <div>
               <label class="text-sm text-gray-200">Score (0-10)</label>
@@ -110,11 +115,15 @@
           </form>
         {% else %}
           <div class="bg-white text-gray-800 rounded-xl p-4">
-            <p class="font-semibold">Login als reviewer of company om te scoren.</p>
-            <div class="flex gap-2 mt-3">
-              <a href="{{ url_for('main.login') }}" class="px-4 py-2 bg-accent text-white rounded-lg font-semibold hover:bg-teal-600 transition">Login</a>
-              <a href="{{ url_for('main.register') }}" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg font-semibold hover:bg-gray-200 transition">Registreer</a>
-            </div>
+            {% if offline %}
+              <p class="font-semibold">Offline demo: review indienen staat tijdelijk uit.</p>
+            {% else %}
+              <p class="font-semibold">Login als reviewer of company om te scoren.</p>
+              <div class="flex gap-2 mt-3">
+                <a href="{{ url_for('main.login') }}" class="px-4 py-2 bg-accent text-white rounded-lg font-semibold hover:bg-teal-600 transition">Login</a>
+                <a href="{{ url_for('main.register') }}" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg font-semibold hover:bg-gray-200 transition">Registreer</a>
+              </div>
+            {% endif %}
           </div>
         {% endif %}
       </div>
