@@ -1,11 +1,13 @@
 import os  
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DEFAULT_SQLITE = os.path.join(os.path.abspath(os.path.join(BASE_DIR, "..")), "database", "app.db")
 
 
 class Config:
     SECRET_KEY = '9e4a1f6c2b8d4f0a7c3e9bd12a4f8c6e5d1f0a3b7e9c4d2f1a6b3c8e7d9f2a1'
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:3R9TrLYvLG7lIx7Y@db.ebokqkhwotfewvpsfemj.supabase.co:5432/postgres'
+    # Use DATABASE_URL if set, otherwise fall back to local SQLite
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", f"sqlite:///{DEFAULT_SQLITE}")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "papers")

@@ -25,7 +25,7 @@
         <p class="text-2xl font-bold text-gray-900">{{ domains|length }}</p>
       </div>
       <div class="bg-white/70 border border-gray-200 rounded-2xl p-4">
-        <p class="text-xs text-gray-500">Companies</p>
+        <p class="text-xs text-gray-500">Research facilities</p>
         <p class="text-2xl font-bold text-gray-900">{{ companies|length }}</p>
       </div>
       <div class="bg-white/70 border border-gray-200 rounded-2xl p-4">
@@ -68,9 +68,9 @@
   </div>
 
   <div>
-    <label class="text-sm text-gray-600">Company</label>
+    <label class="text-sm text-gray-600">Research facility</label>
     <select name="company" class="w-full mt-2 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent text-black bg-white">
-      <option value="" {% if not selected_company %}selected{% endif %}>Alle companies</option>
+      <option value="" {% if not selected_company %}selected{% endif %}>Alle research facilities</option>
       {% for company in companies %}
         <option value="{{ company.name }}" {% if selected_company == company.name %}selected{% endif %}>{{ company.name }}</option>
       {% endfor %}
@@ -125,10 +125,10 @@
         <div class="flex flex-wrap gap-2">
           {% if p.companies %}
             {% for link in p.companies %}
-              <span class="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700 border border-gray-200">🏢 {{ link.company.name }}</span>
+              <span class="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700 border border-gray-200">🏥 Research facility: {{ link.company.name }}</span>
             {% endfor %}
           {% else %}
-            <span class="px-3 py-1 text-xs rounded-full bg-gray-50 text-gray-500 border border-dashed border-gray-200">Nog geen company gelinkt</span>
+            <span class="px-3 py-1 text-xs rounded-full bg-gray-50 text-gray-500 border border-dashed border-gray-200">Nog geen research facility aangegeven</span>
           {% endif %}
         </div>
 

@@ -190,25 +190,166 @@ def allowed_file(filename):
 # ---------------------------------------------------
 DEMO_PAPERS = [
     {
-        "title": "Learning Dexterous In-Hand Manipulation",
-        "abstract": "OpenAI's robotics team demonstrates how deep reinforcement learning can master in-hand object reorientation on a Shadow Dexterous Hand, with sim-to-real transfer and domain randomization.",
-        "file_path": "https://arxiv.org/pdf/1808.00177.pdf",
-        "research_domain": "Robotics",
-        "company": "Atlas Robotics"
+        "title": "Attention Is All You Need",
+        "abstract": "Introduce the Transformer architecture based solely on attention mechanisms, achieving state-of-the-art results in machine translation.",
+        "file_path": "https://arxiv.org/pdf/1706.03762.pdf",
+        "research_domain": "AI",
+        "company": "Google Brain Research",
     },
     {
-        "title": "GraphDTA: prediction of drug-target binding affinity using graph convolutional networks",
-        "abstract": "GraphDTA replaces molecular fingerprints with graph neural networks to predict binding affinity, improving biotech screening pipelines with end-to-end learned representations.",
-        "file_path": "https://arxiv.org/pdf/1912.07047.pdf",
+        "title": "Highly accurate protein structure prediction with AlphaFold",
+        "abstract": "Deep learning system predicts 3D protein structures at atomic accuracy, transforming structural biology.",
+        "file_path": "https://arxiv.org/pdf/2104.05514.pdf",
         "research_domain": "Biotech",
-        "company": "BioNexus Labs"
+        "company": "DeepMind Research Lab",
+    },
+    {
+        "title": "Graph Attention Networks",
+        "abstract": "Applies masked self-attentional layers to graph-structured data, improving graph classification and node prediction.",
+        "file_path": "https://arxiv.org/pdf/1710.10903.pdf",
+        "research_domain": "AI",
+        "company": "ETH Zurich AI Center",
+    },
+    {
+        "title": "Proximal Policy Optimization Algorithms",
+        "abstract": "Simplified policy gradient method with clipped objectives for stable and efficient reinforcement learning.",
+        "file_path": "https://arxiv.org/pdf/1707.06347.pdf",
+        "research_domain": "Robotics",
+        "company": "OpenAI Robotics Lab",
+    },
+    {
+        "title": "NeRF: Representing Scenes as Neural Radiance Fields",
+        "abstract": "Neural radiance fields enable photorealistic novel view synthesis from sparse 2D images.",
+        "file_path": "https://arxiv.org/pdf/2003.08934.pdf",
+        "research_domain": "AI",
+        "company": "UC Berkeley Visual Computing Lab",
+    },
+    {
+        "title": "Neural Ordinary Differential Equations",
+        "abstract": "Continuous-depth neural networks parameterized by ODEs for memory-efficient models and generative flows.",
+        "file_path": "https://arxiv.org/pdf/1806.07366.pdf",
+        "research_domain": "Data & Analytics",
+        "company": "Vector Institute",
+    },
+    {
+        "title": "Learning Transferable Visual Models From Natural Language Supervision",
+        "abstract": "CLIP aligns vision and language via contrastive pretraining, enabling zero-shot recognition.",
+        "file_path": "https://arxiv.org/pdf/2103.00020.pdf",
+        "research_domain": "AI",
+        "company": "Stanford AI Lab",
+    },
+    {
+        "title": "Sim-to-Real Transfer of Robotic Control with Dynamics Randomization",
+        "abstract": "Policy trained in simulation transfers to real robots by randomizing physical parameters.",
+        "file_path": "https://arxiv.org/pdf/1710.06537.pdf",
+        "research_domain": "Robotics",
+        "company": "Carnegie Mellon Robotics Institute",
+    },
+    {
+        "title": "FlashAttention: Fast and Memory-Efficient Exact Attention",
+        "abstract": "IO-aware attention algorithm accelerates Transformers while preserving exactness.",
+        "file_path": "https://arxiv.org/pdf/2205.14135.pdf",
+        "research_domain": "AI",
+        "company": "MIT CSAIL",
+    },
+    {
+        "title": "Large Language Models are Zero-Shot Reasoners",
+        "abstract": "Shows chain-of-thought prompting unlocks reasoning capabilities in large language models.",
+        "file_path": "https://arxiv.org/pdf/2205.11916.pdf",
+        "research_domain": "AI",
+        "company": "Google Brain Research",
+    },
+    {
+        "title": "Quantum Approximate Optimization Algorithm",
+        "abstract": "QAOA provides a quantum-classical variational approach for combinatorial optimization.",
+        "file_path": "https://arxiv.org/pdf/1411.4028.pdf",
+        "research_domain": "Quantum",
+        "company": "Caltech Quantum Science Center",
+    },
+    {
+        "title": "AlphaStar: Grandmaster level in StarCraft II using multi-agent reinforcement learning",
+        "abstract": "Multi-agent RL system reaches grandmaster level in a complex real-time strategy game.",
+        "file_path": "https://arxiv.org/pdf/1907.01083.pdf",
+        "research_domain": "AI",
+        "company": "DeepMind Research Lab",
+    },
+    {
+        "title": "Physics-Informed Neural Networks: A Deep Learning Framework for Solving Forward and Inverse Problems",
+        "abstract": "PINNs embed physical laws into neural networks for simulation and control.",
+        "file_path": "https://arxiv.org/pdf/1711.10561.pdf",
+        "research_domain": "Energy",
+        "company": "Imperial College Energy Futures Lab",
+    },
+    {
+        "title": "Spatiotemporal Graph Convolutional Networks: A Deep Learning Framework for Traffic Forecasting",
+        "abstract": "ST-GCN captures spatial and temporal correlations for accurate traffic prediction.",
+        "file_path": "https://arxiv.org/pdf/1709.04875.pdf",
+        "research_domain": "Mobility",
+        "company": "Tsinghua Future Mobility Center",
+    },
+    {
+        "title": "Masked Autoencoders Are Scalable Vision Learners",
+        "abstract": "MAE demonstrates simple masked pretraining yields strong vision representations.",
+        "file_path": "https://arxiv.org/pdf/2111.06377.pdf",
+        "research_domain": "AI",
+        "company": "Max Planck Institute for Intelligent Systems",
+    },
+    {
+        "title": "SLAC: Stochastic Latent Actor-Critic",
+        "abstract": "Model-based RL with stochastic latent variables enables sample-efficient control.",
+        "file_path": "https://arxiv.org/pdf/1910.01083.pdf",
+        "research_domain": "Robotics",
+        "company": "TU Delft Robotics Institute",
+    },
+    {
+        "title": "Quantum Supremacy Using a Programmable Superconducting Processor",
+        "abstract": "Demonstration of a quantum processor performing a task beyond classical feasibility.",
+        "file_path": "https://arxiv.org/pdf/1910.11333.pdf",
+        "research_domain": "Quantum",
+        "company": "NASA Jet Propulsion Laboratory",
+    },
+    {
+        "title": "Training language models to follow instructions with human feedback",
+        "abstract": "Introduces InstructGPT, fine-tuning with RLHF to align models to human intent.",
+        "file_path": "https://arxiv.org/pdf/2203.02155.pdf",
+        "research_domain": "AI",
+        "company": "OpenAI Alignment Lab",
+    },
+    {
+        "title": "Denoising Diffusion Probabilistic Models",
+        "abstract": "Diffusion models achieve high-quality image synthesis through iterative denoising.",
+        "file_path": "https://arxiv.org/pdf/2006.11239.pdf",
+        "research_domain": "AI",
+        "company": "UCL Centre for AI in Healthcare",
+    },
+    {
+        "title": "Neural Radiance Fields in the Wild",
+        "abstract": "Extends NeRF to handle unbounded real-world scenes with appearance variability.",
+        "file_path": "https://arxiv.org/pdf/2008.02268.pdf",
+        "research_domain": "AI",
+        "company": "EPFL Neuroengineering Lab",
     },
 ]
 
 DEMO_COMPANIES = [
-    {"name": "Atlas Robotics", "industry": "Autonomous systems"},
-    {"name": "BioNexus Labs", "industry": "Biotech & drug discovery"},
-    {"name": "Aether Insight", "industry": "AI research collective"},
+    {"name": "Google Brain Research", "industry": "AI research"},
+    {"name": "DeepMind Research Lab", "industry": "AI & biotech"},
+    {"name": "ETH Zurich AI Center", "industry": "AI research"},
+    {"name": "OpenAI Robotics Lab", "industry": "Robotics"},
+    {"name": "UC Berkeley Visual Computing Lab", "industry": "Computer vision"},
+    {"name": "Vector Institute", "industry": "ML research"},
+    {"name": "Stanford AI Lab", "industry": "AI research"},
+    {"name": "Carnegie Mellon Robotics Institute", "industry": "Robotics"},
+    {"name": "MIT CSAIL", "industry": "Computer science"},
+    {"name": "Caltech Quantum Science Center", "industry": "Quantum"},
+    {"name": "Imperial College Energy Futures Lab", "industry": "Energy & climate"},
+    {"name": "Tsinghua Future Mobility Center", "industry": "Mobility"},
+    {"name": "Max Planck Institute for Intelligent Systems", "industry": "AI & robotics"},
+    {"name": "TU Delft Robotics Institute", "industry": "Robotics"},
+    {"name": "NASA Jet Propulsion Laboratory", "industry": "Space & quantum"},
+    {"name": "OpenAI Alignment Lab", "industry": "AI alignment"},
+    {"name": "UCL Centre for AI in Healthcare", "industry": "Healthcare AI"},
+    {"name": "EPFL Neuroengineering Lab", "industry": "Neuroscience"},
 ]
 
 def ensure_demo_content():
@@ -286,17 +427,17 @@ def ensure_demo_content():
     sample_reviews = [
         {
             "paper_title": DEMO_PAPERS[0]["title"],
-            "score": 9.1,
-            "comments": "Sterk stuk: robuuste sim-to-real pipeline en duidelijke metrics. Zou meteen een POC willen draaien in onze productielijn.",
+            "score": 9.2,
+            "comments": "Transformer paper die alles versimpelt en schaalbaar maakt. Research facility support was uitstekend.",
             "reviewer": demo_reviewer,
-            "company": company_map["Atlas Robotics"],
+            "company": company_map.get("Google Brain Research"),
         },
         {
             "paper_title": DEMO_PAPERS[1]["title"],
-            "score": 8.7,
-            "comments": "Veelbelovende biotech stack; graph representaties geven betere precisie. Interesse in samenwerking voor FTI screening.",
+            "score": 9.5,
+            "comments": "AlphaFold blijft baanbrekend: indrukwekkende accuratesse vanuit de DeepMind facility.",
             "reviewer": demo_founder,
-            "company": company_map["BioNexus Labs"],
+            "company": company_map.get("DeepMind Research Lab"),
         },
     ]
 
@@ -325,7 +466,20 @@ def ensure_demo_content():
     if created:
         db.session.commit()
 
-POPULAR_DOMAINS = ["AI", "Robotics", "Biotech", "Climate", "Security", "Data & Analytics"]
+POPULAR_DOMAINS = [
+    "AI",
+    "Robotics",
+    "Biotech",
+    "Climate",
+    "Energy",
+    "Security",
+    "Data & Analytics",
+    "Quantum",
+    "Neuroscience",
+    "Materials",
+    "Mobility",
+    "Space",
+]
 # ---------------------------------------------------
 # UPLOAD PAPER – alleen Researcher
 # ---------------------------------------------------
@@ -725,18 +879,18 @@ def paper_detail(paper_id):
         sample_review = None
         if paper_id == 1:
             sample_review = SimpleNamespace(
-                score=9.1,
-                comments="Sterk stuk: robuuste sim-to-real pipeline en duidelijke metrics.",
+                score=9.2,
+                comments="Transformer paper met sterke research facility support, blijft een klassieker.",
                 reviewer=SimpleNamespace(name="Guest Reviewer"),
-                company=demo_company_lookup.get("Atlas Robotics"),
+                company=demo_company_lookup.get("Google Brain Research"),
                 date_submitted=None,
             )
         elif paper_id == 2:
             sample_review = SimpleNamespace(
-                score=8.7,
-                comments="Graph representaties leveren duidelijk betere biotech affiniteit.",
+                score=9.5,
+                comments="AlphaFold blijft een doorbraak vanuit DeepMind Research Lab.",
                 reviewer=SimpleNamespace(name="Venture Partner"),
-                company=demo_company_lookup.get("BioNexus Labs"),
+                company=demo_company_lookup.get("DeepMind Research Lab"),
                 date_submitted=None,
             )
 
