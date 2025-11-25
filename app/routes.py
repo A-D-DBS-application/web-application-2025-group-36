@@ -945,3 +945,13 @@ def add_company():
 def list_companies():
     companies = Company.query.all()
     return render_template("list_companies.html", title="Companies", companies=companies)
+
+# ---------------------------------------------------
+# Profile Page (under construction)
+# ---------------------------------------------------
+@main.route("/profile")
+def profile():
+    if not session.get("user_id"):
+        return redirect(url_for("main.login"))
+
+    return render_template("profile.html", title="Profile")
