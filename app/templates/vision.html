@@ -1,40 +1,72 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="max-w-4xl">
+<!-- HERO SECTION -->
+<section class="w-full py-20">
+  <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
 
-  <!-- TITLE -->
-  <h1 class="text-4xl font-extrabold mb-6 text-gray-900">
-    Onze <span class="text-teal-500">Visie</span>
-  </h1>
+    <!-- TEXT -->
+    <div>
+      <h1 class="text-5xl font-extrabold text-gray-900 leading-tight mb-6">
+        Bridging the Gap Between <span class="text-teal-500">Science</span> & <span class="text-teal-500">Industry</span>
+      </h1>
 
-  <p class="text-gray-700 leading-relaxed mb-10">
-    Bij <span class="text-teal-500 font-semibold">REVIEWR</span> geloven we dat kennis pas écht sterk wordt wanneer ze gedeeld wordt.
-    Vandaag bestaan er duizenden waardevolle papers, maar vinden bedrijven ze niet — of te laat.
-    Onderzoekers hebben moeite om impact te maken buiten de academische wereld.
-    Wij willen deze kloof sluiten.
+      <p class="text-gray-700 text-lg leading-relaxed mb-8">
+        At <span class="font-semibold text-teal-500">REVIEWR</span>, we help researchers share their insights and help companies
+        find the scientific knowledge they need — faster and more efficiently.
+      </p>
+
+      <div class="flex gap-4">
+        <a href="/register"
+           class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-lg hover:bg-teal-600 transition">
+          Get Started
+        </a>
+        <a href="/about"
+           class="px-6 py-3 border border-teal-500 text-teal-500 font-semibold rounded-lg hover:bg-teal-50 transition">
+          Learn More
+        </a>
+      </div>
+    </div>
+
+    <!-- IMAGE -->
+    <div class="flex justify-center">
+      <img
+        src="https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1200&q=80"
+        alt="Scientific collaboration"
+        class="rounded-2xl shadow-xl w-full"
+      >
+    </div>
+
+  </div>
+</section>
+
+<!-- REST OF YOUR CONTENT -->
+<section class="max-w-4xl mx-auto py-10">
+  <!-- Vision -->
+  <h2 class="text-3xl font-bold mb-4 text-teal-500">Our Vision</h2>
+  <p class="text-gray-700 mb-10">
+    We believe that knowledge becomes truly powerful only when it is shared.
+    Thousands of valuable papers exist, yet companies often fail to find them — or find them too late.
+    Researchers struggle to make an impact outside the academic world. We want to bridge this gap.
   </p>
 
-  <!-- MISSION -->
-  <h2 class="text-3xl font-bold mt-12 mb-4 text-teal-500">Onze Missie</h2>
-  <p class="text-gray-700 mb-4">
-    Een platform bouwen dat onderzoekers en bedrijven samenbrengt, zodat:
-  </p>
+  <!-- Mission -->
+  <h2 class="text-3xl font-bold mb-4 text-teal-500">Our Mission</h2>
+  <p class="text-gray-700 mb-4">To build a platform that connects researchers and companies so that:</p>
 
-  <ul class="text-gray-700 list-disc pl-6 space-y-2">
-    <li>bedrijven sneller relevante wetenschappelijke inzichten vinden,</li>
-    <li>onderzoekers hun impact vergroten,</li>
-    <li>samenwerkingen sneller ontstaan en groeien,</li>
-    <li>innovatie wordt versneld op grote schaal.</li>
+  <ul class="text-gray-700 list-disc pl-6 space-y-2 mb-10">
+    <li>companies can find relevant scientific insights more quickly,</li>
+    <li>researchers can increase their real-world impact,</li>
+    <li>collaborations form and grow more easily,</li>
+    <li>innovation accelerates at scale.</li>
   </ul>
 
-  <!-- FUTURE -->
-  <h2 class="text-3xl font-bold mt-12 mb-4 text-teal-500">De Toekomst</h2>
-  <p class="text-gray-700 leading-relaxed">
-    We bouwen aan een ecosysteem waar wetenschap en industrie elkaar vanzelf vinden,
-    dankzij slimme matching, transparante recensies en een sterke community.
+  <!-- Future -->
+  <h2 class="text-3xl font-bold mb-4 text-teal-500">The Future</h2>
+  <p class="text-gray-700">
+    We are building an ecosystem where science and industry naturally find each other,
+    powered by intelligent matching, transparent reviews, and a strong community.
   </p>
-
-</div>
+</section>
 
 {% endblock %}
