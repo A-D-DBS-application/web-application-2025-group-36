@@ -103,6 +103,12 @@
                  @click.outside="open = false"
                  class="absolute right-0 mt-3 w-52 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50">
 
+              <!-- VIEW PROFILE (NEW) -->
+              <a href="{{ url_for('main.profile') }}"
+                 class="block px-4 py-2 text-gray-700 hover:bg-teal-50 hover:text-accent transition">
+                 View Profile
+              </a>
+
               {% if session.get('user_role') in ["System/Admin", "Founder"] %}
                 <a href="{{ url_for('main.add_company') }}"
                    class="block px-4 py-2 text-gray-700 hover:bg-teal-50 hover:text-accent transition">
