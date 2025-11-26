@@ -470,11 +470,22 @@ def about():
     return render_template("about.html", title="About")
 
 # ---------------------------------------------------
-# Profile Page (under construction)
+# Profile Page
 # ---------------------------------------------------
 @main.route("/profile")
 def profile():
-    if not session.get("user_id"):
+    user_id = session.get("user_id")
+    if not user_id:
         return redirect(url_for("main.login"))
 
-    return render_template("profile.html", title="Profile")
+    user = User.query.get(user_id)
+
+    papers_count = len(user.papers)
+    reviews_count = len(user.reviews)
+
+    return render_template(
+        "profile.html",
+        user=user,
+        papers_count=papers_count,
+        reviews_count=reviews_count
+    )
