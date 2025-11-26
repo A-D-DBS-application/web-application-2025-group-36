@@ -14,6 +14,8 @@
         {{ offline_error }}
       </div>
     {% endif %}
+
+    <!-- PAPER INFO & ACTIONS -->
     <div class="flex flex-wrap gap-3 items-center">
       <span class="px-3 py-1 text-xs font-semibold rounded-full bg-accent text-white">Scorebaar paper</span>
       <span class="px-3 py-1 text-xs font-semibold rounded-full bg-white text-accent border border-accent">{{ paper.research_domain }}</span>
@@ -21,16 +23,42 @@
         <span class="px-3 py-1 text-xs rounded-full bg-white text-gray-800 border border-gray-200">🏥 Research facility: {{ link.company.name }}</span>
       {% endfor %}
     </div>
+
     <h1 class="text-4xl font-extrabold text-gray-900 leading-tight">{{ paper.title }}</h1>
     <p class="text-gray-600 max-w-4xl">{{ paper.abstract }}</p>
-    <div class="flex flex-wrap gap-3">
-      <a href="{{ pdf_url }}" target="_blank" class="px-5 py-3 bg-accent text-white rounded-xl font-semibold hover:bg-teal-600 transition">Open PDF</a>
-      <a href="{{ url_for('main.dashboard') }}" class="px-5 py-3 bg-white border border-gray-200 text-gray-800 rounded-xl font-semibold hover:bg-gray-100 transition">← Terug naar archief</a>
+
+    <!-- BUTTONS -->
+<div class="flex flex-wrap gap-3 mt-4 items-center">
+  <!-- Links: PDF + Terug -->
+  <a href="{{ pdf_url }}" target="_blank" class="px-5 py-3 bg-accent text-white rounded-xl font-semibold hover:bg-teal-600 transition">
+    Open PDF
+  </a>
+  <a href="{{ url_for('main.dashboard') }}" class="px-5 py-3 bg-white border border-gray-200 text-gray-800 rounded-xl font-semibold hover:bg-gray-100 transition">
+    ← Terug naar archief
+  </a>
+
+  <!-- Rechts: Edit/Delete -->
+  {% if session.get("user_id") == paper.user_id or session.get("user_role") in ["System/Admin"] %}
+    <div class="ml-auto flex gap-3">
+      <a href="{{ url_for('main.update_paper', paper_id=paper.paper_id) }}"
+         class="px-5 py-3 bg-yellow-500 text-darkbg rounded-xl font-semibold hover:bg-accent transition">
+        Edit
+      </a>
+      <form method="POST" action="{{ url_for('main.delete_paper', paper_id=paper.paper_id) }}">
+        <button type="submit" class="px-5 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition"
+                onclick="return confirm('Weet je zeker dat je deze paper wilt verwijderen?');">
+          Delete
+        </button>
+      </form>
     </div>
+  {% endif %}
+</div>
+
   </div>
 
   <div class="p-10 grid md:grid-cols-3 gap-8">
     <div class="md:col-span-2 space-y-6">
+      <!-- PAPER STATS -->
       <div class="grid grid-cols-3 gap-4">
         <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4">
           <p class="text-xs text-gray-500">Gemiddelde score</p>
@@ -47,6 +75,7 @@
         </div>
       </div>
 
+      <!-- REVIEWS -->
       <div class="space-y-4">
         <div class="flex items-center justify-between">
           <h2 class="text-2xl font-bold text-gray-900">Openbare reviews</h2>
@@ -82,6 +111,7 @@
       </div>
     </div>
 
+    <!-- REVIEW FORM -->
     <div class="md:col-span-1">
       <div class="bg-gray-900 text-white rounded-2xl p-6 shadow-lg sticky top-32">
         <h3 class="text-xl font-bold mb-2">Review / score</h3>
@@ -132,3 +162,4 @@
 </section>
 
 {% endblock %}
+
