@@ -38,7 +38,7 @@
   </a>
 
   <!-- Rechts: Edit/Delete -->
-  {% if session.get("user_id") == paper.user_id or session.get("user_role") in ["System/Admin"] %}
+  {% if session.get("user_id") == paper.user_id or session.get("user_role") in ["System/Admin","Founder"] %}
     <div class="ml-auto flex gap-3">
       <a href="{{ url_for('main.update_paper', paper_id=paper.paper_id) }}"
          class="px-5 py-3 bg-yellow-500 text-darkbg rounded-xl font-semibold hover:bg-accent transition">
