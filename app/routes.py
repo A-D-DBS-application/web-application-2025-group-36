@@ -461,9 +461,20 @@ def add_company():
 def list_companies():
     companies = Company.query.all()
     return render_template("list_companies.html", title="Companies", companies=companies)
+
 # ---------------------------------------------------
 # ABOUT PAGE
 # ---------------------------------------------------
 @main.route("/about")
 def about():
     return render_template("about.html", title="About")
+
+# ---------------------------------------------------
+# Profile Page (under construction)
+# ---------------------------------------------------
+@main.route("/profile")
+def profile():
+    if not session.get("user_id"):
+        return redirect(url_for("main.login"))
+
+    return render_template("profile.html", title="Profile")
