@@ -4,9 +4,12 @@ from .models import db, User, Company, Paper, Review, PaperCompany
 
 from sqlalchemy import or_, func
 from sqlalchemy.orm import joinedload
+from sqlalchemy import extract
 from werkzeug.utils import secure_filename
 import os
 import time
+from collections import Counter
+from datetime import datetime
 
 main = Blueprint('main', __name__)
 
@@ -25,7 +28,48 @@ def vision():
     return render_template("vision.html", title="Vision")
 
 # ---------------------------------------------------
-# DASHBOARD / ARCHIEF
+# Helper Functions (Dashboard)
+# ---------------------------------------------------
+def get_user_domain_preferences(user):
+    """Return normalized preference scores per domain for this user."""
+    counts = Counter()
+    total = 0
+
+    for review in user.reviews:
+        if review.paper and review.paper.research_domain:
+            counts[review.paper.research_domain] += 1
+            total += 1
+
+    if total == 0:
+        return {}  # No history → no preference boost
+
+    return {domain: count / total for domain, count in counts.items()}
+
+
+def compute_paper_score(paper, user_prefs, score_map, now):
+    """Combine personalization, popularity, and recency into one score."""
+    # 1. Personalization by domain
+    domain = paper.research_domain
+    pref_score = user_prefs.get(domain, 0)
+
+    # 2. Popularity (avg review score, normalized between 0-1)
+    pop_score = 0
+    if paper.paper_id in score_map and score_map[paper.paper_id]["avg"] is not None:
+        pop_score = score_map[paper.paper_id]["avg"] / 5.0
+
+    # 3. Recency (1 if today, 0 if older than 30 days)
+    days_old = (now - paper.upload_date).days if paper.upload_date else 365
+    recency_score = max(0, 1 - (days_old / 30))
+
+    # Weighted final score
+    return (
+        0.5 * pref_score +
+        0.3 * pop_score +
+        0.2 * recency_score
+    )
+
+# ---------------------------------------------------
+# DASHBOARD
 # ---------------------------------------------------
 @main.route("/dashboard")
 def dashboard():
@@ -97,6 +141,30 @@ def dashboard():
         for row in avg_rows
     }
 
+    # ---------------------------------------------------------------------
+    #  PERSONALIZED SMART RANKING SYSTEM
+    # ---------------------------------------------------------------------
+    user_id = session.get("user_id")
+    user = User.query.get(user_id) if user_id else None
+
+    if user:
+        # 1. compute preferences from past reviews
+        prefs = get_user_domain_preferences(user)
+        now = datetime.utcnow()
+
+        # 2. compute personalized score for each paper
+        scored = [
+            (paper, compute_paper_score(paper, prefs, score_map, now))
+            for paper in papers
+        ]
+
+        # 3. sort papers DESC by personalized score
+        scored.sort(key=lambda x: x[1], reverse=True)
+
+        # 4. extract sorted papers
+        papers = [p for p, score in scored]
+
+    # domain + company filters
     domain_rows = db.session.query(Paper.research_domain).distinct().all()
     domain_filters = sorted({d.research_domain for d in domain_rows if d.research_domain})
     companies = Company.query.order_by(Company.name).all()
@@ -518,3 +586,42 @@ def edit_profile():
         return redirect(url_for("main.profile"))
 
     return render_template("edit_profile.html", user=user, title="Edit Profile")
+
+# ---------------------------------------------------
+# Stats (Algorithmic support)
+# ---------------------------------------------------
+@main.route("/stats")
+def stats():
+    total_reviews = db.session.query(Review).count()
+    total_papers = db.session.query(Paper).count()
+
+    reviews_by_weekday = (
+        db.session.query(
+            extract('dow', Review.date_submitted).label("weekday"),
+            func.count(Review.review_id)
+        )
+        .group_by(extract('dow', Review.date_submitted))
+        .order_by(extract('dow', Review.date_submitted))
+        .all()
+    )
+    weekday_map = {int(day): count for day, count in reviews_by_weekday}
+
+    papers_by_weekday = (
+        db.session.query(
+            extract('dow', Paper.upload_date).label("weekday"),
+            func.count(Paper.paper_id)
+        )
+        .group_by(extract('dow', Paper.upload_date))
+        .order_by(extract('dow', Paper.upload_date))
+        .all()
+    )
+    paper_weekday_map = {int(day): count for day, count in papers_by_weekday}
+
+    return render_template(
+        "stats.html",
+        title="Analytics Dashboard",
+        total_reviews=total_reviews,
+        total_papers=total_papers,
+        weekday_map=weekday_map,
+        paper_weekday_map=paper_weekday_map
+    )
