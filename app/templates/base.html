@@ -40,16 +40,17 @@
 
   <!-- NAVBAR -->
   <header class="w-full fixed top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-200">
-    <nav class="max-w-7xl mx-auto px-8 py-5 grid grid-cols-3 items-center text-lg">
+    <nav class="w-full px-12 py-5 flex items-center justify-between relative">
 
-      <!-- LOGO -->
+      <!-- LEFT: LOGO -->
       <a href="{{ url_for('main.index') }}"
          class="text-2xl font-extrabold tracking-wide text-gray-900 hover:text-accent transition">
         REVIEW<span class="text-accent">R</span>
       </a>
 
-      <!-- NAV LINKS -->
-      <div class="flex justify-center space-x-10 text-gray-700">
+      <!-- CENTER NAV LINKS (TRUE CENTERED) -->
+      <div class="hidden md:flex absolute left-1/2 -translate-x-1/2 space-x-12 
+                  text-gray-700 text-[17px] font-medium items-center">
 
         <a href="{{ url_for('main.index') }}"
            class="{% if request.endpoint == 'main.index' %}text-accent font-semibold{% else %}hover:text-accent{% endif %} transition">
@@ -59,6 +60,11 @@
         <a href="{{ url_for('main.dashboard') }}"
            class="{% if request.endpoint == 'main.dashboard' %}text-accent font-semibold{% else %}hover:text-accent{% endif %} transition">
            Dashboard
+        </a>
+
+        <a href="{{ url_for('main.stats') }}"
+           class="{% if request.endpoint == 'main.stats' %}text-accent font-semibold{% else %}hover:text-accent{% endif %} transition">
+           Stats
         </a>
 
         <a href="{{ url_for('main.vision') }}"
@@ -73,7 +79,7 @@
 
       </div>
 
-      <!-- RIGHT SIDE -->
+      <!-- RIGHT: USER BUTTONS -->
       <div class="flex justify-end items-center space-x-4">
 
         {% if not session.get('user_id') %}
@@ -103,7 +109,7 @@
                  @click.outside="open = false"
                  class="absolute right-0 mt-3 w-52 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50">
 
-              <!-- VIEW PROFILE (NEW) -->
+              <!-- VIEW PROFILE -->
               <a href="{{ url_for('main.profile') }}"
                  class="block px-4 py-2 text-gray-700 hover:bg-teal-50 hover:text-accent transition">
                  View Profile
