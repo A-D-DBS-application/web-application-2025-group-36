@@ -206,7 +206,7 @@ def upload_paper():
         flash("Paper uploaded successfully.", "success")
         return redirect(url_for("main.dashboard"))
 
-    return render_template("upload_paper.html", title="Upload Paper", domains=POPULAR_DOMAINS, companies=companies)
+    return render_template("upload_paper.html", title="Upload Paper", companies=companies)
 
 # ---------------------------------------------------
 # PAPER DETAIL + REVIEWS
@@ -412,7 +412,7 @@ def update_paper(paper_id):
         return redirect(url_for("main.dashboard"))
 
     companies = Company.query.order_by(Company.name).all()
-    return render_template("update_paper.html", paper=paper, title="Update Paper", domains=POPULAR_DOMAINS, companies=companies)
+    return render_template("update_paper.html", paper=paper, title="Update Paper", companies=companies)
 
 # ---------------------------------------------------
 # DELETE PAPER
@@ -461,3 +461,9 @@ def add_company():
 def list_companies():
     companies = Company.query.all()
     return render_template("list_companies.html", title="Companies", companies=companies)
+# ---------------------------------------------------
+# ABOUT PAGE
+# ---------------------------------------------------
+@main.route("/about")
+def about():
+    return render_template("about.html", title="About")
