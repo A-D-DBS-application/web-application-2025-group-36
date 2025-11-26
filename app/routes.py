@@ -489,3 +489,32 @@ def profile():
         papers_count=papers_count,
         reviews_count=reviews_count
     )
+
+# ---------------------------------------------------
+# Edit Profile
+# ---------------------------------------------------
+@main.route("/edit_profile", methods=["GET", "POST"])
+def edit_profile():
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect(url_for("main.login"))
+
+    user = User.query.get(user_id)
+
+    if request.method == "POST":
+        new_name = request.form.get("name").strip()
+        new_email = request.form.get("email").strip()
+
+        # Update user object
+        user.name = new_name
+        user.email = new_email
+        db.session.commit()
+
+        # IMPORTANT: update session so navbar updates
+        session["user_name"] = user.name
+        session["user_email"] = user.email
+
+        flash("Profile updated successfully!", "success")
+        return redirect(url_for("main.profile"))
+
+    return render_template("edit_profile.html", user=user, title="Edit Profile")
