@@ -17,10 +17,13 @@
         "manu.embo@ugent.be",
         "mauro.deslee@ugent.be"
       ] %}
-
-      {% set roles = ["Researcher", "Reviewer", "Company", "User", "Founder"] %}
+      {% set founder_email = "frederic@nowjobs.com" %}
+      {% set roles = ["Researcher", "Reviewer", "Company", "User",] %}
       {% if user.email in allowed_admins %}
         {% set _ = roles.append("System/Admin") %}
+      {% endif %}
+       {% if user.email == founder_email %}
+        {% set _ = roles.append("Founder") %}
       {% endif %}
 
       <select name="role"
