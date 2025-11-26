@@ -5,32 +5,14 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     SECRET_KEY = '9e4a1f6c2b8d4f0a7c3e9bd12a4f8c6e5d1f0a3b7e9c4d2f1a6b3c8e7d9f2a1'
-
-    # -----------------------------
-    # DATABASE CONFIG (IPv4 + IPv6)
-    # -----------------------------
-
-    # 1) Connection pooling endpoint (IPv4 → werkt WEL op Render)
-    POOLING_URL = (
-        "postgresql://postgres:3R9TrLYvLG7lIx7Y@"
-        "db.ebokqkhwotfewvpsfemj.supabase.co:6543/postgres?sslmode=require"
+    
+    # Supabase Postgres URI, via environment variable of direct hardcoded
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        "DATABASE_URL",
+        "postgresql://postgres:3R9TrLYvLG7lIx7Y@db.ebokqkhwotfewvpsfemj.supabase.co:5432/postgres"
     )
-
-    # 2) Direct database URL (IPv6 → werkt NIET op Render maar wel lokaal)
-    DIRECT_DB_URL = (
-        "postgresql://postgres:3R9TrLYvLG7lIx7Y@"
-        "db.ebokqkhwotfewvpsfemj.supabase.co:5432/postgres?sslmode=require"
-    )
-
-    # Gebruik render DATABASE_URL als die bestaat, anders fallback op pooling (ipv4)
-    SQLALCHEMY_DATABASE_URI = (
-        os.getenv("DATABASE_URL")       # Render environment variable
-        or POOLING_URL                 # Render fallback → IPv4 pooler
-        or DIRECT_DB_URL               # Local fallback
-    )
-
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # Upload folders
+    # Upload folder voor PDF papers
     UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "papers")
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB limit
