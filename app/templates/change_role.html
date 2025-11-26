@@ -9,6 +9,20 @@
 
     <div>
       <label class="text-lg font-semibold text-accent">Select new role</label>
+
+      {% set allowed_admins = [
+        "gaetan.focquet@ugent.be",
+        "emiel.vanhauwermeiren@ugent.be",
+        "thowaelk.Waelkens@ugent.be",
+        "manu.embo@ugent.be",
+        "mauro.deslee@ugent.be"
+      ] %}
+
+      {% set roles = ["Researcher", "Reviewer", "Company", "User", "Founder"] %}
+      {% if user.email in allowed_admins %}
+        {% set _ = roles.append("System/Admin") %}
+      {% endif %}
+
       <select name="role"
               class="w-full mt-2 px-4 py-2 rounded-lg bg-darkbg border border-accent/40 text-black">
         {% for r in roles %}
