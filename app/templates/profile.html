@@ -1,20 +1,104 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="bg-white border border-gray-200 p-10 rounded-2xl shadow-lg text-center">
+<div class="max-w-4xl mx-auto mt-10">
 
-  <h1 class="text-4xl font-extrabold text-gray-900 mb-4">
-    Profile Page
+  <!-- Page Title -->
+  <h1 class="text-4xl font-extrabold text-center mb-10 text-accent">
+    Your Profile
   </h1>
 
-  <p class="text-xl text-gray-600 mb-6">
-    🚧 Page under construction 🚧
-  </p>
+  <!-- Profile Card -->
+  <div class="bg-white shadow-lg p-10 rounded-2xl border border-accent/20">
 
-  <p class="text-gray-500">
-    We are working hard to bring you this feature soon.
-  </p>
+    <!-- Top Section -->
+    <div class="flex flex-col md:flex-row items-center gap-8">
 
+      <!-- Avatar -->
+      <div class="w-32 h-32 rounded-full bg-accent/20 flex items-center justify-center text-4xl font-bold text-accent">
+        {{ user.name[0:2] | upper }}
+      </div>
+
+      <!-- Profile Info -->
+      <div class="flex-1 space-y-2">
+        <h2 class="text-3xl font-bold">{{ user.name }}</h2>
+        <p class="text-gray-700"><strong>Email:</strong> {{ user.email }}</p>
+        <p class="text-gray-700"><strong>Role:</strong> {{ user.role }}</p>
+
+        <div class="flex gap-4 mt-4">
+          <a href="{{ url_for('main.change_role') }}"
+             class="px-4 py-2 bg-accent text-white rounded-xl hover:bg-accent/80">
+            Change Role
+          </a>
+          <a href="#"
+             class="px-4 py-2 bg-gray-200 rounded-xl hover:bg-gray-300 text-gray-800">
+            Edit Profile
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Divider -->
+    <div class="my-10 border-t border-gray-300"></div>
+
+    <!-- Stats Section -->
+    <h3 class="text-2xl font-bold mb-6 text-accent">Your Activity</h3>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+      <div class="bg-accent/10 p-6 rounded-xl border border-accent/20 text-center">
+        <h4 class="text-xl font-semibold text-accent">Papers Submitted</h4>
+        <p class="text-4xl font-extrabold mt-2">{{ papers_count }}</p>
+      </div>
+
+      <div class="bg-accent/10 p-6 rounded-xl border border-accent/20 text-center">
+        <h4 class="text-xl font-semibold text-accent">Reviews Written</h4>
+        <p class="text-4xl font-extrabold mt-2">{{ reviews_count }}</p>
+      </div>
+
+    </div>
+
+    <!-- Divider -->
+    <div class="my-10 border-t border-gray-300"></div>
+
+    <!-- User Papers -->
+    <h3 class="text-2xl font-bold mb-4 text-accent">Your Papers</h3>
+    {% if user.papers %}
+      <ul class="space-y-3">
+        {% for paper in user.papers %}
+          <li class="p-4 bg-gray-50 border border-accent/10 rounded-xl">
+            <strong>{{ paper.title }}</strong>
+            <span class="text-gray-500">({{ paper.upload_date.strftime('%d %b %Y') }})</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-gray-500">You haven't submitted any papers yet.</p>
+    {% endif %}
+
+    <!-- User Reviews -->
+    <h3 class="text-2xl font-bold mt-10 mb-4 text-accent">Your Reviews</h3>
+
+    {% if user.reviews %}
+      <ul class="space-y-3">
+        {% for review in user.reviews %}
+          <li class="p-4 bg-gray-50 border border-accent/10 rounded-xl">
+            <strong>Review for:</strong> {{ review.paper.title }}
+
+            {% if review.date_submitted %}
+              <span class="text-gray-500">
+                ({{ review.date_submitted.strftime('%d %b %Y') }})
+              </span>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-gray-500">You haven’t written any reviews yet.</p>
+    {% endif %}
+
+  </div>
 </div>
 
 {% endblock %}
