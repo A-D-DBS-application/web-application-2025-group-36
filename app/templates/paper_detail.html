@@ -17,7 +17,7 @@
 
     <!-- PAPER INFO & ACTIONS -->
     <div class="flex flex-wrap gap-3 items-center">
-      <span class="px-3 py-1 text-xs font-semibold rounded-full bg-accent text-white">Scorebaar paper</span>
+      <span class="px-3 py-1 text-xs font-semibold rounded-full bg-accent text-white">Scorable paper</span>
       <span class="px-3 py-1 text-xs font-semibold rounded-full bg-white text-accent border border-accent">{{ paper.research_domain }}</span>
       {% for link in paper.companies %}
         <span class="px-3 py-1 text-xs rounded-full bg-white text-gray-800 border border-gray-200">🏥 Research facility: {{ link.company.name }}</span>
@@ -29,15 +29,15 @@
 
     <!-- BUTTONS -->
 <div class="flex flex-wrap gap-3 mt-4 items-center">
-  <!-- Links: PDF + Terug -->
+  <!-- Links: PDF + Back -->
   <a href="{{ pdf_url }}" target="_blank" class="px-5 py-3 bg-accent text-white rounded-xl font-semibold hover:bg-teal-600 transition">
     Open PDF
   </a>
   <a href="{{ url_for('main.dashboard') }}" class="px-5 py-3 bg-white border border-gray-200 text-gray-800 rounded-xl font-semibold hover:bg-gray-100 transition">
-    ← Terug naar archief
+    ← Back to archive
   </a>
 
-  <!-- Rechts: Edit/Delete -->
+  <!-- Right: Edit/Delete -->
   {% if session.get("user_id") == paper.user_id or session.get("user_role") in ["System/Admin","Founder"] %}
     <div class="ml-auto flex gap-3">
       <a href="{{ url_for('main.update_paper', paper_id=paper.paper_id) }}"
@@ -46,7 +46,7 @@
       </a>
       <form method="POST" action="{{ url_for('main.delete_paper', paper_id=paper.paper_id) }}">
         <button type="submit" class="px-5 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition"
-                onclick="return confirm('Weet je zeker dat je deze paper wilt verwijderen?');">
+                onclick="return confirm('Are you sure you want to delete this paper?');">
           Delete
         </button>
       </form>
@@ -61,16 +61,16 @@
       <!-- PAPER STATS -->
       <div class="grid grid-cols-3 gap-4">
         <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4">
-          <p class="text-xs text-gray-500">Gemiddelde score</p>
+          <p class="text-xs text-gray-500">Average score</p>
           <p class="text-3xl font-extrabold text-gray-900">{{ average_score if average_score else '--' }}</p>
         </div>
         <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4">
-          <p class="text-xs text-gray-500">Aantal scores</p>
+          <p class="text-xs text-gray-500">Number of scores</p>
           <p class="text-3xl font-extrabold text-gray-900">{{ score_count }}</p>
         </div>
         <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4">
-          <p class="text-xs text-gray-500">Auteur</p>
-          <p class="text-lg font-semibold text-gray-900">{{ paper.author.name if paper.author else 'Onbekend' }}</p>
+          <p class="text-xs text-gray-500">Author</p>
+          <p class="text-lg font-semibold text-gray-900">{{ paper.author.name if paper.author else 'Unknown' }}</p>
           <p class="text-xs text-gray-500">{{ paper.upload_date.strftime('%d %b %Y') if paper.upload_date else '' }}</p>
         </div>
       </div>
@@ -78,8 +78,8 @@
       <!-- REVIEWS -->
       <div class="space-y-4">
         <div class="flex items-center justify-between">
-          <h2 class="text-2xl font-bold text-gray-900">Openbare reviews</h2>
-          <span class="text-sm text-gray-500">Iedereen ziet naam + research facility</span>
+          <h2 class="text-2xl font-bold text-gray-900">Public reviews</h2>
+          <span class="text-sm text-gray-500">Everyone can see the name and research facility</span>
         </div>
 
         {% if reviews_sorted %}
@@ -106,7 +106,9 @@
             {% endfor %}
           </div>
         {% else %}
-          <div class="border border-dashed border-gray-300 rounded-2xl p-6 text-gray-500 bg-gray-50">Nog geen reviews. Wees de eerste om te scoren.</div>
+          <div class="border border-dashed border-gray-300 rounded-2xl p-6 text-gray-500 bg-gray-50">
+            No reviews yet. Be the first to score.
+          </div>
         {% endif %}
       </div>
     </div>
@@ -115,43 +117,50 @@
     <div class="md:col-span-1">
       <div class="bg-gray-900 text-white rounded-2xl p-6 shadow-lg sticky top-32">
         <h3 class="text-xl font-bold mb-2">Review / score</h3>
-        <p class="text-sm text-gray-200 mb-4">Als reviewer of company kan je een score op 10 geven en een comment plaatsen. Dit blijft voor iedereen zichtbaar.</p>
+        <p class="text-sm text-gray-200 mb-4">
+          As a reviewer or company, you can submit a score out of 10 and leave a comment.
+          This remains visible to everyone.
+        </p>
 
         {% if can_review and not offline %}
           <form method="post" class="space-y-4">
             <div>
-              <label class="text-sm text-gray-200">Score (0-10)</label>
+              <label class="text-sm text-gray-200">Score (0–10)</label>
               <input type="number" name="score" step="0.1" min="0" max="10"
                      class="w-full mt-2 px-3 py-2 rounded-lg text-black">
             </div>
 
             <div>
               <label class="text-sm text-gray-200">Comment</label>
-              <textarea name="comments" rows="4" class="w-full mt-2 px-3 py-2 rounded-lg text-black" placeholder="Wat viel op? Wat zijn de next steps?"></textarea>
+              <textarea name="comments" rows="4" class="w-full mt-2 px-3 py-2 rounded-lg text-black" placeholder="What stood out? What are the next steps?"></textarea>
             </div>
 
             <div>
-              <label class="text-sm text-gray-200">Research facility (optioneel)</label>
+              <label class="text-sm text-gray-200">Research facility (optional)</label>
               <select name="company_id" class="w-full mt-2 px-3 py-2 rounded-lg text-black">
-                <option value="">- Geen facility koppelen -</option>
+                <option value="">- Do not link a facility -</option>
                 {% for company in companies %}
                   <option value="{{ company.company_id }}">{{ company.name }}</option>
                 {% endfor %}
               </select>
-              <p class="text-xs text-gray-300 mt-1">Toont de onderzoekslocatie bij je review, niet het bedrijf dat de paper ontvangt.</p>
+              <p class="text-xs text-gray-300 mt-1">
+                Shows the research location for your review, not the company receiving the paper.
+              </p>
             </div>
 
-            <button type="submit" class="w-full py-3 bg-accent text-gray-900 font-semibold rounded-lg hover:bg-white transition">Review publiceren</button>
+            <button type="submit" class="w-full py-3 bg-accent text-gray-900 font-semibold rounded-lg hover:bg-white transition">
+              Publish review
+            </button>
           </form>
         {% else %}
           <div class="bg-white text-gray-800 rounded-xl p-4">
             {% if offline %}
-              <p class="font-semibold">Offline demo: review indienen staat tijdelijk uit.</p>
+              <p class="font-semibold">Offline demo: submitting reviews is temporarily disabled.</p>
             {% else %}
-              <p class="font-semibold">Login als reviewer of company om te scoren.</p>
+              <p class="font-semibold">Log in as reviewer or company to score.</p>
               <div class="flex gap-2 mt-3">
                 <a href="{{ url_for('main.login') }}" class="px-4 py-2 bg-accent text-white rounded-lg font-semibold hover:bg-teal-600 transition">Login</a>
-                <a href="{{ url_for('main.register') }}" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg font-semibold hover:bg-gray-200 transition">Registreer</a>
+                <a href="{{ url_for('main.register') }}" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg font-semibold hover:bg-gray-200 transition">Register</a>
               </div>
             {% endif %}
           </div>
@@ -162,4 +171,3 @@
 </section>
 
 {% endblock %}
-

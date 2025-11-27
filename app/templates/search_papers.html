@@ -34,7 +34,7 @@
           </a>
         {% endif %}
 
-        <!-- EDIT & DELETE BUTTONS (alleen auteur of admin) -->
+        <!-- EDIT & DELETE BUTTONS (only author or admin) -->
         {% if session.get("user_id") == p.user_id or session.get("user_role") in ["System/Admin"] %}
           
           <!-- EDIT -->
@@ -48,7 +48,8 @@
                 action="{{ url_for('main.delete_paper', paper_id=p.paper_id) }}"
                 style="display:inline;">
             <button type="submit"
-                    class="inline-block mt-3 ml-2 px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition">
+                    class="inline-block mt-3 ml-2 px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
+                    onclick="return confirm('Are you sure you want to delete this paper?');">
               Delete
             </button>
           </form>
@@ -58,7 +59,7 @@
     {% endfor %}
   </div>
 {% else %}
-  <p class="text-gray-300">Er zijn nog geen papers opgeladen.</p>
+  <p class="text-gray-300">No papers have been uploaded yet.</p>
 {% endif %}
 
 {% endblock %}

@@ -200,7 +200,7 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # ---------------------------------------------------
-# UPLOAD PAPER – alleen Researcher
+# UPLOAD PAPER – alleen Researcher/Admin/Founder
 # ---------------------------------------------------
 @main.route("/upload_paper", methods=["GET", "POST"])
 def upload_paper():
@@ -208,8 +208,16 @@ def upload_paper():
         flash("Please log in first.", "error")
         return redirect(url_for("main.login"))
 
-    if session.get("user_role") != "Researcher":
-        return render_template("error_role.html", title="Access denied", required="Researcher")
+    # Allow Researcher, Founder, Admin, System
+    allowed_roles = ["Researcher", "Founder", "System/Admin"]
+
+    user_role = session.get("user_role")
+    if user_role not in allowed_roles:
+        return render_template(
+            "error_role.html",
+            title="Access denied",
+            required="Researcher"
+        )
 
     companies = Company.query.order_by(Company.name).all()
 
@@ -275,6 +283,7 @@ def upload_paper():
         return redirect(url_for("main.dashboard"))
 
     return render_template("upload_paper.html", title="Upload Paper", companies=companies)
+
 
 # ---------------------------------------------------
 # PAPER DETAIL + REVIEWS
