@@ -27,5 +27,3 @@ instance/
 Thumbs.db
 
 
-# Database migrations
-migrations/versions/

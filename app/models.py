@@ -60,12 +60,24 @@ class Paper(db.Model):
 class PaperCompany(db.Model):
     __tablename__ = "PaperCompany"
 
-    paper_id = db.Column(db.Integer, db.ForeignKey('Paper.paper_id', ondelete='CASCADE'), primary_key=True)
-    company_id = db.Column(db.Integer, db.ForeignKey('Company.company_id', ondelete='CASCADE'), primary_key=True)
+    paper_id = db.Column(
+        db.Integer,
+        db.ForeignKey('Paper.paper_id', ondelete='CASCADE'),
+        primary_key=True
+    )
+    company_id = db.Column(
+        db.Integer,
+        db.ForeignKey('Company.company_id', ondelete='CASCADE'),
+        primary_key=True
+    )
 
-    # bidirectionele relaties
+    
+    relation_type = db.Column(db.String(20), nullable=False, default="facility")
+    
+
     paper = db.relationship('Paper', back_populates='companies')
     company = db.relationship('Company', back_populates='papers')
+
 
 
 # ================================

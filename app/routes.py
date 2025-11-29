@@ -147,6 +147,24 @@ def dashboard():
     user_id = session.get("user_id")
     user = User.query.get(user_id) if user_id else None
 
+    # ---------------------------------------------------------------------
+    # COMPANY INTEREST ─ welke papers zijn al gemarkeerd door deze company?
+    # ---------------------------------------------------------------------
+    interested_ids = set()
+
+    if user and user.role == "Company":
+        # mapping: user.name == company.name
+        company = Company.query.filter_by(name=user.name).first()
+
+        if company:
+            links = PaperCompany.query.filter_by(
+                company_id=company.company_id,
+                relation_type="interest"
+            ).all()
+
+            interested_ids = {link.paper_id for link in links}
+
+
     if user:
         # 1. compute preferences from past reviews
         prefs = get_user_domain_preferences(user)
@@ -181,7 +199,10 @@ def dashboard():
         min_score=min_score_val if min_score_val is not None else "",
         sort=sort,
         query=search,
+        interested_ids=interested_ids   # <---- HIER toevoegen
     )
+
+
 
 # ---------------------------------------------------
 # SEARCH PAPERS
@@ -273,10 +294,17 @@ def upload_paper():
 
         if company_obj:
             link_exists = PaperCompany.query.filter_by(
-                paper_id=paper.paper_id, company_id=company_obj.company_id
+                paper_id=paper.paper_id,
+                company_id=company_obj.company_id,
+                relation_type="facility"
             ).first()
+
             if not link_exists:
-                db.session.add(PaperCompany(paper_id=paper.paper_id, company_id=company_obj.company_id))
+                db.session.add(PaperCompany(
+                    paper_id=paper.paper_id,
+                    company_id=company_obj.company_id,
+                    relation_type="facility"
+                ))
 
         db.session.commit()
         flash("Paper uploaded successfully.", "success")
@@ -395,17 +423,35 @@ def register():
         name = request.form.get("name")
         email = request.form.get("email")
         role = request.form.get("role")
+
         if User.query.filter_by(email=email).first():
             flash("Email already exists.", "error")
             return redirect(url_for("main.register"))
+
+        # Maak de user aan
         user = User(name=name, email=email, role=role)
         db.session.add(user)
+        db.session.flush()  # zodat user.user_id al bestaat
+
+        # Als dit een company-account is: zorg dat er een Company bestaat met die naam
+        if role == "Company":
+            existing_company = Company.query.filter_by(name=name).first()
+            if not existing_company:
+                company = Company(name=name, industry=None)
+                db.session.add(company)
+                # geen flush/commit nodig hier, komt mee in dezelfde commit
+
         db.session.commit()
+
         session["user_id"] = user.user_id
         session["user_name"] = user.name
         session["user_role"] = user.role
+
+        flash("Account created successfully.", "success")
         return redirect(url_for("main.index"))
+
     return render_template("register.html", title="Register")
+
 
 # ---------------------------------------------------
 # TEST DATABASE CONNECTION
@@ -481,8 +527,16 @@ def update_paper(paper_id):
             company_obj = Company.query.get(int(selected_company_id))
 
         if company_obj:
-            PaperCompany.query.filter_by(paper_id=paper.paper_id).delete()
-            db.session.add(PaperCompany(paper_id=paper.paper_id, company_id=company_obj.company_id))
+            PaperCompany.query.filter_by(
+                paper_id=paper.paper_id,
+                relation_type="facility"
+            ).delete()
+
+            db.session.add(PaperCompany(
+                paper_id=paper.paper_id,
+                company_id=company_obj.company_id,
+                relation_type="facility"
+            ))
 
         db.session.commit()
         flash("Paper updated successfully.", "success")
@@ -549,6 +603,9 @@ def about():
 # ---------------------------------------------------
 # Profile Page
 # ---------------------------------------------------
+# ---------------------------------------------------
+# Profile Page
+# ---------------------------------------------------
 @main.route("/profile")
 def profile():
     user_id = session.get("user_id")
@@ -557,15 +614,48 @@ def profile():
 
     user = User.query.get(user_id)
 
-    papers_count = len(user.papers)
-    reviews_count = len(user.reviews)
+    authored_papers = (
+        Paper.query
+        .filter_by(user_id=user.user_id)
+        .order_by(Paper.upload_date.desc())
+        .all()
+    )
+
+    interested_papers = []
+    company = None
+    if user.role == "Company":
+        company = Company.query.filter_by(name=user.name).first()
+        if company:
+            links = (
+                PaperCompany.query
+                .filter_by(company_id=company.company_id, relation_type="interest")
+                .join(Paper, Paper.paper_id == PaperCompany.paper_id)
+                .options(joinedload(PaperCompany.paper).joinedload(Paper.author))
+                .all()
+            )
+            interested_papers = [link.paper for link in links]
+
+    reviews = (
+        Review.query
+        .filter_by(reviewer_id=user.user_id)
+        .order_by(Review.date_submitted.desc())
+        .all()
+    )
+
+    papers_count = len(authored_papers)
+    reviews_count = len(reviews)
 
     return render_template(
         "profile.html",
         user=user,
+        company=company,
+        authored_papers=authored_papers,
+        interested_papers=interested_papers,
+        reviews=reviews,
         papers_count=papers_count,
-        reviews_count=reviews_count
+        reviews_count=reviews_count,
     )
+
 
 # ---------------------------------------------------
 # Edit Profile
@@ -634,3 +724,74 @@ def stats():
         weekday_map=weekday_map,
         paper_weekday_map=paper_weekday_map
     )
+
+@main.route("/papers/<int:paper_id>/interest", methods=["POST"])
+def toggle_interest(paper_id):
+    # Enkel companies
+    if not session.get("user_id") or session.get("user_role") != "Company":
+        flash("Only company users can mark interest.", "error")
+        return redirect(url_for("main.login"))
+
+    user = User.query.get(session["user_id"])
+
+    # simpele mapping: user.name == company.name
+    company = Company.query.filter_by(name=user.name).first()
+    if not company:
+        flash("Your account is not linked to a company (no Company with this name found).", "error")
+        return redirect(url_for("main.dashboard"))
+
+    paper = Paper.query.get_or_404(paper_id)
+
+    # bestaat er al een interest-link?
+    interest_link = PaperCompany.query.filter_by(
+        paper_id=paper.paper_id,
+        company_id=company.company_id,
+        relation_type="interest"
+    ).first()
+
+    if interest_link:
+        # interesse weghalen
+        db.session.delete(interest_link)
+        flash("Paper removed from your company's interest list.", "success")
+    else:
+        # interesse toevoegen
+        new_interest = PaperCompany(
+            paper_id=paper.paper_id,
+            company_id=company.company_id,
+            relation_type="interest"
+        )
+        db.session.add(new_interest)
+        flash("Paper marked as interesting for your company.", "success")
+
+    db.session.commit()
+    return redirect(request.referrer or url_for("main.dashboard"))
+
+@main.route("/delete_account", methods=["POST"])
+def delete_account():
+    if not session.get("user_id"):
+        flash("Please log in first.", "error")
+        return redirect(url_for("main.login"))
+
+    user = User.query.get(session["user_id"])
+    if not user:
+        session.clear()
+        return redirect(url_for("main.index"))
+
+    if user.role in ["System/Admin", "Founder"]:
+        flash("Admin accounts cannot be deleted via the UI.", "error")
+        return redirect(url_for("main.profile"))
+
+    company = None
+    if user.role == "Company":
+        company = Company.query.filter_by(name=user.name).first()
+        if company:
+            
+            PaperCompany.query.filter_by(company_id=company.company_id).delete()
+            db.session.delete(company)
+
+    db.session.delete(user)
+    db.session.commit()
+
+    session.clear()
+    flash("Your account has been deleted.", "success")
+    return redirect(url_for("main.index"))

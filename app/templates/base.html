@@ -157,6 +157,26 @@
     })
   </script>
 
+  <!-- FLASH MESSAGES -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="pt-28 px-8 max-w-4xl mx-auto space-y-2">
+        {% for category, message in messages %}
+          <div class="px-4 py-3 rounded-xl text-sm border
+                      {% if category == 'error' %}
+                        bg-red-50 text-red-700 border-red-200
+                      {% elif category == 'success' %}
+                        bg-emerald-50 text-emerald-700 border-emerald-200
+                      {% else %}
+                        bg-gray-50 text-gray-700 border-gray-200
+                      {% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
   <!-- PAGE CONTENT -->
   <main class="pt-40 pb-20 px-8 max-w-6xl mx-auto">
     {% block content %}{% endblock %}
@@ -164,3 +184,4 @@
 
 </body>
 </html>
+
