@@ -103,10 +103,34 @@
     <label class="text-sm text-gray-600">Sort</label>
     <select name="sort"
             class="w-full mt-2 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent text-black bg-white">
-      <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest first</option>
-      <option value="best" {% if sort == 'best' %}selected{% endif %}>Highest score</option>
+
+      <option value="newest" {% if sort == 'newest' %}selected{% endif %}>
+        Newest first
+      </option>
+
+      <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>
+        Oldest first
+      </option>
+
+      <option value="best" {% if sort == 'best' %}selected{% endif %}>
+        Highest score
+      </option>
+
+      <option value="a_to_z" {% if sort == 'a_to_z' %}selected{% endif %}>
+        Title A → Z
+      </option>
+
+      <option value="z_to_a" {% if sort == 'z_to_a' %}selected{% endif %}>
+        Title Z → A
+      </option>
+
+      <option value="most_reviewed" {% if sort == 'most_reviewed' %}selected{% endif %}>
+        Most reviewed
+      </option>
+
     </select>
   </div>
+
 
   <div class="md:col-span-5 flex flex-wrap gap-3 justify-end">
     <a href="{{ url_for('main.dashboard') }}"

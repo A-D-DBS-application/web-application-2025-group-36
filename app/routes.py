@@ -79,6 +79,7 @@ def dashboard():
     min_score = request.args.get("min_score", "").strip()
     sort = request.args.get("sort", "newest")
 
+    # Subquery for average score + review count
     avg_subq = (
         db.session.query(
             Review.paper_id.label("paper_id"),
@@ -89,8 +90,23 @@ def dashboard():
         .subquery()
     )
 
-    query = Paper.query
+    # Subquery for interested companies count
+    company_subq = (
+        db.session.query(
+            PaperCompany.paper_id.label("paper_id"),
+            func.count(PaperCompany.company_id).label("company_count"),
+        )
+        .group_by(PaperCompany.paper_id)
+        .subquery()
+    )
 
+    query = (
+        Paper.query
+        .outerjoin(avg_subq, Paper.paper_id == avg_subq.c.paper_id)
+        .outerjoin(company_subq, Paper.paper_id == company_subq.c.paper_id)
+    )
+
+    # Filter: search
     if search:
         query = query.filter(
             or_(
@@ -100,27 +116,48 @@ def dashboard():
             )
         )
 
+    # Filter: domain
     if selected_domain and selected_domain != "all":
         query = query.filter(Paper.research_domain.ilike(f"%{selected_domain}%"))
 
+    # Filter: company
     if selected_company:
-        query = query.join(PaperCompany).join(Company).filter(Company.name.ilike(f"%{selected_company}%"))
+        query = (
+            query.join(PaperCompany)
+                 .join(Company)
+                 .filter(Company.name.ilike(f"%{selected_company}%"))
+        )
 
-    query = query.outerjoin(avg_subq, Paper.paper_id == avg_subq.c.paper_id)
-
-    min_score_val = None
+    # Filter: minimum score
     if min_score:
         try:
             min_score_val = float(min_score)
             query = query.filter(func.coalesce(avg_subq.c.avg_score, 0) >= min_score_val)
         except ValueError:
-            min_score_val = None
+            pass
 
+    # ----------------------------------------
+    # 🔥 SORTING OPTIONS (6 total)
+    # ----------------------------------------
     if sort == "best":
         query = query.order_by(func.coalesce(avg_subq.c.avg_score, 0).desc())
-    else:
+
+    elif sort == "oldest":
+        query = query.order_by(Paper.upload_date.asc())
+
+    elif sort == "a_to_z":
+        query = query.order_by(Paper.title.asc())
+
+    elif sort == "z_to_a":
+        query = query.order_by(Paper.title.desc())
+
+    elif sort == "most_reviewed":
+        query = query.order_by(func.coalesce(avg_subq.c.score_count, 0).desc())
+
+    else:  # newest (default)
         query = query.order_by(Paper.upload_date.desc())
 
+    # Load objects
     papers = (
         query.options(
             joinedload(Paper.author),
@@ -132,7 +169,11 @@ def dashboard():
         .all()
     )
 
-    avg_rows = db.session.query(avg_subq.c.paper_id, avg_subq.c.avg_score, avg_subq.c.score_count).all()
+    # Build score map for template
+    avg_rows = db.session.query(
+        avg_subq.c.paper_id, avg_subq.c.avg_score, avg_subq.c.score_count
+    ).all()
+
     score_map = {
         row.paper_id: {
             "avg": round(float(row.avg_score), 1) if row.avg_score is not None else None,
@@ -140,6 +181,20 @@ def dashboard():
         }
         for row in avg_rows
     }
+
+    return render_template(
+        "dashboard.html",
+        papers=papers,
+        selected_domain=selected_domain,
+        selected_company=selected_company,
+        min_score=min_score,
+        score_map=score_map,
+        sort=sort,
+        search=search,
+        title="Dashboard",
+    )
+
+
 
     # ---------------------------------------------------------------------
     #  PERSONALIZED SMART RANKING SYSTEM
