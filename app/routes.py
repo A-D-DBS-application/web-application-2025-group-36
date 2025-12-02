@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 import os
 import time
 from collections import Counter
-import datetime
+from datetime import datetime
 
 main = Blueprint('main', __name__)
 
@@ -80,64 +80,63 @@ def dashboard():
     sort = request.args.get("sort", "newest")
 
     # ------------------------------
-    # SUBQUERIES: AVG SCORE + COUNT
+    # SCORE SUBQUERY
     # ------------------------------
     avg_subq = (
         db.session.query(
             Review.paper_id.label("paper_id"),
             func.avg(Review.score).label("avg_score"),
-            func.count(Review.review_id).label("score_count"),
+            func.count(Review.review_id).label("review_count")
         )
         .group_by(Review.paper_id)
         .subquery()
     )
 
-    # Count interested companies
-    company_subq = (
-        db.session.query(
-            PaperCompany.paper_id.label("paper_id"),
-            func.count(PaperCompany.company_id).label("company_count"),
-        )
-        .group_by(PaperCompany.paper_id)
-        .subquery()
-    )
-
-    # Base paper query
-    query = (
-        Paper.query
-        .outerjoin(avg_subq, Paper.paper_id == avg_subq.c.paper_id)
-        .outerjoin(company_subq, Paper.paper_id == company_subq.c.paper_id)
-    )
+    # ------------------------------
+    # BASE QUERY (NO JOINEDLOAD YET!)
+    # ------------------------------
+    query = Paper.query.outerjoin(avg_subq, Paper.paper_id == avg_subq.c.paper_id)
 
     # ------------------------------
-    # FILTERS
+    # FILTER: SEARCH
     # ------------------------------
     if search:
         query = query.filter(
             or_(
                 Paper.title.ilike(f"%{search}%"),
                 Paper.abstract.ilike(f"%{search}%"),
-                Paper.research_domain.ilike(f"%{search}%"),
+                Paper.research_domain.ilike(f"%{search}%")
             )
         )
 
-    if selected_domain and selected_domain != "all":
-        query = query.filter(Paper.research_domain.ilike(f"%{selected_domain}%"))
+    # ------------------------------
+    # FILTER: DOMAIN
+    # ------------------------------
+    if selected_domain != "all":
+        query = query.filter(Paper.research_domain == selected_domain)
 
+    # ------------------------------
+    # FILTER: COMPANY (research facility)
+    # ------------------------------
     if selected_company:
         query = (
-            query.join(PaperCompany)
-                 .join(Company)
-                 .filter(Company.name.ilike(f"%{selected_company}%"))
+            query.join(PaperCompany, PaperCompany.paper_id == Paper.paper_id)
+                 .join(Company, Company.company_id == PaperCompany.company_id)
+                 .filter(
+                    PaperCompany.relation_type == "facility",
+                    Company.name == selected_company
+                 )
         )
 
-    min_score_val = None
+    # ------------------------------
+    # FILTER: MIN SCORE
+    # ------------------------------
     if min_score:
         try:
-            min_score_val = float(min_score)
-            query = query.filter(func.coalesce(avg_subq.c.avg_score, 0) >= min_score_val)
-        except ValueError:
-            min_score_val = None
+            min_score_float = float(min_score)
+            query = query.filter(func.coalesce(avg_subq.c.avg_score, 0) >= min_score_float)
+        except:
+            pass
 
     # ------------------------------
     # SORTING
@@ -155,14 +154,14 @@ def dashboard():
         query = query.order_by(Paper.title.desc())
 
     elif sort == "most_reviewed":
-        query = query.order_by(func.coalesce(avg_subq.c.score_count, 0).desc())
+        query = query.order_by(func.coalesce(avg_subq.c.review_count, 0).desc())
 
     else:  # newest
         query = query.order_by(Paper.upload_date.desc())
 
-    # ----------------------------------------
-    # LOAD DATA
-    # ----------------------------------------
+    # ------------------------------
+    # EXECUTE QUERY WITH JOINEDLOAD
+    # ------------------------------
     papers = (
         query.options(
             joinedload(Paper.author),
@@ -170,26 +169,27 @@ def dashboard():
             joinedload(Paper.reviews).joinedload(Review.company),
             joinedload(Paper.companies).joinedload(PaperCompany.company),
         )
-        .distinct()
         .all()
     )
 
+    # ------------------------------
     # SCORE MAP
-    avg_rows = db.session.query(
-        avg_subq.c.paper_id, avg_subq.c.avg_score, avg_subq.c.score_count
-    ).all()
-
+    # ------------------------------
     score_map = {
         row.paper_id: {
-            "avg": round(float(row.avg_score), 1) if row.avg_score is not None else None,
-            "count": row.score_count,
+            "avg": round(float(row.avg_score), 1) if row.avg_score else None,
+            "count": row.review_count,
         }
-        for row in avg_rows
+        for row in db.session.query(
+            avg_subq.c.paper_id,
+            avg_subq.c.avg_score,
+            avg_subq.c.review_count
+        ).all()
     }
 
-    # ----------------------------------------
-    # 🔥 TOP 5 AI PAPERS
-    # ----------------------------------------
+    # ------------------------------
+    # TOP 5 AI PAPERS
+    # ------------------------------
     top5 = (
         Paper.query
         .filter(Paper.ai_status == "done")
@@ -198,48 +198,29 @@ def dashboard():
         .all()
     )
 
-    # ----------------------------------------
-    # COMPANY INTEREST LIST
-    # ----------------------------------------
-    user_id = session.get("user_id")
-    user = User.query.get(user_id) if user_id else None
-
+    # ------------------------------
+    # INTERESTED LIST
+    # ------------------------------
     interested_ids = set()
-
-    if user and user.role == "Company":
+    if session.get("user_role") == "Company":
+        user = User.query.get(session["user_id"])
         company = Company.query.filter_by(name=user.name).first()
         if company:
             links = PaperCompany.query.filter_by(
                 company_id=company.company_id,
                 relation_type="interest"
             ).all()
-            interested_ids = {link.paper_id for link in links}
+            interested_ids = {l.paper_id for l in links}
 
-    # ----------------------------------------
-    # PERSONALIZED RANKING
-    # ----------------------------------------
-    if user:
-        prefs = get_user_domain_preferences(user)
-        now = datetime.utcnow()
-
-        scored = [
-            (paper, compute_paper_score(paper, prefs, score_map, now))
-            for paper in papers
-        ]
-
-        scored.sort(key=lambda x: x[1], reverse=True)
-        papers = [p for p, score in scored]
-
-    # ----------------------------------------
+    # ------------------------------
     # FILTER POPULATION
-    # ----------------------------------------
-    domain_rows = db.session.query(Paper.research_domain).distinct().all()
-    domain_filters = sorted({d.research_domain for d in domain_rows if d.research_domain})
+    # ------------------------------
+    domain_filters = sorted(d.research_domain for d in db.session.query(Paper.research_domain).distinct())
     companies = Company.query.order_by(Company.name).all()
 
-    # ----------------------------------------
+    # ------------------------------
     # RENDER
-    # ----------------------------------------
+    # ------------------------------
     return render_template(
         "dashboard.html",
         title="Dashboard",
@@ -249,15 +230,12 @@ def dashboard():
         companies=companies,
         selected_domain=selected_domain,
         selected_company=selected_company,
-        min_score=min_score_val if min_score_val is not None else "",
+        min_score=min_score,
         sort=sort,
         query=search,
         interested_ids=interested_ids,
-        top5=top5,  # ⭐ TOP 5 AI PAPERS
+        top5=top5,
     )
-
-
-
 
 # ---------------------------------------------------
 # SEARCH PAPERS
