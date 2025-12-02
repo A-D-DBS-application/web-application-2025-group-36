@@ -12,6 +12,10 @@ venv/
 .env
 *.env
 
+#flaskenv
+.flaskenv
+*.flaskenv
+
 # IDE and editor settings
 .vscode/
 .idea/

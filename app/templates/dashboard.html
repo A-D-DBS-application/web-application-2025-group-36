@@ -113,7 +113,7 @@
       </option>
 
       <option value="best" {% if sort == 'best' %}selected{% endif %}>
-        Highest score
+        Best Reviews
       </option>
 
       <option value="a_to_z" {% if sort == 'a_to_z' %}selected{% endif %}>
@@ -131,7 +131,6 @@
     </select>
   </div>
 
-
   <div class="md:col-span-5 flex flex-wrap gap-3 justify-end">
     <a href="{{ url_for('main.dashboard') }}"
        class="px-4 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition">
@@ -144,6 +143,49 @@
     </button>
   </div>
 </form>
+
+<!-- TOP 5 AI PAPERS -->
+{% if top5 %}
+<div class="mt-12 bg-white border border-gray-200 rounded-2xl shadow-xl p-8">
+
+  <h2 class="text-3xl font-extrabold text-gray-900 mb-6">
+    ⭐ Top 5 AI-Analyzed Papers
+  </h2>
+
+  <div class="grid md:grid-cols-5 gap-6">
+
+    {% for p in top5 %}
+    <div class="bg-gray-50 border border-gray-200 rounded-2xl p-5 text-center shadow-sm hover:shadow-md transition">
+
+      <h3 class="font-bold text-lg text-gray-900 mb-1">
+        <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id) }}" class="hover:underline">
+          {{ p.title[:40] }}{% if p.title|length > 40 %}...{% endif %}
+        </a>
+      </h3>
+
+      <p class="text-xs text-gray-500 mb-4">{{ p.research_domain }}</p>
+
+      <div class="space-y-2">
+
+        <div class="bg-green-100 border border-green-300 p-2 rounded-lg">
+          <p class="text-xs text-gray-600">Business Score</p>
+          <p class="text-xl font-extrabold text-green-700">{{ p.ai_business_score }}</p>
+        </div>
+
+        <div class="bg-blue-100 border border-blue-300 p-2 rounded-lg">
+          <p class="text-xs text-gray-600">Academic Score</p>
+          <p class="text-xl font-extrabold text-blue-700">{{ p.ai_academic_score }}</p>
+        </div>
+
+      </div>
+
+    </div>
+    {% endfor %}
+
+  </div>
+
+</div>
+{% endif %}
 
 <!-- PAPERS GRID -->
 <div class="mt-10 grid md:grid-cols-2 gap-8">
@@ -203,10 +245,15 @@
           {% endif %}
         </div>
 
+        <!-- SCORE SECTION -->
         <div class="flex items-center gap-4">
           <div class="flex items-center gap-2">
             <div class="w-10 h-10 rounded-full bg-accent/10 border border-accent/30 flex items-center justify-center text-accent font-bold">
-              {% if stats and stats.avg is not none %}{{ stats.avg }}{% else %}--{% endif %}
+              {% if stats and stats.avg is not none %}
+                {{ stats.avg }}
+              {% else %}
+                --
+              {% endif %}
             </div>
             <div>
               <p class="text-sm font-semibold text-gray-800">Score /10</p>
@@ -217,6 +264,33 @@
             By {{ p.author.name if p.author else 'Unknown' }}
           </div>
         </div>
+
+        <!-- ⭐ AI SCORE BLOCK -->
+        {% if p.ai_status == "done" %}
+        <div class="grid grid-cols-2 gap-3 mt-4">
+
+          <div class="bg-green-50 border border-green-200 p-3 rounded-xl text-center">
+            <p class="text-xs text-gray-500">Business Score</p>
+            <p class="text-xl font-extrabold text-green-700">
+              {{ p.ai_business_score }}
+            </p>
+          </div>
+
+          <div class="bg-blue-50 border border-blue-200 p-3 rounded-xl text-center">
+            <p class="text-xs text-gray-500">Academic Score</p>
+            <p class="text-xl font-extrabold text-blue-700">
+              {{ p.ai_academic_score }}
+            </p>
+          </div>
+
+        </div>
+
+        {% elif p.ai_status == "pending" %}
+        <div class="text-xs text-gray-500 mt-3">⏳ AI analysis pending...</div>
+
+        {% else %}
+        <div class="text-xs text-gray-400 mt-3">No AI analysis yet.</div>
+        {% endif %}
 
         <div class="flex flex-wrap gap-3 mt-auto">
           <a href="{{ pdf_url }}" target="_blank"
@@ -259,7 +333,3 @@
 </div>
 
 {% endblock %}
-
-
-
-

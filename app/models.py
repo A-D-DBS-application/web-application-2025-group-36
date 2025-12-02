@@ -52,6 +52,15 @@ class Paper(db.Model):
     reviews = db.relationship('Review', backref='paper', lazy=True)
     companies = db.relationship('PaperCompany', back_populates='paper')
 
+    #AI-analysevelden
+    ai_business_score = db.Column(db.Integer)
+    ai_academic_score = db.Column(db.Integer)
+    ai_summary = db.Column(db.Text)
+    ai_strengths = db.Column(db.Text)
+    ai_weaknesses = db.Column(db.Text)
+    ai_status = db.Column(db.String(20), default="pending")
+
+
 
 
 # ================================
