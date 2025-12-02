@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 import os
 import time
 from collections import Counter
-from datetime import datetime
+import datetime
 
 main = Blueprint('main', __name__)
 
@@ -806,38 +806,44 @@ def edit_profile():
 # ---------------------------------------------------
 @main.route("/stats")
 def stats():
-    total_reviews = db.session.query(Review).count()
-    total_papers = db.session.query(Paper).count()
+    # Total reviews
+    total_reviews = Review.query.count()
 
-    reviews_by_weekday = (
-        db.session.query(
-            extract('dow', Review.date_submitted).label("weekday"),
-            func.count(Review.review_id)
-        )
-        .group_by(extract('dow', Review.date_submitted))
-        .order_by(extract('dow', Review.date_submitted))
-        .all()
-    )
-    weekday_map = {int(day): count for day, count in reviews_by_weekday}
+    # Total papers
+    total_papers = Paper.query.count()
 
-    papers_by_weekday = (
-        db.session.query(
-            extract('dow', Paper.upload_date).label("weekday"),
-            func.count(Paper.paper_id)
-        )
-        .group_by(extract('dow', Paper.upload_date))
-        .order_by(extract('dow', Paper.upload_date))
-        .all()
-    )
-    paper_weekday_map = {int(day): count for day, count in papers_by_weekday}
+    # Total AI analyses done
+    ai_done = Paper.query.filter_by(ai_status="done").count()
+
+    # Total AI analyses pending
+    ai_pending = Paper.query.filter_by(ai_status="pending").count()
+
+    # WEEKLY REVIEW HEATMAP
+    weekday_map = {}
+    reviews = Review.query.all()
+
+    for r in reviews:
+        if r.date_submitted:
+            day = r.date_submitted.weekday()  # Monday=0, Sunday=6
+            weekday_map[day] = weekday_map.get(day, 0) + 1
+
+    # WEEKLY PAPER HEATMAP
+    paper_weekday_map = {}
+    papers = Paper.query.all()
+
+    for p in papers:
+        if p.upload_date:
+            day = p.upload_date.weekday()
+            paper_weekday_map[day] = paper_weekday_map.get(day, 0) + 1
 
     return render_template(
         "stats.html",
-        title="Analytics Dashboard",
         total_reviews=total_reviews,
         total_papers=total_papers,
         weekday_map=weekday_map,
-        paper_weekday_map=paper_weekday_map
+        paper_weekday_map=paper_weekday_map,
+        ai_done=ai_done,
+        ai_pending=ai_pending
     )
 
 @main.route("/papers/<int:paper_id>/interest", methods=["POST"])

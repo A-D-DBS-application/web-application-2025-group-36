@@ -8,7 +8,8 @@
 <div class="max-w-6xl mx-auto space-y-14">
 
   <!-- STAT CARDS -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
     <div class="bg-white p-8 rounded-2xl shadow border border-accent/20 text-center">
       <h2 class="text-xl font-semibold text-accent">Total Reviews Submitted</h2>
       <p class="text-5xl font-extrabold mt-3">{{ total_reviews }}</p>
@@ -18,9 +19,20 @@
       <h2 class="text-xl font-semibold text-accent">Total Papers Submitted</h2>
       <p class="text-5xl font-extrabold mt-3">{{ total_papers }}</p>
     </div>
+
+    <div class="bg-white p-8 rounded-2xl shadow border border-blue-200 text-center">
+      <h2 class="text-xl font-semibold text-blue-600">AI Analyses Completed</h2>
+      <p class="text-5xl font-extrabold mt-3 text-blue-700">{{ ai_done }}</p>
+    </div>
+
+    <div class="bg-white p-8 rounded-2xl shadow border border-red-200 text-center">
+      <h2 class="text-xl font-semibold text-red-600">AI Analyses Pending</h2>
+      <p class="text-5xl font-extrabold mt-3 text-red-700">{{ ai_pending }}</p>
+    </div>
+
   </div>
 
-  {% set weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] %}
+  {% set weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] %}
 
   <!-- REVIEW HEATMAP -->
   <div class="bg-white p-8 rounded-2xl shadow border border-accent/20">
@@ -32,14 +44,8 @@
     <div class="grid grid-cols-7 gap-3 mt-4">
       {% for i in range(7) %}
         {% set count = weekday_map[i] if i in weekday_map else 0 %}
-        {% if count > 0 %}
-          {% set intensity = [0.35 + (count / 20), 1.0] | min %}
-        {% else %}
-          {% set intensity = 0.1 %}
-        {% endif %}
 
-        <div class="p-6 rounded-xl text-center border border-accent/20"
-             style="background-color: rgb(255, 255, 255);">
+        <div class="p-6 rounded-xl text-center border border-accent/20 bg-white">
           <div class="font-semibold text-gray-900">{{ weekdays[i] }}</div>
           <div class="text-3xl font-bold mt-2">{{ count }}</div>
         </div>
@@ -57,14 +63,8 @@
     <div class="grid grid-cols-7 gap-3 mt-4">
       {% for i in range(7) %}
         {% set count = paper_weekday_map[i] if i in paper_weekday_map else 0 %}
-        {% if count > 0 %}
-          {% set intensity = [0.35 + (count / 20), 1.0] | min %}
-        {% else %}
-          {% set intensity = 0.1 %}
-        {% endif %}
 
-        <div class="p-6 rounded-xl text-center border border-accent/20"
-             style="background-color: rgb(255, 255, 255);">
+        <div class="p-6 rounded-xl text-center border border-accent/20 bg-white">
           <div class="font-semibold text-gray-900">{{ weekdays[i] }}</div>
           <div class="text-3xl font-bold mt-2">{{ count }}</div>
         </div>
