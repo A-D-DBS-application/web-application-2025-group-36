@@ -166,6 +166,127 @@
         {% endif %}
 
       </div>
+      
+      <!-- REPORT A CONCERN -->
+      <div id="report-block" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-6">
+        <div class="flex flex-wrap items-start gap-4">
+          <div class="flex-1">
+            <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Flag this paper</p>
+            <h2 class="text-2xl font-bold text-gray-900">Report a concern</h2>
+            <p class="text-sm text-gray-600 mt-1">
+              Raise issues like plagiarism, inappropriate content, or data integrity. Reports go to the review team.
+            </p>
+          </div>
+          <button id="toggle-report-panel"
+                  type="button"
+                  class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition">
+            Report paper
+          </button>
+        </div>
+
+        <div id="report-panel" class="hidden">
+          <form method="post" action="{{ url_for('main.submit_complaint', paper_id=paper.paper_id) }}" class="grid md:grid-cols-2 gap-4">
+
+            <div class="md:col-span-2">
+              <label class="text-sm text-gray-700 font-semibold">Type of issue</label>
+              <select name="complaint_category" class="w-full mt-2 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-red-300">
+                <option value="Plagiarism">Plagiarism</option>
+                <option value="Ethics / Compliance">Ethics / Compliance</option>
+                <option value="Data quality">Data quality</option>
+                <option value="Inappropriate content">Inappropriate content</option>
+                <option value="Other" selected>Other</option>
+              </select>
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="text-sm text-gray-700 font-semibold">Describe the issue</label>
+              <textarea name="complaint_description" rows="4" required
+                        class="w-full mt-2 px-3 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-red-300"
+                        placeholder="Provide as much detail as possible (e.g., suspected plagiaat, missing citations, conflicts)."></textarea>
+            </div>
+
+            <div>
+              <label class="text-sm text-gray-700 font-semibold">Your name (optional)</label>
+              <input type="text" name="reporter_name"
+                     value="{{ session.get('user_name', '') }}"
+                     class="w-full mt-2 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-red-300"
+                     placeholder="Anonymous">
+            </div>
+
+            <div>
+              <label class="text-sm text-gray-700 font-semibold">Contact email (optional)</label>
+              <input type="email" name="reporter_email"
+                     class="w-full mt-2 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-red-300"
+                     placeholder="we'll only use this to follow up">
+            </div>
+
+            <div class="md:col-span-2 flex items-start gap-3 text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded-xl p-3">
+              <span class="text-red-500 text-lg">!</span>
+              <p>Reports are confidential and reviewed by moderators. Misuse may lead to account action.</p>
+            </div>
+
+            <div class="md:col-span-2 flex justify-end">
+              <button type="submit"
+                      class="px-5 py-3 bg-accent text-gray-900 font-semibold rounded-lg hover:bg-teal-600 hover:text-white transition">
+                Submit report
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {% if complaint_submitted %}
+          <div id="complaint-confirmation"
+               class="flex items-start gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-4">
+            <div class="text-xl leading-none pt-0.5">✓</div>
+            <div class="flex-1">
+              <p class="font-semibold">Complaint received</p>
+              <p class="text-sm text-emerald-900">
+                Thank you. Your report has been logged for this paper and will be reviewed by our moderators.
+              </p>
+            </div>
+            <button type="button"
+                    class="text-sm text-emerald-700 hover:text-emerald-900 px-2"
+                    aria-label="Dismiss confirmation"
+                    onclick="document.getElementById('complaint-confirmation')?.remove();">
+              ✕
+            </button>
+          </div>
+        {% endif %}
+
+        {% if can_view_complaints %}
+          <div class="border-t border-gray-200 pt-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-semibold text-gray-900">Recent reports</h3>
+              <span class="text-xs text-gray-500 uppercase tracking-wide">{{ complaints|length }} total</span>
+            </div>
+
+            {% if complaints %}
+              <div class="space-y-3">
+                {% for c in complaints %}
+                  <div class="border border-gray-200 rounded-xl p-3 bg-gray-50">
+                    <div class="flex items-center justify-between">
+                      <p class="text-sm font-semibold text-gray-800">{{ c.category }}</p>
+                      <span class="text-xs text-gray-500">
+                        {{ c.created_at.strftime('%d %b %Y, %H:%M') if c.created_at else '' }}
+                      </span>
+                    </div>
+                    <p class="text-sm text-gray-700 mt-2 leading-relaxed">{{ c.description }}</p>
+                    <p class="text-xs text-gray-500 mt-1">
+                      Reported by {{ c.reporter_name or "Anonymous" }}{% if c.reporter_email %} · {{ c.reporter_email }}{% endif %}
+                    </p>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-sm text-gray-500">No reports have been filed for this paper yet.</p>
+            {% endif %}
+          </div>
+        {% else %}
+          <div class="border-t border-gray-200 pt-4 text-sm text-gray-500">
+            Reports are only visible to administrators. Your submission remains confidential.
+          </div>
+        {% endif %}
+      </div>
 
     </div>
 
@@ -210,5 +331,29 @@
 
   </div>
 </section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const toggleButton = document.getElementById("toggle-report-panel");
+    const panel = document.getElementById("report-panel");
+
+    const openPanel = () => {
+      if (panel) {
+        panel.classList.remove("hidden");
+      }
+    };
+
+    if (toggleButton && panel) {
+      toggleButton.addEventListener("click", () => {
+        panel.classList.toggle("hidden");
+      });
+    }
+
+    // Automatically reveal the form when navigating with #report-block
+    if (window.location.hash === "#report-block") {
+      openPanel();
+    }
+  });
+</script>
 
 {% endblock %}

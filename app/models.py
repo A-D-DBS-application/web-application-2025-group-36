@@ -51,6 +51,12 @@ class Paper(db.Model):
     # Relationships
     reviews = db.relationship('Review', backref='paper', lazy=True)
     companies = db.relationship('PaperCompany', back_populates='paper')
+    complaints = db.relationship(
+        'Complaint',
+        backref='paper',
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
 
     #AI-analysevelden
     ai_business_score = db.Column(db.Integer)
@@ -107,3 +113,21 @@ class Review(db.Model):
 
     def __repr__(self):
         return f"<Review Paper={self.paper_id}, Score={self.score}>"
+
+
+# ================================
+# COMPLAINT
+# ================================
+class Complaint(db.Model):
+    __tablename__ = "Complaint"
+
+    complaint_id = db.Column(db.Integer, primary_key=True)
+    paper_id = db.Column(db.Integer, db.ForeignKey('Paper.paper_id', ondelete='CASCADE'), nullable=False)
+    reporter_name = db.Column(db.String(255))
+    reporter_email = db.Column(db.String(255))
+    category = db.Column(db.String(100), default="General", nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+
+    def __repr__(self):
+        return f"<Complaint Paper={self.paper_id}, Category={self.category}>"

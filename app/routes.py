@@ -1,6 +1,6 @@
 # app/routes.py
 from flask import Blueprint, request, redirect, url_for, render_template, session, flash, current_app, abort
-from .models import db, User, Company, Paper, Review, PaperCompany
+from .models import db, User, Company, Paper, Review, PaperCompany, Complaint
 
 from sqlalchemy import or_, func
 from sqlalchemy.orm import joinedload
@@ -390,6 +390,7 @@ def paper_detail(paper_id):
         joinedload(Paper.reviews).joinedload(Review.reviewer),
         joinedload(Paper.reviews).joinedload(Review.company),
         joinedload(Paper.companies).joinedload(PaperCompany.company),
+        joinedload(Paper.complaints),
     ).get_or_404(paper_id)
 
     companies = Company.query.order_by(Company.name).all()
@@ -444,6 +445,15 @@ def paper_detail(paper_id):
     average_score = round(sum(scored) / len(scored), 1) if scored else None
     score_count = len(scored)
     reviews_sorted = sorted(paper.reviews, key=lambda r: r.date_submitted, reverse=True)
+    can_view_complaints = session.get("user_role") in ["System/Admin", "Founder"]
+    complaints_sorted = []
+    if can_view_complaints:
+        complaints_sorted = sorted(
+            paper.complaints,
+            key=lambda c: c.created_at or datetime.min,
+            reverse=True
+        )
+    complaint_submitted = request.args.get("complaint_submitted") == "1"
 
     return render_template(
         "paper_detail.html",
@@ -454,6 +464,51 @@ def paper_detail(paper_id):
         average_score=average_score,
         score_count=score_count,
         reviews_sorted=reviews_sorted,
+        can_view_complaints=can_view_complaints,
+        complaints=complaints_sorted,
+        complaint_submitted=complaint_submitted,
+    )
+
+
+# ---------------------------------------------------
+# REPORT / COMPLAINT
+# ---------------------------------------------------
+@main.route("/papers/<int:paper_id>/report", methods=["POST"])
+def submit_complaint(paper_id):
+    paper = Paper.query.get_or_404(paper_id)
+
+    description = (request.form.get("complaint_description") or "").strip()
+    category = (request.form.get("complaint_category") or "Other").strip() or "Other"
+    reporter_name = (request.form.get("reporter_name") or "").strip()
+    reporter_email = (request.form.get("reporter_email") or "").strip()
+
+    # Default fallbacks from session data
+    if not reporter_name:
+        reporter_name = session.get("user_name") or "Anonymous"
+
+    if not description:
+        flash("Please describe the issue before submitting a report.", "error")
+        return redirect(url_for("main.paper_detail", paper_id=paper_id, _anchor="report-block"))
+
+    complaint = Complaint(
+        paper_id=paper.paper_id,
+        reporter_name=reporter_name,
+        reporter_email=reporter_email or None,
+        category=category,
+        description=description,
+    )
+
+    db.session.add(complaint)
+    db.session.commit()
+
+    flash("Thank you. Your report has been submitted for review.", "success")
+    return redirect(
+        url_for(
+            "main.paper_detail",
+            paper_id=paper.paper_id,
+            complaint_submitted=1,
+            _anchor="report-block"
+        )
     )
 
 # ---------------------------------------------------
