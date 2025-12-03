@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="flex justify-center mt-24">
-  <div class="bg-white p-10 rounded-2xl shadow-xl w-full max-w-md">
+<div class="auth-shell">
+  <div class="auth-card">
 
     <!-- TITLE -->
     <h2 class="text-center text-2xl font-bold text-gray-800 mb-6">
@@ -14,26 +14,20 @@
 
       <!-- NAME -->
       <div>
-        <label class="text-gray-700 font-medium">Name</label>
-        <input type="text" name="name" required
-               class="w-full mt-2 px-4 py-2 border border-gray-300 rounded-lg
-                      focus:ring-2 focus:ring-teal-400 focus:outline-none">
+        <label class="form-label">Name</label>
+        <input type="text" name="name" required class="form-control">
       </div>
 
       <!-- EMAIL -->
       <div>
-        <label class="text-gray-700 font-medium">Email</label>
-        <input type="email" name="email" required
-               class="w-full mt-2 px-4 py-2 border border-gray-300 rounded-lg
-                      focus:ring-2 focus:ring-teal-400 focus:outline-none">
+        <label class="form-label">Email</label>
+        <input type="email" name="email" required class="form-control">
       </div>
 
       <!-- ROLE -->
       <div>
-        <label class="text-gray-700 font-medium">Role</label>
-        <select name="role" required
-                class="w-full mt-2 px-4 py-2 border border-gray-300 rounded-lg bg-white
-                       focus:ring-2 focus:ring-teal-400 focus:outline-none">
+        <label class="form-label">Role</label>
+        <select name="role" required class="form-control">
           <option value="">-- Select your role --</option>
           <option value="Researcher">Researcher</option>
           <option value="Reviewer">Reviewer</option>
@@ -43,8 +37,7 @@
       </div>
 
       <!-- SUBMIT BUTTON -->
-      <button type="submit"
-              class="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 rounded-lg transition">
+      <button type="submit" class="btn btn-primary btn-block">
         Create Account
       </button>
 
@@ -62,5 +55,4 @@
 </div>
 
 {% endblock %}
-
 

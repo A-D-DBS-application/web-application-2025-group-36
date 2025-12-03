@@ -14,13 +14,11 @@
 
     <!-- Buttons -->
     <div class="mt-10 flex justify-center space-x-4">
-        <a href="{{ url_for('main.upload_paper') }}"
-           class="px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition">
+        <a href="{{ url_for('main.upload_paper') }}" class="btn btn-primary">
             Submit Paper →
         </a>
 
-        <a href="{{ url_for('main.dashboard') }}"
-           class="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition">
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">
             View Dashboard
         </a>
     </div>
@@ -30,7 +28,7 @@
 <section class="grid md:grid-cols-3 gap-8 mt-20">
 
     <!-- Card 1 -->
-    <div class="p-8 bg-white rounded-2xl shadow-md border border-gray-200">
+    <div class="surface-card">
         <div class="text-blue-500 text-4xl mb-4">📄</div>
         <h3 class="text-2xl font-semibold text-gray-800 mb-2">Submit Papers</h3>
         <p class="text-gray-600">
@@ -39,7 +37,7 @@
     </div>
 
     <!-- Card 2 -->
-    <div class="p-8 bg-white rounded-2xl shadow-md border border-gray-200">
+    <div class="surface-card">
         <div class="text-green-500 text-4xl mb-4">🏢</div>
         <h3 class="text-2xl font-semibold text-gray-800 mb-2">Link to Companies</h3>
         <p class="text-gray-600">
@@ -48,7 +46,7 @@
     </div>
 
     <!-- Card 3 -->
-    <div class="p-8 bg-white rounded-2xl shadow-md border border-gray-200">
+    <div class="surface-card">
         <div class="text-teal-500 text-4xl mb-4">✔️</div>
         <h3 class="text-2xl font-semibold text-gray-800 mb-2">Review & Feedback</h3>
         <p class="text-gray-600">
