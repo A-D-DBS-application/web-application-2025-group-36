@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-{% set pdf_url = url_for('static', filename=paper.file_path) %}
+{% set pdf_url = url_for('main.download_paper', paper_id=paper.paper_id) %}
 
 <section class="bg-white border border-gray-200 rounded-3xl shadow-xl overflow-hidden">
 
@@ -35,7 +35,7 @@
 
       <a href="{{ pdf_url }}" target="_blank"
          class="px-5 py-3 bg-accent text-white rounded-xl font-semibold hover:bg-teal-600 transition">
-        Open PDF
+        Download PDF
       </a>
 
       <a href="{{ url_for('main.dashboard') }}"

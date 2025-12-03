@@ -172,12 +172,8 @@
 <!-- PAPERS GRID -->
 <div class="mt-10 grid md:grid-cols-2 gap-8">
   {% for p in papers %}
-    {% set file_ref = p.file_path|default('') %}
-    {% if file_ref %}
-      {% set pdf_url = file_ref if file_ref.startswith('http') else url_for('static', filename=file_ref) %}
-    {% else %}
-      {% set pdf_url = '#' %}
-    {% endif %}
+
+    {% set pdf_url = url_for('main.download_paper', paper_id=p.paper_id) %}
     {% set stats = score_map.get(p.paper_id) %}
 
     <article class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition overflow-hidden">
@@ -298,11 +294,11 @@
         </div>
       </div>
     </article>
+
   {% else %}
     <div class="md:col-span-2 bg-white border border-gray-200 rounded-2xl p-10 text-center text-gray-600">
       No papers found with these filters. Submit one or reset filters.
     </div>
   {% endfor %}
 </div>
-
 {% endblock %}

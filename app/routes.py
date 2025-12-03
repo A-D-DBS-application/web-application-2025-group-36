@@ -254,6 +254,27 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # ---------------------------------------------------
+# DOWNLOAD PAPER
+# ---------------------------------------------------
+from flask import send_from_directory
+
+@main.route("/paper/<int:paper_id>/download")
+def download_paper(paper_id):
+    paper = Paper.query.get_or_404(paper_id)
+
+    # file_path = "papers/<filename>.pdf"
+    rel_path = paper.file_path  
+    filename = os.path.basename(rel_path)
+
+    folder = current_app.config["UPLOAD_FOLDER"]  # static/papers
+
+    return send_from_directory(
+        folder,
+        filename,
+        as_attachment=True
+    )
+
+# ---------------------------------------------------
 # UPLOAD PAPER – Researcher / Founder / Admin
 # ---------------------------------------------------
 @main.route("/upload_paper", methods=["GET", "POST"])
