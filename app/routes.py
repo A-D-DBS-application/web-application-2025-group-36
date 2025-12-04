@@ -324,24 +324,24 @@ def upload_paper():
         unique_name = f"{session['user_id']}_{int(time.time())}_{filename}"
 
         # REAL filesystem path
-        save_folder = current_app.config["UPLOAD_FOLDER"]            # absolute path
+        save_folder = current_app.config["UPLOAD_FOLDER"]
         abs_path = os.path.join(save_folder, unique_name)
 
         # Save file
         file.save(abs_path)
 
-        # Relative path for HTML/PDF serving
+        # Relative path for HTML serving
         rel_path = f"papers/{unique_name}"
 
         # ---------------------------------------------
-        # CREATE PAPER
+        # CREATE PAPER (AI pending)
         # ---------------------------------------------
         paper = Paper(
             title=title,
             abstract=abstract,
             research_domain=research_domain,
             user_id=session["user_id"],
-            file_path=rel_path,     # <— IMPORTANT
+            file_path=rel_path,
             ai_status="pending"
         )
 
@@ -349,7 +349,7 @@ def upload_paper():
         db.session.flush()
 
         # ---------------------------------------------
-        # LINK COMPANY
+        # LINK FACILITY
         # ---------------------------------------------
         selected_company_id = request.form.get("company_id")
         new_company_name = request.form.get("new_company", "").strip()
@@ -373,10 +373,42 @@ def upload_paper():
 
         db.session.commit()
 
-        flash("Paper uploaded successfully.", "success")
+        # ---------------------------------------------
+        # ⭐ AUTOMATIC AI ANALYSIS
+        # ---------------------------------------------
+        from pypdf import PdfReader
+        from app.services.ai_analysis import analyze_paper_text
+
+        print(f"🔍 Starting automatic AI analysis for: {abs_path}")
+
+        try:
+            reader = PdfReader(abs_path)
+            full_text = "\n".join(page.extract_text() or "" for page in reader.pages)
+
+            ai_result = analyze_paper_text(full_text)
+
+            if ai_result:
+                paper.ai_business_score = ai_result.get("business_score")
+                paper.ai_academic_score = ai_result.get("academic_score")
+                paper.ai_summary = ai_result.get("summary")
+                paper.ai_strengths = ai_result.get("strengths")
+                paper.ai_weaknesses = ai_result.get("weaknesses")
+                paper.ai_status = "done"
+            else:
+                paper.ai_status = "failed"
+
+        except Exception as e:
+            print("❌ AI Analysis FAILED:", e)
+            paper.ai_status = "failed"
+
+        db.session.commit()
+
+        flash("Paper uploaded and analyzed automatically!", "success")
         return redirect(url_for("main.dashboard"))
 
+    # GET — show form
     return render_template("upload_paper.html", companies=companies, domains=domains)
+
 
 
 
