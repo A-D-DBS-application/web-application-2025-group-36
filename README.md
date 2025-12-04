@@ -24,8 +24,11 @@ URL = https://lovable.dev/projects/4b212f05-6181-4bad-b4f4-01cc5bc567d5
 ### AI Analysis
 For the analysis to work you need to create a local file ".flaskenv" where you copy-paste this:
 >FLASK_APP=run.py
+
 >FLASK_ENV=development
->GEMINI_API_KEY=AIxxxxxxx --> you need to create your own Gemini API Key: https://aistudio.google.com/api-keys 
+
+>GEMINI_API_KEY=AIxxxxxxx --> you need to create your own Gemini API Key: https://aistudio.google.com/api-keys
+
 >DATABASE_URL=postgresql://postgres.ebokqkhwotfewvpsfemj:3R9TrLYvLG7lIx7Y@aws-1-eu-west-1.pooler.supabase.com:6543/postgres
 
 ### Supabase
