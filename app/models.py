@@ -13,8 +13,18 @@ class User(db.Model):
     role = db.Column(db.String(100), nullable=False)
 
     # Relationships
-    papers = db.relationship('Paper', backref='author', lazy=True)
-    reviews = db.relationship('Review', backref='reviewer', lazy=True)
+    papers = db.relationship(
+        'Paper',
+        backref='author',
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
+    reviews = db.relationship(
+        'Review',
+        backref='reviewer',
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         return f"<User {self.name} ({self.role})>"
@@ -30,7 +40,11 @@ class Company(db.Model):
     name = db.Column(db.String(255), nullable=False)
     industry = db.Column(db.String(255))
 
-    papers = db.relationship('PaperCompany', back_populates='company')
+    papers = db.relationship(
+        'PaperCompany',
+        back_populates='company',
+        cascade="all, delete-orphan"
+    )
 
 
 # ================================
@@ -46,11 +60,23 @@ class Paper(db.Model):
     research_domain = db.Column(db.String(120), default="General", nullable=False)
     upload_date = db.Column(db.DateTime, server_default=db.func.now())
 
-    file_path = db.Column(db.String(512), nullable=False) 
+    file_path = db.Column(db.String(512), nullable=False)
 
     # Relationships
-    reviews = db.relationship('Review', backref='paper', lazy=True)
-    companies = db.relationship('PaperCompany', back_populates='paper')
+    reviews = db.relationship(
+        'Review',
+        backref='paper',
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
+
+    companies = db.relationship(
+        'PaperCompany',
+        back_populates='paper',
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
+
     complaints = db.relationship(
         'Complaint',
         backref='paper',
@@ -58,7 +84,7 @@ class Paper(db.Model):
         cascade="all, delete-orphan"
     )
 
-    #AI-analysevelden
+    # AI fields
     ai_business_score = db.Column(db.Integer)
     ai_academic_score = db.Column(db.Integer)
     ai_summary = db.Column(db.Text)
@@ -66,11 +92,12 @@ class Paper(db.Model):
     ai_weaknesses = db.Column(db.Text)
     ai_status = db.Column(db.String(20), default="pending")
 
-
+    def __repr__(self):
+        return f"<Paper {self.paper_id}: {self.title}>"
 
 
 # ================================
-# PAPERCOMPANY (koppeltabel N-M)
+# PAPERCOMPANY (N-M TABLE)
 # ================================
 class PaperCompany(db.Model):
     __tablename__ = "PaperCompany"
@@ -86,13 +113,13 @@ class PaperCompany(db.Model):
         primary_key=True
     )
 
-    
     relation_type = db.Column(db.String(20), nullable=False, default="facility")
-    
 
     paper = db.relationship('Paper', back_populates='companies')
     company = db.relationship('Company', back_populates='papers')
 
+    def __repr__(self):
+        return f"<PaperCompany Paper={self.paper_id}, Company={self.company_id}>"
 
 
 # ================================
