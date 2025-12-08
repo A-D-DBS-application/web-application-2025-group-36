@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict SO0ibzUoiQzPeNOIuTenWQpBtBaRmK8UpesMkP3yEcthBIuiNfbVH9GNuutDf6s
+\restrict mrwEiAt5kzWxi3QouGd1kfAEIFlth8lMKXTLZN6femXMEailYCvwId8noBeZgIF
 
 -- Dumped from database version 17.6
 -- Dumped by pg_dump version 18.1
@@ -2713,11 +2713,9 @@ CREATE TABLE auth.oauth_authorizations (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     expires_at timestamp with time zone DEFAULT (now() + '00:03:00'::interval) NOT NULL,
     approved_at timestamp with time zone,
-    nonce text,
     CONSTRAINT oauth_authorizations_authorization_code_length CHECK ((char_length(authorization_code) <= 255)),
     CONSTRAINT oauth_authorizations_code_challenge_length CHECK ((char_length(code_challenge) <= 128)),
     CONSTRAINT oauth_authorizations_expires_at_future CHECK ((expires_at > created_at)),
-    CONSTRAINT oauth_authorizations_nonce_length CHECK ((char_length(nonce) <= 255)),
     CONSTRAINT oauth_authorizations_redirect_uri_length CHECK ((char_length(redirect_uri) <= 2048)),
     CONSTRAINT oauth_authorizations_resource_length CHECK ((char_length(resource) <= 2048)),
     CONSTRAINT oauth_authorizations_scope_length CHECK ((char_length(scope) <= 4096)),
@@ -2927,9 +2925,7 @@ CREATE TABLE auth.sessions (
     tag text,
     oauth_client_id uuid,
     refresh_token_hmac_key text,
-    refresh_token_counter bigint,
-    scopes text,
-    CONSTRAINT sessions_scopes_length CHECK ((char_length(scopes) <= 4096))
+    refresh_token_counter bigint
 );
 
 
@@ -3077,6 +3073,165 @@ COMMENT ON COLUMN auth.users.is_sso_user IS 'Auth: Set this column to true when 
 
 
 --
+-- Name: Company; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Company" (
+    company_id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    industry character varying(255)
+);
+
+
+ALTER TABLE public."Company" OWNER TO postgres;
+
+--
+-- Name: Company_company_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."Company_company_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."Company_company_id_seq" OWNER TO postgres;
+
+--
+-- Name: Company_company_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."Company_company_id_seq" OWNED BY public."Company".company_id;
+
+
+--
+-- Name: Paper; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Paper" (
+    paper_id integer NOT NULL,
+    user_id integer,
+    title character varying(255) NOT NULL,
+    abstract text,
+    upload_date timestamp without time zone DEFAULT now(),
+    file_path character varying(512) NOT NULL
+);
+
+
+ALTER TABLE public."Paper" OWNER TO postgres;
+
+--
+-- Name: PaperCompany; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."PaperCompany" (
+    paper_id integer NOT NULL,
+    company_id integer NOT NULL
+);
+
+
+ALTER TABLE public."PaperCompany" OWNER TO postgres;
+
+--
+-- Name: Paper_paper_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."Paper_paper_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."Paper_paper_id_seq" OWNER TO postgres;
+
+--
+-- Name: Paper_paper_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."Paper_paper_id_seq" OWNED BY public."Paper".paper_id;
+
+
+--
+-- Name: Review; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Review" (
+    review_id integer NOT NULL,
+    paper_id integer,
+    reviewer_id integer,
+    score double precision,
+    comments text,
+    date_submitted timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE public."Review" OWNER TO postgres;
+
+--
+-- Name: Review_review_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."Review_review_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."Review_review_id_seq" OWNER TO postgres;
+
+--
+-- Name: Review_review_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."Review_review_id_seq" OWNED BY public."Review".review_id;
+
+
+--
+-- Name: User; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."User" (
+    user_id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    email character varying(255) NOT NULL,
+    role character varying(100) NOT NULL
+);
+
+
+ALTER TABLE public."User" OWNER TO postgres;
+
+--
+-- Name: User_user_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."User_user_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."User_user_id_seq" OWNER TO postgres;
+
+--
+-- Name: User_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."User_user_id_seq" OWNED BY public."User".user_id;
+
+
+--
 -- Name: alembic_version; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -3086,214 +3241,6 @@ CREATE TABLE public.alembic_version (
 
 
 ALTER TABLE public.alembic_version OWNER TO postgres;
-
---
--- Name: company; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.company (
-    company_id integer NOT NULL,
-    name character varying(255) NOT NULL,
-    industry character varying(255)
-);
-
-
-ALTER TABLE public.company OWNER TO postgres;
-
---
--- Name: company_company_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.company_company_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.company_company_id_seq OWNER TO postgres;
-
---
--- Name: company_company_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.company_company_id_seq OWNED BY public.company.company_id;
-
-
---
--- Name: complaint; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.complaint (
-    complaint_id integer NOT NULL,
-    paper_id integer,
-    reporter_name character varying(255),
-    reporter_email character varying(255),
-    category character varying(100) DEFAULT 'General'::character varying NOT NULL,
-    description text NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
-);
-
-
-ALTER TABLE public.complaint OWNER TO postgres;
-
---
--- Name: complaint_complaint_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.complaint_complaint_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.complaint_complaint_id_seq OWNER TO postgres;
-
---
--- Name: complaint_complaint_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.complaint_complaint_id_seq OWNED BY public.complaint.complaint_id;
-
-
---
--- Name: paper; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.paper (
-    paper_id integer NOT NULL,
-    user_id integer,
-    title character varying(255) NOT NULL,
-    abstract text,
-    upload_date timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    file_path character varying(255) NOT NULL,
-    research_domain character varying(255) NOT NULL,
-    ai_business_score integer,
-    ai_academic_score integer,
-    ai_summary text,
-    ai_strengths text,
-    ai_weaknesses text,
-    ai_status character varying(50)
-);
-
-
-ALTER TABLE public.paper OWNER TO postgres;
-
---
--- Name: paper_paper_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.paper_paper_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.paper_paper_id_seq OWNER TO postgres;
-
---
--- Name: paper_paper_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.paper_paper_id_seq OWNED BY public.paper.paper_id;
-
-
---
--- Name: papercompany; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.papercompany (
-    paper_id integer NOT NULL,
-    company_id integer NOT NULL,
-    relation_type character varying(100) DEFAULT 'related'::character varying NOT NULL
-);
-
-
-ALTER TABLE public.papercompany OWNER TO postgres;
-
---
--- Name: review; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.review (
-    review_id integer NOT NULL,
-    paper_id integer,
-    reviewer_id integer,
-    score double precision,
-    comments text,
-    date_submitted timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    company_id integer
-);
-
-
-ALTER TABLE public.review OWNER TO postgres;
-
---
--- Name: review_review_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.review_review_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.review_review_id_seq OWNER TO postgres;
-
---
--- Name: review_review_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.review_review_id_seq OWNED BY public.review.review_id;
-
-
---
--- Name: users; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.users (
-    user_id integer NOT NULL,
-    name character varying(255) NOT NULL,
-    email character varying(255) NOT NULL,
-    role character varying(50) NOT NULL,
-    CONSTRAINT users_role_check CHECK (((role)::text = ANY ((ARRAY['writer'::character varying, 'reviewer'::character varying])::text[])))
-);
-
-
-ALTER TABLE public.users OWNER TO postgres;
-
---
--- Name: users_user_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.users_user_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.users_user_id_seq OWNER TO postgres;
-
---
--- Name: users_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.users_user_id_seq OWNED BY public.users.user_id;
-
 
 --
 -- Name: messages; Type: TABLE; Schema: realtime; Owner: supabase_realtime_admin
@@ -3541,38 +3488,31 @@ ALTER TABLE ONLY auth.refresh_tokens ALTER COLUMN id SET DEFAULT nextval('auth.r
 
 
 --
--- Name: company company_id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: Company company_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.company ALTER COLUMN company_id SET DEFAULT nextval('public.company_company_id_seq'::regclass);
-
-
---
--- Name: complaint complaint_id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.complaint ALTER COLUMN complaint_id SET DEFAULT nextval('public.complaint_complaint_id_seq'::regclass);
+ALTER TABLE ONLY public."Company" ALTER COLUMN company_id SET DEFAULT nextval('public."Company_company_id_seq"'::regclass);
 
 
 --
--- Name: paper paper_id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: Paper paper_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.paper ALTER COLUMN paper_id SET DEFAULT nextval('public.paper_paper_id_seq'::regclass);
-
-
---
--- Name: review review_id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.review ALTER COLUMN review_id SET DEFAULT nextval('public.review_review_id_seq'::regclass);
+ALTER TABLE ONLY public."Paper" ALTER COLUMN paper_id SET DEFAULT nextval('public."Paper_paper_id_seq"'::regclass);
 
 
 --
--- Name: users user_id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: Review review_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.users ALTER COLUMN user_id SET DEFAULT nextval('public.users_user_id_seq'::regclass);
+ALTER TABLE ONLY public."Review" ALTER COLUMN review_id SET DEFAULT nextval('public."Review_review_id_seq"'::regclass);
+
+
+--
+-- Name: User user_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."User" ALTER COLUMN user_id SET DEFAULT nextval('public."User_user_id_seq"'::regclass);
 
 
 --
@@ -3635,7 +3575,7 @@ COPY auth.mfa_factors (id, user_id, friendly_name, factor_type, status, created_
 -- Data for Name: oauth_authorizations; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
 --
 
-COPY auth.oauth_authorizations (id, authorization_id, client_id, user_id, redirect_uri, scope, state, resource, code_challenge, code_challenge_method, response_type, status, authorization_code, created_at, expires_at, approved_at, nonce) FROM stdin;
+COPY auth.oauth_authorizations (id, authorization_id, client_id, user_id, redirect_uri, scope, state, resource, code_challenge, code_challenge_method, response_type, status, authorization_code, created_at, expires_at, approved_at) FROM stdin;
 \.
 
 
@@ -3761,8 +3701,6 @@ COPY auth.schema_migrations (version) FROM stdin;
 20250904133000
 20250925093508
 20251007112900
-20251104100000
-20251111201300
 \.
 
 
@@ -3770,7 +3708,7 @@ COPY auth.schema_migrations (version) FROM stdin;
 -- Data for Name: sessions; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
 --
 
-COPY auth.sessions (id, user_id, created_at, updated_at, factor_id, aal, not_after, refreshed_at, user_agent, ip, tag, oauth_client_id, refresh_token_hmac_key, refresh_token_counter, scopes) FROM stdin;
+COPY auth.sessions (id, user_id, created_at, updated_at, factor_id, aal, not_after, refreshed_at, user_agent, ip, tag, oauth_client_id, refresh_token_hmac_key, refresh_token_counter) FROM stdin;
 \.
 
 
@@ -3799,59 +3737,59 @@ COPY auth.users (instance_id, id, aud, role, email, encrypted_password, email_co
 
 
 --
+-- Data for Name: Company; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Company" (company_id, name, industry) FROM stdin;
+\.
+
+
+--
+-- Data for Name: Paper; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Paper" (paper_id, user_id, title, abstract, upload_date, file_path) FROM stdin;
+1	2	AlgoEnData	First lecture	2025-11-21 23:56:20.902825	papers/2_1763769380_AlgoEnData-Intro.pdf
+2	4	Inflation	The impact of inflation on economic growth 	2025-11-22 00:10:48.932608	papers/4_1763770248_The_impact_of_inflation_on_economic_growth.pdf
+\.
+
+
+--
+-- Data for Name: PaperCompany; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."PaperCompany" (paper_id, company_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: Review; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."Review" (review_id, paper_id, reviewer_id, score, comments, date_submitted) FROM stdin;
+\.
+
+
+--
+-- Data for Name: User; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."User" (user_id, name, email, role) FROM stdin;
+1	Mauro 	mauro.test@gmail.com	System/Admin
+2	silke	silke.test@gmail.com	Researcher
+3	Bas	bas.test@gmail.com	Researcher
+4	Mauro Deslee	mauro.deslee@test.be	Researcher
+5	Thomas	thowaelk.waelkens@ugent.be	Researcher
+7	Gaetan Focquet	gaetan.focquet@ugent.be	System/Admin
+\.
+
+
+--
 -- Data for Name: alembic_version; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-71b6e640691d
-\.
-
-
---
--- Data for Name: company; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.company (company_id, name, industry) FROM stdin;
-\.
-
-
---
--- Data for Name: complaint; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.complaint (complaint_id, paper_id, reporter_name, reporter_email, category, description, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: paper; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.paper (paper_id, user_id, title, abstract, upload_date, file_path, research_domain, ai_business_score, ai_academic_score, ai_summary, ai_strengths, ai_weaknesses, ai_status) FROM stdin;
-\.
-
-
---
--- Data for Name: papercompany; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.papercompany (paper_id, company_id, relation_type) FROM stdin;
-\.
-
-
---
--- Data for Name: review; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.review (review_id, paper_id, reviewer_id, score, comments, date_submitted, company_id) FROM stdin;
-\.
-
-
---
--- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.users (user_id, name, email, role) FROM stdin;
+fb4133778963
 \.
 
 
@@ -4073,38 +4011,31 @@ SELECT pg_catalog.setval('auth.refresh_tokens_id_seq', 1, false);
 
 
 --
--- Name: company_company_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- Name: Company_company_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.company_company_id_seq', 1, false);
-
-
---
--- Name: complaint_complaint_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.complaint_complaint_id_seq', 1, false);
+SELECT pg_catalog.setval('public."Company_company_id_seq"', 1, false);
 
 
 --
--- Name: paper_paper_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- Name: Paper_paper_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.paper_paper_id_seq', 1, false);
-
-
---
--- Name: review_review_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.review_review_id_seq', 1, false);
+SELECT pg_catalog.setval('public."Paper_paper_id_seq"', 2, true);
 
 
 --
--- Name: users_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- Name: Review_review_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_user_id_seq', 1, false);
+SELECT pg_catalog.setval('public."Review_review_id_seq"', 1, false);
+
+
+--
+-- Name: User_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."User_user_id_seq"', 7, true);
 
 
 --
@@ -4339,67 +4270,59 @@ ALTER TABLE ONLY auth.users
 
 
 --
+-- Name: Company Company_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Company"
+    ADD CONSTRAINT "Company_pkey" PRIMARY KEY (company_id);
+
+
+--
+-- Name: PaperCompany PaperCompany_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."PaperCompany"
+    ADD CONSTRAINT "PaperCompany_pkey" PRIMARY KEY (paper_id, company_id);
+
+
+--
+-- Name: Paper Paper_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Paper"
+    ADD CONSTRAINT "Paper_pkey" PRIMARY KEY (paper_id);
+
+
+--
+-- Name: Review Review_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Review"
+    ADD CONSTRAINT "Review_pkey" PRIMARY KEY (review_id);
+
+
+--
+-- Name: User User_email_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."User"
+    ADD CONSTRAINT "User_email_key" UNIQUE (email);
+
+
+--
+-- Name: User User_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."User"
+    ADD CONSTRAINT "User_pkey" PRIMARY KEY (user_id);
+
+
+--
 -- Name: alembic_version alembic_version_pkc; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.alembic_version
     ADD CONSTRAINT alembic_version_pkc PRIMARY KEY (version_num);
-
-
---
--- Name: company company_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.company
-    ADD CONSTRAINT company_pkey PRIMARY KEY (company_id);
-
-
---
--- Name: complaint complaint_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.complaint
-    ADD CONSTRAINT complaint_pkey PRIMARY KEY (complaint_id);
-
-
---
--- Name: paper paper_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.paper
-    ADD CONSTRAINT paper_pkey PRIMARY KEY (paper_id);
-
-
---
--- Name: papercompany papercompany_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.papercompany
-    ADD CONSTRAINT papercompany_pkey PRIMARY KEY (paper_id, company_id);
-
-
---
--- Name: review review_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.review
-    ADD CONSTRAINT review_pkey PRIMARY KEY (review_id);
-
-
---
--- Name: users users_email_key; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.users
-    ADD CONSTRAINT users_email_key UNIQUE (email);
-
-
---
--- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.users
-    ADD CONSTRAINT users_pkey PRIMARY KEY (user_id);
 
 
 --
@@ -5118,59 +5041,43 @@ ALTER TABLE ONLY auth.sso_domains
 
 
 --
--- Name: complaint complaint_paper_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: PaperCompany PaperCompany_company_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.complaint
-    ADD CONSTRAINT complaint_paper_id_fkey FOREIGN KEY (paper_id) REFERENCES public.paper(paper_id);
-
-
---
--- Name: paper paper_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.paper
-    ADD CONSTRAINT paper_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id);
+ALTER TABLE ONLY public."PaperCompany"
+    ADD CONSTRAINT "PaperCompany_company_id_fkey" FOREIGN KEY (company_id) REFERENCES public."Company"(company_id) ON DELETE CASCADE;
 
 
 --
--- Name: papercompany papercompany_company_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: PaperCompany PaperCompany_paper_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.papercompany
-    ADD CONSTRAINT papercompany_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.company(company_id);
-
-
---
--- Name: papercompany papercompany_paper_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.papercompany
-    ADD CONSTRAINT papercompany_paper_id_fkey FOREIGN KEY (paper_id) REFERENCES public.paper(paper_id);
+ALTER TABLE ONLY public."PaperCompany"
+    ADD CONSTRAINT "PaperCompany_paper_id_fkey" FOREIGN KEY (paper_id) REFERENCES public."Paper"(paper_id) ON DELETE CASCADE;
 
 
 --
--- Name: review review_company_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: Paper Paper_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.review
-    ADD CONSTRAINT review_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.company(company_id);
-
-
---
--- Name: review review_paper_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.review
-    ADD CONSTRAINT review_paper_id_fkey FOREIGN KEY (paper_id) REFERENCES public.paper(paper_id);
+ALTER TABLE ONLY public."Paper"
+    ADD CONSTRAINT "Paper_user_id_fkey" FOREIGN KEY (user_id) REFERENCES public."User"(user_id) ON DELETE CASCADE;
 
 
 --
--- Name: review review_reviewer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: Review Review_paper_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.review
-    ADD CONSTRAINT review_reviewer_id_fkey FOREIGN KEY (reviewer_id) REFERENCES public.users(user_id);
+ALTER TABLE ONLY public."Review"
+    ADD CONSTRAINT "Review_paper_id_fkey" FOREIGN KEY (paper_id) REFERENCES public."Paper"(paper_id) ON DELETE CASCADE;
+
+
+--
+-- Name: Review Review_reviewer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Review"
+    ADD CONSTRAINT "Review_reviewer_id_fkey" FOREIGN KEY (reviewer_id) REFERENCES public."User"(user_id) ON DELETE CASCADE;
 
 
 --
@@ -6333,111 +6240,93 @@ GRANT ALL ON TABLE extensions.pg_stat_statements_info TO dashboard_user;
 
 
 --
+-- Name: TABLE "Company"; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public."Company" TO anon;
+GRANT ALL ON TABLE public."Company" TO authenticated;
+GRANT ALL ON TABLE public."Company" TO service_role;
+
+
+--
+-- Name: SEQUENCE "Company_company_id_seq"; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON SEQUENCE public."Company_company_id_seq" TO anon;
+GRANT ALL ON SEQUENCE public."Company_company_id_seq" TO authenticated;
+GRANT ALL ON SEQUENCE public."Company_company_id_seq" TO service_role;
+
+
+--
+-- Name: TABLE "Paper"; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public."Paper" TO anon;
+GRANT ALL ON TABLE public."Paper" TO authenticated;
+GRANT ALL ON TABLE public."Paper" TO service_role;
+
+
+--
+-- Name: TABLE "PaperCompany"; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public."PaperCompany" TO anon;
+GRANT ALL ON TABLE public."PaperCompany" TO authenticated;
+GRANT ALL ON TABLE public."PaperCompany" TO service_role;
+
+
+--
+-- Name: SEQUENCE "Paper_paper_id_seq"; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON SEQUENCE public."Paper_paper_id_seq" TO anon;
+GRANT ALL ON SEQUENCE public."Paper_paper_id_seq" TO authenticated;
+GRANT ALL ON SEQUENCE public."Paper_paper_id_seq" TO service_role;
+
+
+--
+-- Name: TABLE "Review"; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public."Review" TO anon;
+GRANT ALL ON TABLE public."Review" TO authenticated;
+GRANT ALL ON TABLE public."Review" TO service_role;
+
+
+--
+-- Name: SEQUENCE "Review_review_id_seq"; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON SEQUENCE public."Review_review_id_seq" TO anon;
+GRANT ALL ON SEQUENCE public."Review_review_id_seq" TO authenticated;
+GRANT ALL ON SEQUENCE public."Review_review_id_seq" TO service_role;
+
+
+--
+-- Name: TABLE "User"; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public."User" TO anon;
+GRANT ALL ON TABLE public."User" TO authenticated;
+GRANT ALL ON TABLE public."User" TO service_role;
+
+
+--
+-- Name: SEQUENCE "User_user_id_seq"; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON SEQUENCE public."User_user_id_seq" TO anon;
+GRANT ALL ON SEQUENCE public."User_user_id_seq" TO authenticated;
+GRANT ALL ON SEQUENCE public."User_user_id_seq" TO service_role;
+
+
+--
 -- Name: TABLE alembic_version; Type: ACL; Schema: public; Owner: postgres
 --
 
 GRANT ALL ON TABLE public.alembic_version TO anon;
 GRANT ALL ON TABLE public.alembic_version TO authenticated;
 GRANT ALL ON TABLE public.alembic_version TO service_role;
-
-
---
--- Name: TABLE company; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON TABLE public.company TO anon;
-GRANT ALL ON TABLE public.company TO authenticated;
-GRANT ALL ON TABLE public.company TO service_role;
-
-
---
--- Name: SEQUENCE company_company_id_seq; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON SEQUENCE public.company_company_id_seq TO anon;
-GRANT ALL ON SEQUENCE public.company_company_id_seq TO authenticated;
-GRANT ALL ON SEQUENCE public.company_company_id_seq TO service_role;
-
-
---
--- Name: TABLE complaint; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON TABLE public.complaint TO anon;
-GRANT ALL ON TABLE public.complaint TO authenticated;
-GRANT ALL ON TABLE public.complaint TO service_role;
-
-
---
--- Name: SEQUENCE complaint_complaint_id_seq; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON SEQUENCE public.complaint_complaint_id_seq TO anon;
-GRANT ALL ON SEQUENCE public.complaint_complaint_id_seq TO authenticated;
-GRANT ALL ON SEQUENCE public.complaint_complaint_id_seq TO service_role;
-
-
---
--- Name: TABLE paper; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON TABLE public.paper TO anon;
-GRANT ALL ON TABLE public.paper TO authenticated;
-GRANT ALL ON TABLE public.paper TO service_role;
-
-
---
--- Name: SEQUENCE paper_paper_id_seq; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON SEQUENCE public.paper_paper_id_seq TO anon;
-GRANT ALL ON SEQUENCE public.paper_paper_id_seq TO authenticated;
-GRANT ALL ON SEQUENCE public.paper_paper_id_seq TO service_role;
-
-
---
--- Name: TABLE papercompany; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON TABLE public.papercompany TO anon;
-GRANT ALL ON TABLE public.papercompany TO authenticated;
-GRANT ALL ON TABLE public.papercompany TO service_role;
-
-
---
--- Name: TABLE review; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON TABLE public.review TO anon;
-GRANT ALL ON TABLE public.review TO authenticated;
-GRANT ALL ON TABLE public.review TO service_role;
-
-
---
--- Name: SEQUENCE review_review_id_seq; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON SEQUENCE public.review_review_id_seq TO anon;
-GRANT ALL ON SEQUENCE public.review_review_id_seq TO authenticated;
-GRANT ALL ON SEQUENCE public.review_review_id_seq TO service_role;
-
-
---
--- Name: TABLE users; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON TABLE public.users TO anon;
-GRANT ALL ON TABLE public.users TO authenticated;
-GRANT ALL ON TABLE public.users TO service_role;
-
-
---
--- Name: SEQUENCE users_user_id_seq; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON SEQUENCE public.users_user_id_seq TO anon;
-GRANT ALL ON SEQUENCE public.users_user_id_seq TO authenticated;
-GRANT ALL ON SEQUENCE public.users_user_id_seq TO service_role;
 
 
 --
@@ -6868,5 +6757,5 @@ ALTER EVENT TRIGGER pgrst_drop_watch OWNER TO supabase_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict SO0ibzUoiQzPeNOIuTenWQpBtBaRmK8UpesMkP3yEcthBIuiNfbVH9GNuutDf6s
+\unrestrict mrwEiAt5kzWxi3QouGd1kfAEIFlth8lMKXTLZN6femXMEailYCvwId8noBeZgIF
 
