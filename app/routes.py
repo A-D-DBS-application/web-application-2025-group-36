@@ -288,7 +288,7 @@ def upload_paper():
         return render_template("error_role.html", title="Access denied", required="Researcher")
 
     companies = Company.query.order_by(Company.name).all()
-    domains = ["AI", "Robotics", "Biotech", "Software", "Other"]
+    domains = ["AI", "Robotics", "Biotech", "Software"]
 
     if request.method == "POST":
 
