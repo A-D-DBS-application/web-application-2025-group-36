@@ -155,9 +155,14 @@ def dashboard():
 
     elif sort == "most_reviewed":
         query = query.order_by(func.coalesce(avg_subq.c.review_count, 0).desc())
-
+   
+    elif sort == "ai_score": 
+        query = query.order_by((Paper.ai_business_score + Paper.ai_academic_score).desc())
+   
     else:  # newest
         query = query.order_by(Paper.upload_date.desc())
+
+    
 
     # ------------------------------
     # EXECUTE QUERY WITH JOINEDLOAD
