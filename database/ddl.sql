@@ -57,10 +57,9 @@ CREATE TABLE Review (
     date_submitted TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- COMPLAINT tabel
-CREATE TABLE Complaint (
+CREATE TABLE "Complaint" (
     complaint_id SERIAL PRIMARY KEY,
-    paper_id INT REFERENCES Paper(paper_id) ON DELETE CASCADE,
+    paper_id INT REFERENCES "Paper"(paper_id) ON DELETE CASCADE,
     reporter_name VARCHAR(255),
     reporter_email VARCHAR(255),
     category VARCHAR(100) NOT NULL DEFAULT 'General',
