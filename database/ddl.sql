@@ -69,7 +69,7 @@ CREATE TABLE complaint (
 );
 
 -- Alembic versie tabel
-CREATE TABLE IF NOT EXISTS alembic_version (
+CREATE TABLE alembic_version (
     version_num VARCHAR(50) NOT NULL,
     PRIMARY KEY (version_num)
 );
