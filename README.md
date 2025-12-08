@@ -15,11 +15,6 @@ URL_Miro = https://miro.com/app/board/uXjVJwVsXsc=/
 ## UI Prototype (Lovable)
 URL = https://lovable.dev/projects/4b212f05-6181-4bad-b4f4-01cc5bc567d5 
 
-## Audio/Video Recording of feedback sessions
-> Feedback session 1: On whatsapp (forgot to record) (duration: 7min24s)
->
-> Feedback session 2 (on teams): https://tinyurl.com/ReviewR-Feedback1
-
 ## Other Links/Info
 ### AI Analysis
 For the analysis to work you need to create a local file ".flaskenv" where you copy-paste this:
