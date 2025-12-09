@@ -31,3 +31,6 @@ https://supabase.com/dashboard/project/ebokqkhwotfewvpsfemj
 
 ### Test Users (feedback + experience)
 https://docs.google.com/spreadsheets/d/11K7iOIe6oSJGhSPdlgt530r-ltxOYVHAc8Jt30kQidU/edit?gid=1419989020#gid=1419989020 
+
+### Database Dump
+De database_dump dateerd van 9/12/2025, 9:40.
