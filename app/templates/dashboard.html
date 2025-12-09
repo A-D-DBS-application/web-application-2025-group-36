@@ -1,47 +1,53 @@
 {% extends "base.html" %}
 {% block content %}
 
+<!-- HEADER SECTION -->
 <section class="bg-gradient-to-r from-teal-50 via-white to-blue-50 border border-gray-200 rounded-3xl shadow-xl p-10">
   <div class="flex flex-col gap-6">
-      <div class="flex justify-between flex-wrap gap-4 items-start">
-        <div>
-          <p class="text-xs uppercase tracking-[0.35em] text-gray-500">Dashboard</p>
-          <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mt-2">
-            Archive of Papers and Reviews
+    <div class="flex justify-between flex-wrap gap-4 items-start">
+      <div>
+        <p class="text-xs uppercase tracking-[0.35em] text-gray-500">Dashboard</p>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mt-2">
+          Archive of Papers and Reviews
         </h1>
         <p class="text-gray-600 max-w-3xl mt-3">
           Filter by research domain (robotics, AI, biotech, ...), check scores and open
           the paper detail page to review or assess.
         </p>
       </div>
+
       <div class="flex gap-3">
         <a href="{{ url_for('main.upload_paper') }}" class="btn btn-primary">+ Submit Paper</a>
         <a href="{{ url_for('main.about') }}" class="btn btn-secondary">About the Platform</a>
       </div>
     </div>
 
+    <!-- KPI CARDS -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div class="bg-white/70 border border-gray-200 rounded-2xl p-4">
         <p class="text-xs text-gray-500">Total papers</p>
         <p class="text-2xl font-bold text-gray-900">{{ papers|length }}</p>
       </div>
+
       <div class="bg-white/70 border border-gray-200 rounded-2xl p-4">
         <p class="text-xs text-gray-500">Available domains</p>
         <p class="text-2xl font-bold text-gray-900">{{ domains|length }}</p>
       </div>
+
       <div class="bg-white/70 border border-gray-200 rounded-2xl p-4">
         <p class="text-xs text-gray-500">Research facilities</p>
         <p class="text-2xl font-bold text-gray-900">{{ companies|length }}</p>
       </div>
+
       <div class="bg-white/70 border border-gray-200 rounded-2xl p-4">
         <p class="text-xs text-gray-500">Active filters</p>
         <p class="text-2xl font-bold text-gray-900">
-          {% set active_filters = 0 %}
-          {% if query %}{% set active_filters = active_filters + 1 %}{% endif %}
-          {% if selected_domain and selected_domain != 'all' %}{% set active_filters = active_filters + 1 %}{% endif %}
-          {% if selected_company %}{% set active_filters = active_filters + 1 %}{% endif %}
-          {% if min_score %}{% set active_filters = active_filters + 1 %}{% endif %}
-          {{ active_filters }}
+          {% set active = 0 %}
+          {% if query %}{% set active = active + 1 %}{% endif %}
+          {% if selected_domain and selected_domain != 'all' %}{% set active = active + 1 %}{% endif %}
+          {% if selected_company %}{% set active = active + 1 %}{% endif %}
+          {% if min_score %}{% set active = active + 1 %}{% endif %}
+          {{ active }}
         </p>
       </div>
     </div>
@@ -49,252 +55,242 @@
 </section>
 
 {% if offline %}
-  <div class="mt-4 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl">
-    {{ offline_error }}
-  </div>
+<div class="mt-4 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl">
+  {{ offline_error }}
+</div>
 {% endif %}
 
-<!-- TOP 5 AI PAPERS -->
 {% if top5 %}
-<div class="surface-card mt-12">
+<div class="mt-12">
 
-  <h2 class="text-3xl font-extrabold text-gray-900 mb-6">
-    ⭐ Top 5 AI-Analyzed Papers
-  </h2>
+    <h2 class="text-3xl font-extrabold text-gray-900 mb-6 flex items-center gap-3">
+        ⭐ Top 5 AI-Analyzed Papers
+    </h2>
 
-  <!-- FIXED ALIGNMENT -->
-  <div class="grid md:grid-cols-5 gap-6 items-stretch">
+    <div class="space-y-4">
 
-    {% for p in top5 %}
-    <div class="bg-gray-50 border border-gray-200 rounded-2xl p-5 text-center shadow-sm hover:shadow-md transition flex flex-col justify-between h-full">
+        {% for p in top5 %}
+        <div class="flex gap-5 bg-white border border-gray-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition items-center">
 
-      <div>
-        <h3 class="font-bold text-lg text-gray-900 mb-1">
-          <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id) }}" class="hover:underline">
-            {{ p.title[:40] }}{% if p.title|length > 40 %}...{% endif %}
-          </a>
-        </h3>
+            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-accent text-white flex items-center justify-center text-lg font-bold">
+                {{ loop.index }}
+            </div>
 
-        <p class="text-xs text-gray-500 mb-4">{{ p.research_domain }}</p>
-      </div>
+            <div class="flex flex-col flex-grow leading-tight">
+                <h3 class="text-base font-semibold text-gray-900">
+                    <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id) }}" class="hover:underline">
+                        {{ p.title }}
+                    </a>
+                </h3>
+                <p class="text-xs text-gray-500">{{ p.research_domain }}</p>
+            </div>
 
-      <div class="space-y-2 mt-4">
-        <div class="bg-green-100 border border-green-300 p-2 rounded-lg">
-          <p class="text-xs text-gray-600">Business Score</p>
-          <p class="text-xl font-extrabold text-green-700">{{ p.ai_business_score }}</p>
+            <div class="flex items-center gap-3">
+
+                <div class="w-28 h-12 flex flex-col justify-center items-center bg-green-100 border border-green-300 rounded-lg">
+                    <p class="text-[10px] font-semibold uppercase tracking-wider text-green-800/60 leading-none mb-0.5">Business</p>
+                    <p class="text-lg font-bold text-green-700 leading-none">{{ p.ai_business_score }}</p>
+                </div>
+
+                <div class="w-28 h-12 flex flex-col justify-center items-center bg-blue-100 border border-blue-300 rounded-lg">
+                    <p class="text-[10px] font-semibold uppercase tracking-wider text-blue-800/60 leading-none mb-0.5">Academic</p>
+                    <p class="text-lg font-bold text-blue-700 leading-none">{{ p.ai_academic_score }}</p>
+                </div>
+
+            </div>
+
         </div>
-
-        <div class="bg-blue-100 border border-blue-300 p-2 rounded-lg">
-          <p class="text-xs text-gray-600">Academic Score</p>
-          <p class="text-xl font-extrabold text-blue-700">{{ p.ai_academic_score }}</p>
-        </div>
-      </div>
+        {% endfor %}
 
     </div>
-    {% endfor %}
-
-  </div>
 
 </div>
 {% endif %}
 
+
 <!-- FILTERS -->
-<form method="get"
-      class="surface-card surface-card--compact mt-8 grid md:grid-cols-5 gap-4">
+<form method="get" class="surface-card surface-card--compact mt-8 grid md:grid-cols-5 gap-4">
   <div class="md:col-span-2">
     <label class="text-sm text-gray-600">Search</label>
-    <input type="text" name="q" placeholder="Search by title, abstract or domain" value="{{ query }}"
-           class="form-control mt-2">
+    <input type="text" name="q" placeholder="Search by title, abstract or domain" value="{{ query }}" class="form-control mt-2">
   </div>
 
   <div>
     <label class="text-sm text-gray-600">Domain</label>
-    <select name="domain"
-            class="form-control mt-2">
+    <select name="domain" class="form-control mt-2">
       <option value="all" {% if selected_domain == 'all' %}selected{% endif %}>All domains</option>
       {% for d in domains %}
-        <option value="{{ d }}" {% if selected_domain == d %}selected{% endif %}>{{ d }}</option>
+      <option value="{{ d }}" {% if selected_domain == d %}selected{% endif %}>{{ d }}</option>
       {% endfor %}
     </select>
   </div>
 
   <div>
     <label class="text-sm text-gray-600">Research facility</label>
-    <select name="company"
-            class="form-control mt-2">
+    <select name="company" class="form-control mt-2">
       <option value="" {% if not selected_company %}selected{% endif %}>All research facilities</option>
       {% for company in companies %}
-        <option value="{{ company.name }}" {% if selected_company == company.name %}selected{% endif %}>
-          {{ company.name }}
-        </option>
+      <option value="{{ company.name }}" {% if selected_company == company.name %}selected{% endif %}>
+        {{ company.name }}
+      </option>
       {% endfor %}
     </select>
   </div>
 
   <div>
     <label class="text-sm text-gray-600">Min. score</label>
-    <input type="number" step="0.1" min="0" max="10" name="min_score" value="{{ min_score }}"
-           class="form-control mt-2">
+    <input type="number" step="0.1" min="0" max="10" name="min_score" value="{{ min_score }}" class="form-control mt-2">
   </div>
 
   <div>
     <label class="text-sm text-gray-600">Sort</label>
-    <select name="sort"
-            class="form-control mt-2">
+    <select name="sort" class="form-control mt-2">
       <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest first</option>
       <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest first</option>
       <option value="best" {% if sort == 'best' %}selected{% endif %}>Best Reviews</option>
       <option value="a_to_z" {% if sort == 'a_to_z' %}selected{% endif %}>Title A → Z</option>
       <option value="z_to_a" {% if sort == 'z_to_a' %}selected{% endif %}>Title Z → A</option>
       <option value="most_reviewed" {% if sort == 'most_reviewed' %}selected{% endif %}>Most reviewed</option>
-      <option value="ai_score" {% if sort == 'ai_score' %}selected{% endif %}>Beste AI-score</option>
+      <option value="ai_score" {% if sort == 'ai_score' %}selected{% endif %}>Best AI-score</option>
     </select>
   </div>
 
   <div class="md:col-span-5 flex flex-wrap gap-3 justify-end">
-    <a href="{{ url_for('main.dashboard') }}" class="btn btn-ghost">
-      Reset filters
-    </a>
-    <button type="submit"
-            class="btn btn-primary {% if offline %}opacity-60 cursor-not-allowed{% endif %}"
-            {% if offline %}disabled{% endif %}>
-      Apply filters
-    </button>
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-ghost">Reset filters</a>
+    <button type="submit" class="btn btn-primary {% if offline %}opacity-60 cursor-not-allowed{% endif %}" {% if offline %}disabled{% endif %}>Apply filters</button>
   </div>
 </form>
-
-
 
 <!-- PAPERS GRID -->
 <div class="mt-10 grid md:grid-cols-2 gap-8">
   {% for p in papers %}
 
-    {% set pdf_url = url_for('main.download_paper', paper_id=p.paper_id) %}
-    {% set stats = score_map.get(p.paper_id) %}
+  {% set pdf_url = url_for('main.download_paper', paper_id=p.paper_id) %}
+  {% set stats = score_map.get(p.paper_id) %}
 
-    <article class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition overflow-hidden">
-      <div class="p-6 flex flex-col gap-4 h-full">
+  <article class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition overflow-hidden">
+    <div class="p-6 flex flex-col gap-4 h-full">
 
-        <div class="flex justify-between items-start gap-3">
-          <span class="px-3 py-1 text-xs font-semibold rounded-full bg-accent/10 text-accent">
-            {{ p.research_domain }}
-          </span>
-          <span class="text-xs text-gray-500">
-            {{ p.upload_date.strftime('%d %b %Y') if p.upload_date else '' }}
-          </span>
-        </div>
+      <div class="flex justify-between items-start gap-3">
+        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-accent/10 text-accent">
+          {{ p.research_domain }}
+        </span>
+        <span class="text-xs text-gray-500">
+          {{ p.upload_date.strftime('%d %b %Y') if p.upload_date else '' }}
+        </span>
+      </div>
 
-        {% set preview = p.abstract or '' %}
-        <div class="space-y-2">
-          <h3 class="text-xl font-bold text-gray-900 group-hover:text-accent transition">
-            <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id) }}" class="hover:underline">
-              {{ p.title }}
-            </a>
-          </h3>
-          <p class="text-gray-600 leading-relaxed">
-            {{ preview[:220] }}{% if preview|length > 220 %}...{% endif %}
-          </p>
-        </div>
+      <div class="space-y-2">
+        <h3 class="text-xl font-bold text-gray-900 group-hover:text-accent transition">
+          <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id) }}" class="hover:underline">
+            {{ p.title }}
+          </a>
+        </h3>
 
-        <div class="flex flex-wrap gap-2">
-          {% set facility_links = p.companies | selectattr('relation_type', 'equalto', 'facility') | list %}
-          {% if facility_links %}
-            {% for link in facility_links %}
-              <span class="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700 border border-gray-200">
-                🏥 Research facility: {{ link.company.name }}
-              </span>
-            {% endfor %}
-          {% else %}
-            <span class="px-3 py-1 text-xs rounded-full bg-gray-50 text-gray-500 border border-dashed border-gray-200">
-              No research facility assigned
+        <p class="text-gray-600 leading-relaxed">
+          {{ (p.abstract or '')[:220] }}{% if p.abstract and p.abstract|length > 220 %}...{% endif %}
+        </p>
+      </div>
+
+      <div class="flex flex-wrap gap-2">
+        {% set facility_links = p.companies | selectattr('relation_type', 'equalto', 'facility') | list %}
+        {% if facility_links %}
+          {% for link in facility_links %}
+            <span class="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700 border border-gray-200">
+              🏥 Research facility: {{ link.company.name }}
             </span>
-          {% endif %}
-
-          {% set interest_links = p.companies | selectattr('relation_type', 'equalto', 'interest') | list %}
-          {% if interest_links|length > 0 %}
-            <span class="px-3 py-1 text-xs rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
-              ⭐ {{ interest_links|length }} interested compan{% if interest_links|length == 1 %}y{% else %}ies{% endif %}
-            </span>
-          {% endif %}
-        </div>
-
-        <div class="flex items-center gap-4">
-          <div class="flex items-center gap-2">
-            <div class="w-10 h-10 rounded-full bg-accent/10 border border-accent/30 flex items-center justify-center text-accent font-bold">
-              {% if stats and stats.avg is not none %}
-                {{ stats.avg }}
-              {% else %}
-                --
-              {% endif %}
-            </div>
-            <div>
-              <p class="text-sm font-semibold text-gray-800">Score /10</p>
-              <p class="text-xs text-gray-500">{{ stats.count if stats else 0 }} reviews</p>
-            </div>
-          </div>
-          <div class="text-sm text-gray-500">
-            By {{ p.author.name if p.author else 'Unknown' }}
-          </div>
-        </div>
-
-        {% if p.ai_status == "done" %}
-        <div class="grid grid-cols-2 gap-3 mt-4">
-          <div class="bg-green-50 border border-green-200 p-3 rounded-xl text-center">
-            <p class="text-xs text-gray-500">Business Score</p>
-            <p class="text-xl font-extrabold text-green-700">{{ p.ai_business_score }}</p>
-          </div>
-
-          <div class="bg-blue-50 border border-blue-200 p-3 rounded-xl text-center">
-            <p class="text-xs text-gray-500">Academic Score</p>
-            <p class="text-xl font-extrabold text-blue-700">{{ p.ai_academic_score }}</p>
-          </div>
-        </div>
-
-        {% elif p.ai_status == "pending" %}
-        <div class="text-xs text-gray-500 mt-3">⏳ AI analysis pending...</div>
-
+          {% endfor %}
         {% else %}
-        <div class="text-xs text-gray-400 mt-3">No AI analysis yet.</div>
+        <span class="px-3 py-1 text-xs rounded-full bg-gray-50 text-gray-500 border border-dashed border-gray-200">
+          No research facility assigned
+        </span>
         {% endif %}
 
-        <div class="flex flex-wrap gap-3 mt-auto">
-          <a href="{{ pdf_url }}" target="_blank"
-             class="px-4 py-2 rounded-lg bg-gray-100 text-gray-800 font-semibold hover:bg-gray-200 transition">
-            View PDF
-          </a>
+        {% set interest_links = p.companies | selectattr('relation_type', 'equalto', 'interest') | list %}
+        {% if interest_links %}
+        <span class="px-3 py-1 text-xs rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+          ⭐ {{ interest_links|length }} interested compan{% if interest_links|length == 1 %}y{% else %}ies{% endif %}
+        </span>
+        {% endif %}
+      </div>
 
-          <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id) }}"
-             class="px-4 py-2 rounded-lg bg-accent text-white font-semibold hover:bg-teal-600 transition">
-            Details & review
-          </a>
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-10 h-10 rounded-full bg-accent/10 border border-accent/30 flex items-center justify-center text-accent font-bold">
+            {% if stats and stats.avg is not none %}
+              {{ stats.avg }}
+            {% else %}
+              --
+            {% endif %}
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-gray-800">Score /10</p>
+            <p class="text-xs text-gray-500">{{ stats.count if stats else 0 }} reviews</p>
+          </div>
+        </div>
 
-          {% if session.get('user_role') == 'Company' and session.get('user_id') %}
-            <form method="post"
-                  action="{{ url_for('main.toggle_interest', paper_id=p.paper_id) }}">
-              <button type="submit"
-                      class="px-4 py-2 rounded-lg text-sm font-semibold
-                             {% if p.paper_id in interested_ids %}
-                               bg-accent text-white
-                             {% else %}
-                               border border-accent text-accent hover:bg-accent hover:text-white
-                             {% endif %}
-                             transition">
-                {% if p.paper_id in interested_ids %}
-                  ✓ Interested
-                {% else %}
-                  + Interested
-                {% endif %}
-              </button>
-            </form>
-          {% endif %}
+        <div class="text-sm text-gray-500">
+          By {{ p.author.name if p.author else 'Unknown' }}
         </div>
       </div>
-    </article>
+
+      {% if p.ai_status == "done" %}
+      <div class="grid grid-cols-2 gap-3 mt-4">
+        <div class="bg-green-50 border border-green-200 p-3 rounded-xl text-center">
+          <p class="text-xs text-gray-500">Business Score</p>
+          <p class="text-xl font-extrabold text-green-700">{{ p.ai_business_score }}</p>
+        </div>
+
+        <div class="bg-blue-50 border border-blue-200 p-3 rounded-xl text-center">
+          <p class="text-xs text-gray-500">Academic Score</p>
+          <p class="text-xl font-extrabold text-blue-700">{{ p.ai_academic_score }}</p>
+        </div>
+      </div>
+
+      {% elif p.ai_status == "pending" %}
+      <div class="text-xs text-gray-500 mt-3">⏳ AI analysis pending...</div>
+
+      {% else %}
+      <div class="text-xs text-gray-400 mt-3">No AI analysis yet.</div>
+      {% endif %}
+
+      <div class="flex flex-wrap gap-3 mt-auto">
+        <a href="{{ pdf_url }}" target="_blank" class="px-4 py-2 rounded-lg bg-gray-100 text-gray-800 font-semibold hover:bg-gray-200 transition">
+          View PDF
+        </a>
+
+        <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id) }}" class="px-4 py-2 rounded-lg bg-accent text-white font-semibold hover:bg-teal-600 transition">
+          Details & review
+        </a>
+
+        {% if session.get('user_role') == 'Company' and session.get('user_id') %}
+        <form method="post" action="{{ url_for('main.toggle_interest', paper_id=p.paper_id) }}">
+          <button type="submit"
+                  class="px-4 py-2 rounded-lg text-sm font-semibold
+                         {% if p.paper_id in interested_ids %}
+                           bg-accent text-white
+                         {% else %}
+                           border border-accent text-accent hover:bg-accent hover:text-white
+                         {% endif %}
+                         transition">
+            {% if p.paper_id in interested_ids %}
+              ✓ Interested
+            {% else %}
+              + Interested
+            {% endif %}
+          </button>
+        </form>
+        {% endif %}
+      </div>
+
+    </div>
+  </article>
 
   {% else %}
-    <div class="surface-card surface-card--large md:col-span-2 text-center text-gray-600">
-      No papers found with these filters. Submit one or reset filters.
-    </div>
+  <div class="surface-card surface-card--large md:col-span-2 text-center text-gray-600">
+    No papers found with these filters. Submit one or reset filters.
+  </div>
   {% endfor %}
 </div>
+
 {% endblock %}
