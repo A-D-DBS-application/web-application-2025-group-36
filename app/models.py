@@ -40,11 +40,16 @@ class Company(db.Model):
     name = db.Column(db.String(255), nullable=False)
     industry = db.Column(db.String(255))
 
+    # 🔹 Interests die we net toegevoegd hebben (MVP)
+    interests = db.Column(db.String(255))  # bijv. "AI,Robotics,Biotech"
+
+    # 🔹 N-M relatie via koppeltabel PaperCompany
     papers = db.relationship(
-        'PaperCompany',
-        back_populates='company',
+        "PaperCompany",
+        back_populates="company",
         cascade="all, delete-orphan"
     )
+
 
 
 # ================================
@@ -117,9 +122,6 @@ class PaperCompany(db.Model):
 
     paper = db.relationship('Paper', back_populates='companies')
     company = db.relationship('Company', back_populates='papers')
-
-    def __repr__(self):
-        return f"<PaperCompany Paper={self.paper_id}, Company={self.company_id}>"
 
 
 # ================================

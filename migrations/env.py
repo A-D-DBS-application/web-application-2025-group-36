@@ -9,7 +9,7 @@ config = context.config
 
 # Setup logging from alembic.ini
 fileConfig(config.config_file_name)
-logger = logging.getLogger('alembic.env')
+logger = logging.getLogger("alembic.env")
 
 
 # --------------------------------------------------------
@@ -19,10 +19,10 @@ def get_engine():
     """Unified engine getter for Flask-SQLAlchemy <3 and >=3."""
     try:
         # Flask-SQLAlchemy < 3
-        return current_app.extensions['migrate'].db.get_engine()
+        return current_app.extensions["migrate"].db.get_engine()
     except Exception:
         # Flask-SQLAlchemy 3+
-        return current_app.extensions['migrate'].db.engine
+        return current_app.extensions["migrate"].db.engine
 
 
 def get_engine_url():
@@ -35,7 +35,7 @@ def get_engine_url():
 # Inject the DB URL from Flask config
 config.set_main_option("sqlalchemy.url", get_engine_url())
 
-target_db = current_app.extensions['migrate'].db
+target_db = current_app.extensions["migrate"].db
 
 
 # --------------------------------------------------------
@@ -73,17 +73,23 @@ def run_migrations_online():
     """Run migrations with engine (online mode)."""
 
     # Prevent empty migrations
-    def process_revision_directives(context, revision, directives):
+    def process_revision_directives(context_, revision, directives):
         if getattr(config.cmd_opts, "autogenerate", False):
             script = directives[0]
             if script.upgrade_ops.is_empty():
                 directives[:] = []
                 logger.info("No changes in schema detected.")
 
-    conf_args = current_app.extensions["migrate"].configure_args
+    # Copy configure_args so we can safely modify them
+    conf_args = dict(current_app.extensions["migrate"].configure_args)
 
+    # Zorg dat onze process_revision_directives gezet is
     if conf_args.get("process_revision_directives") is None:
         conf_args["process_revision_directives"] = process_revision_directives
+
+    # Vermijd dubbele compare_type / compare_server_default
+    conf_args.setdefault("compare_type", True)
+    conf_args.setdefault("compare_server_default", True)
 
     connectable = get_engine()
 
@@ -91,9 +97,7 @@ def run_migrations_online():
         context.configure(
             connection=connection,
             target_metadata=get_metadata(),
-            compare_type=True,       # detect type changes automatically
-            compare_server_default=True,
-            **conf_args
+            **conf_args,   # géén extra compare_type hier meer!
         )
 
         with context.begin_transaction():
@@ -107,3 +111,4 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
+

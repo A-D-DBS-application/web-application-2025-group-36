@@ -829,9 +829,7 @@ def list_companies():
 def about():
     return render_template("about.html", title="About")
 
-# ---------------------------------------------------
-# Profile Page
-# ---------------------------------------------------
+
 # ---------------------------------------------------
 # Profile Page
 # ---------------------------------------------------
@@ -852,9 +850,12 @@ def profile():
 
     interested_papers = []
     company = None
+    recommended_papers = []
+
     if user.role == "Company":
         company = Company.query.filter_by(name=user.name).first()
         if company:
+            # Reeds gemarkeerde interesse-papers
             links = (
                 PaperCompany.query
                 .filter_by(company_id=company.company_id, relation_type="interest")
@@ -863,6 +864,18 @@ def profile():
                 .all()
             )
             interested_papers = [link.paper for link in links]
+
+            # 🔹 Automatische recommendaties op basis van interests
+            if company.interests:
+                tags = [t.strip() for t in company.interests.split(",") if t.strip()]
+                if tags:
+                    recommended_papers = (
+                        Paper.query
+                        .filter(Paper.research_domain.in_(tags))
+                        .order_by(Paper.upload_date.desc())
+                        .limit(5)
+                        .all()
+                    )
 
     reviews = (
         Review.query
@@ -883,7 +896,9 @@ def profile():
         reviews=reviews,
         papers_count=papers_count,
         reviews_count=reviews_count,
+        recommended_papers=recommended_papers,   # ⭐ NIEUW
     )
+
 
 
 # ---------------------------------------------------
@@ -897,13 +912,28 @@ def edit_profile():
 
     user = User.query.get(user_id)
 
-    if request.method == "POST":
-        new_name = request.form.get("name").strip()
-        new_email = request.form.get("email").strip()
+    # 🔹 Interests zijn enkel relevant voor company-accounts
+    company = None
+    company_interests_list = []
+    INTEREST_TAGS = ["AI", "Robotics", "Biotech", "Health", "Energy", "Software", "Sustainability"]
 
-        # Update user object
-        user.name = new_name
-        user.email = new_email
+    if user.role == "Company":
+        company = Company.query.filter_by(name=user.name).first()
+        if company and company.interests:
+            company_interests_list = [t.strip() for t in company.interests.split(",") if t.strip()]
+
+    if request.method == "POST":
+        new_name = (request.form.get("name") or "").strip()
+        new_email = (request.form.get("email") or "").strip()
+
+        user.name = new_name or user.name
+        user.email = new_email or user.email
+
+        # 🔹 Interests opslaan als company
+        if user.role == "Company" and company:
+            selected_interests = request.form.getlist("interests")  # lijst van aangevinkte tags
+            company.interests = ",".join(selected_interests) if selected_interests else None
+
         db.session.commit()
 
         # IMPORTANT: update session so navbar updates
@@ -913,7 +943,15 @@ def edit_profile():
         flash("Profile updated successfully!", "success")
         return redirect(url_for("main.profile"))
 
-    return render_template("edit_profile.html", user=user, title="Edit Profile")
+    return render_template(
+        "edit_profile.html",
+        user=user,
+        company=company,
+        company_interests=company_interests_list,
+        interest_tags=INTEREST_TAGS,
+        title="Edit Profile"
+    )
+
 
 # ---------------------------------------------------
 # Stats (Algorithmic support)

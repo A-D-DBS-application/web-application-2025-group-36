@@ -27,8 +27,48 @@
                required>
       </div>
 
+
+      <!-- 🔹 COMPANY INTEREST TAGS (alleen zichtbaar voor Company) -->
+      {% if user.role == "Company" %}
+
+      <div class="pt-4">
+        <label class="block text-lg font-semibold text-accent mb-2">
+          Company Interests
+        </label>
+
+        <p class="text-sm text-gray-500 mb-3">
+          Select the research domains your company is interested in.  
+          Papers from these domains will be recommended to you.
+        </p>
+
+        <div class="grid grid-cols-2 gap-3">
+          {% for tag in interest_tags %}
+
+            <label class="flex items-center gap-2 bg-gray-50 border border-accent/20 px-3 py-2 rounded-lg cursor-pointer hover:bg-accent/5">
+
+              <input
+                type="checkbox"
+                name="interests"
+                value="{{ tag }}"
+                class="accent-accent"
+                {% if tag in company_interests %}checked{% endif %}
+              >
+
+              <span class="text-sm font-medium text-gray-700">
+                {{ tag }}
+              </span>
+
+            </label>
+
+          {% endfor %}
+        </div>
+      </div>
+
+      {% endif %}
+
+
       <!-- BUTTONS -->
-      <div class="flex justify-between mt-6">
+      <div class="flex justify-between mt-8">
 
         <a href="{{ url_for('main.profile') }}"
            class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
@@ -48,3 +88,4 @@
 </div>
 
 {% endblock %}
+
