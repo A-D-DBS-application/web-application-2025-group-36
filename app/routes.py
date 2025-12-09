@@ -71,6 +71,9 @@ def compute_paper_score(paper, user_prefs, score_map, now):
 # ---------------------------------------------------
 # DASHBOARD
 # ---------------------------------------------------
+# ---------------------------------------------------
+# DASHBOARD
+# ---------------------------------------------------
 @main.route("/dashboard")
 def dashboard():
     search = request.args.get("q", "").strip()
@@ -78,6 +81,24 @@ def dashboard():
     selected_company = request.args.get("company", "").strip()
     min_score = request.args.get("min_score", "").strip()
     sort = request.args.get("sort", "newest")
+
+    # ------------------------------
+    # BEREKEN ACTIVE FILTERS 🎯
+    # ------------------------------
+    active_filters = 0
+    if search:
+        active_filters += 1
+    if selected_domain != "all":
+        active_filters += 1
+    if selected_company:
+        active_filters += 1
+    if min_score:
+        # Telt alleen als de waarde een geldig nummer is
+        try:
+            float(min_score)
+            active_filters += 1
+        except ValueError:
+            pass 
 
     # ------------------------------
     # SCORE SUBQUERY
@@ -123,8 +144,8 @@ def dashboard():
             query.join(PaperCompany, PaperCompany.paper_id == Paper.paper_id)
                  .join(Company, Company.company_id == PaperCompany.company_id)
                  .filter(
-                    PaperCompany.relation_type == "facility",
-                    Company.name == selected_company
+                     PaperCompany.relation_type == "facility",
+                     Company.name == selected_company
                  )
         )
 
@@ -155,18 +176,18 @@ def dashboard():
 
     elif sort == "most_reviewed":
         query = query.order_by(func.coalesce(avg_subq.c.review_count, 0).desc())
-   
+    
     elif sort == "ai_score": 
         query = query.order_by((Paper.ai_business_score + Paper.ai_academic_score).desc())
-   
-    else:  # newest
+    
+    else:
         query = query.order_by(Paper.upload_date.desc())
 
     
 
     # ------------------------------
     # EXECUTE QUERY WITH JOINEDLOAD
-    # ------------------------------
+    # --------------------------------
     papers = (
         query.options(
             joinedload(Paper.author),
@@ -240,6 +261,8 @@ def dashboard():
         query=search,
         interested_ids=interested_ids,
         top5=top5,
+        # ⭐ CRUCIAAL: De variabele die we in HTML gebruiken
+        active_filters=active_filters,
     )
 
 # ---------------------------------------------------
