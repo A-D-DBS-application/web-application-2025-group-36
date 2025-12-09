@@ -1,235 +1,242 @@
 {% extends "base.html" %}
 {% block content %}
 
-<section class="bg-white border border-gray-200 rounded-3xl shadow-xl p-8">
-  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-    <div>
-      <p class="text-xs uppercase tracking-[0.35em] text-gray-500">Profile</p>
-      <h1 class="mt-2 text-3xl md:text-4xl font-extrabold text-gray-900">
-        {{ user.name }}
-      </h1>
-      <p class="mt-1 text-gray-600">
-        Role:
-        <span class="inline-flex px-2 py-1 rounded-full bg-accent/10 text-accent text-xs font-semibold">
-          {{ user.role }}
-        </span>
-      </p>
-      {% if company %}
-        <p class="mt-1 text-gray-500 text-sm">
-          Linked company:
-          <span class="font-semibold">{{ company.name }}</span>
-        </p>
-      {% endif %}
+<div class="relative bg-white border border-gray-200 rounded-[2rem] shadow-sm overflow-hidden mb-8 group">
+    
+    <div class="h-40 w-full bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600"></div>
+
+    <div class="px-8 pb-8">
+        <div class="relative flex flex-col md:flex-row items-end -mt-12 gap-6">
+            
+            <div class="w-28 h-28 rounded-full border-4 border-white bg-gray-900 text-white flex items-center justify-center text-3xl font-bold shadow-md z-10">
+                {{ user.name[0] | upper }}
+            </div>
+
+            <div class="flex-grow pt-2 md:pt-0 pb-2">
+                <h1 class="text-3xl font-extrabold text-gray-900">{{ user.name }}</h1>
+                <div class="flex flex-wrap items-center gap-3 mt-2">
+                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider
+                        {% if user.role == 'Researcher' %} bg-blue-50 text-blue-700 border border-blue-100
+                        {% elif user.role == 'Company' %} bg-teal-50 text-teal-700 border border-teal-100
+                        {% else %} bg-gray-100 text-gray-700 {% endif %}">
+                        {{ user.role }}
+                    </span>
+
+                    {% if company %}
+                    <span class="text-gray-400 text-sm">•</span>
+                    <span class="flex items-center gap-1 text-gray-600 font-medium">
+                        🏢 {{ company.name }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-4 md:mt-0">
+                <a href="{{ url_for('main.edit_profile') }}" class="btn btn-secondary text-sm">
+                    ⚙️ Settings
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+    
+    <div class="bg-white border border-gray-100 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl">
+                📄
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Published</p>
+                <p class="text-2xl font-black text-gray-900">{{ papers_count }}</p>
+            </div>
+        </div>
     </div>
 
-    <div class="grid grid-cols-3 gap-4 w-full md:w-auto">
-      <div class="bg-teal-50 border border-teal-100 rounded-2xl p-4 text-center">
-        <p class="text-xs text-gray-500 uppercase">Papers authored</p>
-        <p class="mt-1 text-2xl font-bold text-gray-900">{{ papers_count }}</p>
-      </div>
-      <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-center">
-        <p class="text-xs text-gray-500 uppercase">Reviews</p>
-        <p class="mt-1 text-2xl font-bold text-gray-900">{{ reviews_count }}</p>
-      </div>
-      <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-center">
-        <p class="text-xs text-gray-500 uppercase">
-          {% if user.role == 'Company' %}
-            Interested papers
-          {% else %}
-            Domains
-          {% endif %}
-        </p>
-        <p class="mt-1 text-2xl font-bold text-gray-900">
-          {% if user.role == 'Company' %}
-            {{ interested_papers|length }}
-          {% else %}
-            {{ user.reviews|map(attribute='paper')|selectattr('research_domain')|list|length }}
-          {% endif %}
-        </p>
-      </div>
+    <div class="bg-white border border-gray-100 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-2xl">
+                ✍️
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Reviews Given</p>
+                <p class="text-2xl font-black text-gray-900">{{ reviews_count }}</p>
+            </div>
+        </div>
     </div>
-  </div>
+
+    <div class="bg-white border border-gray-100 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-2xl">
+                {% if user.role == 'Company' %}⭐{% else %}🌐{% endif %}
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">
+                    {% if user.role == 'Company' %}Interested In{% else %}Active Domains{% endif %}
+                </p>
+                <p class="text-2xl font-black text-gray-900">
+                    {% if user.role == 'Company' %}
+                        {{ interested_papers|length }}
+                    {% else %}
+                        {{ user.reviews|map(attribute='paper')|selectattr('research_domain')|list|length }}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid lg:grid-cols-2 gap-8 mb-12">
+
+    <section>
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                📚 My Papers
+                <span class="text-sm font-normal text-gray-400">({{ authored_papers|length }})</span>
+            </h2>
+            {% if user.role == 'Researcher' %}
+            <a href="{{ url_for('main.upload_paper') }}" class="text-sm font-bold text-accent hover:underline">
+                + New Upload
+            </a>
+            {% endif %}
+        </div>
+
+        {% if authored_papers %}
+        <div class="flex flex-col gap-4">
+            {% for paper in authored_papers %}
+            <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-accent/50 hover:shadow-md transition-all duration-200 relative">
+                
+                <div class="flex justify-between items-start mb-2">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-gray-100 text-gray-600">
+                        {{ paper.research_domain }}
+                    </span>
+                    <a href="{{ url_for('main.update_paper', paper_id=paper.paper_id) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors z-20" title="Edit Paper">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    </a>
+                </div>
+
+                <h3 class="font-bold text-gray-900 mb-2 leading-tight group-hover:text-accent transition-colors">
+                    <a href="{{ url_for('main.paper_detail', paper_id=paper.paper_id) }}" class="stretched-link">
+                        {{ paper.title }}
+                    </a>
+                </h3>
+
+                <p class="text-sm text-gray-500 line-clamp-2 mb-3">
+                    {{ paper.abstract or 'No abstract provided.' }}
+                </p>
+
+                <div class="text-xs text-gray-400 flex items-center gap-2">
+                    <span>Uploaded {{ paper.upload_date.strftime('%b %d, %Y') if paper.upload_date else '' }}</span>
+                    {% if paper.ai_status == 'done' %}
+                    <span class="text-green-600 font-bold flex items-center gap-1">• AI Scored ✓</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-10 bg-gray-50 border border-dashed border-gray-200 rounded-xl">
+            <div class="text-4xl mb-2">📄</div>
+            <p class="text-gray-500 font-medium">No papers published yet.</p>
+            {% if user.role == 'Researcher' %}
+            <a href="{{ url_for('main.upload_paper') }}" class="btn btn-primary btn-sm mt-4">Upload First Paper</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </section>
+
+    <section>
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                {% if user.role == 'Company' %}
+                    ⭐ Saved Interest
+                {% else %}
+                    📝 My Reviews
+                {% endif %}
+            </h2>
+        </div>
+
+        {% if user.role == 'Company' %}
+            {% if interested_papers %}
+            <div class="flex flex-col gap-4">
+                {% for paper in interested_papers %}
+                <div class="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-all duration-200 flex flex-col gap-2">
+                    <div class="flex justify-between items-start">
+                        <a href="{{ url_for('main.paper_detail', paper_id=paper.paper_id) }}" class="font-bold text-gray-900 hover:text-accent transition-colors">
+                            {{ paper.title }}
+                        </a>
+                        <form method="post" action="{{ url_for('main.toggle_interest', paper_id=paper.paper_id) }}">
+                            <button type="submit" class="text-xs font-bold text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded transition-colors">
+                                Remove
+                            </button>
+                        </form>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-gray-500">
+                        <span class="bg-gray-100 px-2 py-0.5 rounded">{{ paper.research_domain }}</span>
+                        <span>by {{ paper.author.name if paper.author else 'Unknown' }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-10 bg-gray-50 border border-dashed border-gray-200 rounded-xl">
+                <p class="text-gray-500">No interested papers yet.</p>
+                <a href="{{ url_for('main.dashboard') }}" class="text-accent text-sm font-bold hover:underline mt-2 inline-block">Explore Dashboard</a>
+            </div>
+            {% endif %}
+
+        {% else %}
+            {% if reviews %}
+            <div class="flex flex-col gap-4">
+                {% for review in reviews[:5] %}
+                <div class="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-all duration-200">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs text-gray-400 font-mono">{{ review.date_submitted.strftime('%d %b %Y') if review.date_submitted else '' }}</span>
+                        <div class="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-md">
+                            <span class="text-xs font-bold text-gray-700">Score:</span>
+                            <span class="text-xs font-black text-gray-900">{{ review.score if review.score is not none else '-' }}/10</span>
+                        </div>
+                    </div>
+                    
+                    <h4 class="text-sm font-bold text-gray-900 mb-1">
+                        Review on: <a href="{{ url_for('main.paper_detail', paper_id=review.paper.paper_id) }}" class="text-accent hover:underline">{{ review.paper.title }}</a>
+                    </h4>
+                    
+                    {% if review.comments %}
+                    <p class="text-sm text-gray-600 italic bg-gray-50 p-3 rounded-lg border border-gray-100 mt-2">
+                        "{{ review.comments[:120] }}{% if review.comments|length > 120 %}...{% endif %}"
+                    </p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-10 bg-gray-50 border border-dashed border-gray-200 rounded-xl">
+                <p class="text-gray-500">No reviews written yet.</p>
+                <a href="{{ url_for('main.dashboard') }}" class="text-accent text-sm font-bold hover:underline mt-2 inline-block">Start Reviewing</a>
+            </div>
+            {% endif %}
+        {% endif %}
+
+    </section>
+
+</div>
+
+<section class="border-t border-gray-200 pt-10">
+    <div class="bg-red-50/50 border border-red-100 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div>
+            <h3 class="text-lg font-bold text-red-700">Danger Zone</h3>
+            <p class="text-sm text-red-600/80">
+                Permanently delete your account and all associated data. This action cannot be undone.
+            </p>
+        </div>
+        <form method="post" action="{{ url_for('main.delete_account') }}" onsubmit="return confirm('Are you sure you want to permanently delete your account? This cannot be undone.');">
+            <button type="submit" class="px-5 py-2.5 bg-white border border-red-200 text-red-600 font-bold rounded-xl hover:bg-red-600 hover:text-white hover:border-red-600 transition-all shadow-sm">
+                Delete Account
+            </button>
+        </form>
+    </div>
 </section>
 
-<div class="mt-8 grid lg:grid-cols-2 gap-8">
-
-  {# ------------------------------------- #}
-  {# LEFT: Authored papers (Researcher)    #}
-  {# ------------------------------------- #}
-  <section class="bg-white border border-gray-200 rounded-3xl shadow-md p-6">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg font-semibold text-gray-900">
-        Your published papers
-      </h2>
-      {% if user.role == 'Researcher' %}
-        <a href="{{ url_for('main.upload_paper') }}"
-           class="text-sm px-3 py-1.5 rounded-lg bg-accent text-white font-semibold hover:bg-teal-600 transition">
-          + New paper
-        </a>
-      {% endif %}
-    </div>
-
-    {% if authored_papers %}
-      <div class="space-y-4">
-        {% for paper in authored_papers %}
-          <article class="border border-gray-200 rounded-2xl p-4 hover:shadow-md transition">
-            <div class="flex justify-between items-start gap-3">
-              <div>
-                <h3 class="text-sm font-bold text-gray-900">
-                  <a href="{{ url_for('main.paper_detail', paper_id=paper.paper_id) }}"
-                     class="hover:text-accent hover:underline">
-                    {{ paper.title }}
-                  </a>
-                </h3>
-                <p class="mt-1 text-xs text-gray-500">
-                  {{ paper.upload_date.strftime('%d %b %Y') if paper.upload_date else '' }} ·
-                  {{ paper.research_domain }}
-                </p>
-              </div>
-              <a href="{{ url_for('main.update_paper', paper_id=paper.paper_id) }}"
-                 class="text-xs px-3 py-1 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 transition">
-                Edit
-              </a>
-            </div>
-            <p class="mt-2 text-sm text-gray-600">
-              {{ paper.abstract[:180] }}{% if paper.abstract and paper.abstract|length > 180 %}...{% endif %}
-            </p>
-          </article>
-        {% endfor %}
-      </div>
-    {% else %}
-      <p class="text-sm text-gray-500">
-        You haven't published any papers yet.
-        {% if user.role == 'Researcher' %}
-          <a href="{{ url_for('main.upload_paper') }}" class="text-accent font-semibold hover:underline">
-            Upload your first paper.
-          </a>
-        {% endif %}
-      </p>
-    {% endif %}
-  </section>
-
-  {# ------------------------------------- #}
-  {# RIGHT: Interested papers (Company)    #}
-  {# ------------------------------------- #}
-  <section class="bg-white border border-gray-200 rounded-3xl shadow-md p-6">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg font-semibold text-gray-900">
-        {% if user.role == 'Company' %}
-          Papers your company is interested in
-        {% else %}
-          Recent reviews you wrote
-        {% endif %}
-      </h2>
-    </div>
-
-    {% if user.role == 'Company' %}
-      {% if interested_papers %}
-        <div class="space-y-4">
-          {% for paper in interested_papers %}
-            <article class="border border-gray-200 rounded-2xl p-4 hover:shadow-md transition">
-              <div class="flex justify-between items-start gap-3">
-                <div>
-                  <h3 class="text-sm font-bold text-gray-900">
-                    <a href="{{ url_for('main.paper_detail', paper_id=paper.paper_id) }}"
-                       class="hover:text-accent hover:underline">
-                      {{ paper.title }}
-                    </a>
-                  </h3>
-                  <p class="mt-1 text-xs text-gray-500">
-                    {{ paper.research_domain }} ·
-                    {{ paper.upload_date.strftime('%d %b %Y') if paper.upload_date else '' }}
-                  </p>
-                  <p class="mt-1 text-xs text-gray-500">
-                    By {{ paper.author.name if paper.author else 'Unknown' }}
-                  </p>
-                </div>
-                <form method="post"
-                      action="{{ url_for('main.toggle_interest', paper_id=paper.paper_id) }}">
-                  <button type="submit"
-                          class="text-xs px-3 py-1 rounded-full border border-red-200 text-red-600 hover:bg-red-50 transition">
-                    Remove
-                  </button>
-                </form>
-              </div>
-              <p class="mt-2 text-sm text-gray-600">
-                {{ paper.abstract[:160] }}{% if paper.abstract and paper.abstract|length > 160 %}...{% endif %}
-              </p>
-            </article>
-          {% endfor %}
-        </div>
-      {% else %}
-        <p class="text-sm text-gray-500">
-          Your company has not marked any papers as “Interested” yet.
-          Go to the
-          <a href="{{ url_for('main.dashboard') }}" class="text-accent font-semibold hover:underline">
-            dashboard
-          </a>
-          and click the <strong>Interested</strong> button on relevant papers.
-        </p>
-      {% endif %}
-    {% else %}
-      {# Voor niet-company users tonen we hun eigen reviews #}
-      {% if reviews %}
-        <div class="space-y-4">
-          {% for review in reviews[:5] %}
-            <article class="border border-gray-200 rounded-2xl p-4 hover:shadow-md transition">
-              <p class="text-xs text-gray-500 mb-1">
-                {{ review.date_submitted.strftime('%d %b %Y') if review.date_submitted else '' }}
-              </p>
-              <h3 class="text-sm font-bold text-gray-900">
-                On
-                <a href="{{ url_for('main.paper_detail', paper_id=review.paper.paper_id) }}"
-                   class="hover:text-accent hover:underline">
-                  {{ review.paper.title if review.paper else 'Unknown paper' }}
-                </a>
-              </h3>
-              <p class="mt-1 text-xs text-gray-500">
-                Score:
-                {% if review.score is not none %}
-                  {{ review.score }}/10
-                {% else %}
-                  no score given
-                {% endif %}
-              </p>
-              {% if review.comments %}
-                <p class="mt-2 text-sm text-gray-600">
-                  “{{ review.comments[:180] }}{% if review.comments|length > 180 %}...{% endif %}”
-                </p>
-              {% endif %}
-            </article>
-          {% endfor %}
-        </div>
-      {% else %}
-        <p class="text-sm text-gray-500">
-          You haven't written any reviews yet.
-          Go to the
-          <a href="{{ url_for('main.dashboard') }}" class="text-accent font-semibold hover:underline">
-            dashboard
-          </a>
-          to start reviewing papers.
-        </p>
-      {% endif %}
-    {% endif %}
-  </section>
-
-  </div>
-  <!-- ACCOUNT ACTIONS -->
-  <section class="mt-10 bg-white border border-red-100 rounded-3xl shadow-md p-6">
-    <p class="text-sm text-gray-600 mb-4">
-      You can permanently remove your account here.
-    </p>
-
-    <form method="post"
-          action="{{ url_for('main.delete_account') }}"
-          onsubmit="return confirm('Are you sure you want to permanently delete your account?');">
-      <button type="submit"
-              class="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition">
-        Delete my account
-      </button>
-    </form>
-  </section>
-
-
 {% endblock %}
-

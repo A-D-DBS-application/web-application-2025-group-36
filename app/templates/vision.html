@@ -1,72 +1,155 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!-- HERO SECTION -->
-<section class="w-full py-20">
-  <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-
-    <!-- TEXT -->
-    <div>
-      <h1 class="text-5xl font-extrabold text-gray-900 leading-tight mb-6">
-        Bridging the Gap Between <span class="text-teal-500">Science</span> & <span class="text-teal-500">Industry</span>
-      </h1>
-
-      <p class="text-gray-700 text-lg leading-relaxed mb-8">
-        At <span class="font-semibold text-teal-500">REVIEWR</span>, we help researchers share their insights and help companies
-        find the scientific knowledge they need — faster and more efficiently.
-      </p>
-
-      <div class="flex gap-4">
-        <a href="/register"
-           class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-lg hover:bg-teal-600 transition">
-          Get Started
-        </a>
-        <a href="/about"
-           class="px-6 py-3 border border-teal-500 text-teal-500 font-semibold rounded-lg hover:bg-teal-50 transition">
-          Learn More
-        </a>
-      </div>
+<section class="relative w-full py-20 md:py-32 overflow-hidden">
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl z-[-1]">
+        <div class="absolute top-10 right-0 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[100px]"></div>
+        <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-100/40 rounded-full blur-[80px]"></div>
     </div>
 
-    <!-- IMAGE -->
-    <div class="flex justify-center">
-      <img
-        src="https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1200&q=80"
-        alt="Scientific collaboration"
-        class="rounded-2xl shadow-xl w-full"
-      >
+    <div class="grid md:grid-cols-2 gap-16 items-center">
+        <div class="relative z-10">
+            <div class="inline-flex items-center px-3 py-1 rounded-full bg-white border border-accent/20 text-accent text-xs font-bold uppercase tracking-widest mb-6 shadow-sm">
+                Our Purpose
+            </div>
+            <h1 class="text-5xl md:text-6xl font-extrabold text-gray-900 leading-[1.1] mb-6">
+                Bridging the Gap Between <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600">Science</span> & <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600">Industry</span>
+            </h1>
+            <p class="text-lg text-gray-600 leading-relaxed mb-8 max-w-lg">
+                Thousands of valuable papers are published every year, yet they often fail to reach the industry. We are building the ecosystem where innovation meets application.
+            </p>
+
+            <div class="flex flex-wrap gap-4">
+                {% if not session.get('user_id') %}
+                    <a href="{{ url_for('main.register') }}" class="btn btn-primary px-8 py-3 text-lg shadow-lg shadow-teal-500/20">Get Started</a>
+                {% else %}
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary px-8 py-3 text-lg shadow-lg shadow-teal-500/20">Go to Dashboard</a>
+                {% endif %}
+                <a href="#about" class="btn btn-secondary px-8 py-3 text-lg">Read Our Story</a>
+            </div>
+        </div>
+
+        <div class="relative">
+            <div class="relative rounded-3xl overflow-hidden shadow-2xl border border-gray-100 transform hover:scale-[1.01] transition duration-700">
+                <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1200&q=80" 
+                     alt="Scientific collaboration" 
+                     class="w-full h-auto object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+            </div>
+            <div class="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-xl border border-gray-100 flex items-center gap-3 animate-bounce-slow">
+                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-bold">✓</div>
+                <div>
+                    <p class="text-xs text-gray-500 font-bold uppercase">Impact</p>
+                    <p class="text-sm font-bold text-gray-900">Accelerating Innovation</p>
+                </div>
+            </div>
+        </div>
     </div>
-
-  </div>
 </section>
 
-<!-- REST OF YOUR CONTENT -->
-<section class="max-w-4xl mx-auto py-10">
-  <!-- Vision -->
-  <h2 class="text-3xl font-bold mb-4 text-teal-500">Our Vision</h2>
-  <p class="text-gray-700 mb-10">
-    We believe that knowledge becomes truly powerful only when it is shared.
-    Thousands of valuable papers exist, yet companies often fail to find them — or find them too late.
-    Researchers struggle to make an impact outside the academic world. We want to bridge this gap.
-  </p>
 
-  <!-- Mission -->
-  <h2 class="text-3xl font-bold mb-4 text-teal-500">Our Mission</h2>
-  <p class="text-gray-700 mb-4">To build a platform that connects researchers and companies so that:</p>
+<section class="py-20 border-t border-gray-100">
+    <div class="grid md:grid-cols-3 gap-8">
+        
+        <div class="group p-8 bg-white border border-gray-100 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+                👁️
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-3">Our Vision</h3>
+            <p class="text-gray-600 leading-relaxed">
+                We believe knowledge is only powerful when shared. We envision a world where no scientific insight is lost in a drawer, but instantly accessible to those who build the future.
+            </p>
+        </div>
 
-  <ul class="text-gray-700 list-disc pl-6 space-y-2 mb-10">
-    <li>companies can find relevant scientific insights more quickly,</li>
-    <li>researchers can increase their real-world impact,</li>
-    <li>collaborations form and grow more easily,</li>
-    <li>innovation accelerates at scale.</li>
-  </ul>
+        <div class="group p-8 bg-white border border-gray-100 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-accent"></div>
+            
+            <div class="w-14 h-14 bg-teal-50 text-accent rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+                🚀
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-3">Our Mission</h3>
+            <p class="text-gray-600 leading-relaxed">
+                To build the ultimate bridge. By connecting researchers directly with R&D departments, we accelerate development cycles and create tangible real-world impact.
+            </p>
+        </div>
 
-  <!-- Future -->
-  <h2 class="text-3xl font-bold mb-4 text-teal-500">The Future</h2>
-  <p class="text-gray-700">
-    We are building an ecosystem where science and industry naturally find each other,
-    powered by intelligent matching, transparent reviews, and a strong community.
-  </p>
+        <div class="group p-8 bg-white border border-gray-100 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div class="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+                🔮
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-3">The Future</h3>
+            <p class="text-gray-600 leading-relaxed">
+                An AI-driven ecosystem where matching is automatic. Transparent reviews validate quality, and a strong community drives the next generation of breakthroughs.
+            </p>
+        </div>
+
+    </div>
 </section>
+
+
+<section id="about" class="py-24 relative">
+    
+    <div class="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-[2.5rem] p-8 md:p-16 shadow-lg">
+        
+        <div class="max-w-4xl mx-auto text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6">
+                About <span class="text-accent">Us</span>
+            </h2>
+            <p class="text-xl text-gray-600 leading-relaxed">
+                REVIEWR was founded with a clear mission: to fix the disconnect between academia and industry. 
+                We are building a platform that creates value for everyone involved.
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6 mb-20">
+            
+            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-center hover:border-accent hover:shadow-md transition-all group">
+                <div class="text-4xl mb-3 group-hover:-translate-y-1 transition-transform">🎓</div>
+                <h4 class="text-lg font-bold text-gray-900 mb-1">Researchers</h4>
+                <p class="text-sm text-gray-500 font-medium">Gain visibility & citations</p>
+                <div class="mt-4 h-1 w-12 bg-gray-100 mx-auto rounded-full group-hover:bg-accent transition-colors"></div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-center hover:border-accent hover:shadow-md transition-all group">
+                <div class="text-4xl mb-3 group-hover:-translate-y-1 transition-transform">🏢</div>
+                <h4 class="text-lg font-bold text-gray-900 mb-1">Companies</h4>
+                <p class="text-sm text-gray-500 font-medium">Find knowledge faster</p>
+                <div class="mt-4 h-1 w-12 bg-gray-100 mx-auto rounded-full group-hover:bg-accent transition-colors"></div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-center hover:border-accent hover:shadow-md transition-all group">
+                <div class="text-4xl mb-3 group-hover:-translate-y-1 transition-transform">🌍</div>
+                <h4 class="text-lg font-bold text-gray-900 mb-1">Society</h4>
+                <p class="text-sm text-gray-500 font-medium">Better innovation for all</p>
+                <div class="mt-4 h-1 w-12 bg-gray-100 mx-auto rounded-full group-hover:bg-accent transition-colors"></div>
+            </div>
+
+        </div>
+
+        <div class="text-center max-w-2xl mx-auto">
+            <h3 class="text-2xl font-bold text-gray-900 mb-4">Meet the Team</h3>
+            <p class="text-gray-600 leading-relaxed mb-8">
+                We are a young, motivated team that brings together the best of technology and science. 
+                With passion and ambition, we are coding the future of research collaboration.
+            </p>
+            <div class="flex justify-center gap-2">
+                <div class="w-12 h-12 rounded-full bg-gray-200 border-2 border-white shadow-sm"></div>
+                <div class="w-12 h-12 rounded-full bg-gray-300 border-2 border-white shadow-sm -ml-4"></div>
+                <div class="w-12 h-12 rounded-full bg-gray-200 border-2 border-white shadow-sm -ml-4"></div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<style>
+    @keyframes bounce-slow {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    .animate-bounce-slow {
+        animation: bounce-slow 3s infinite ease-in-out;
+    }
+</style>
 
 {% endblock %}

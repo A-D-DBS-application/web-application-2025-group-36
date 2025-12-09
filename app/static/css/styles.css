@@ -1,253 +1,420 @@
-/* GLOBAL LIGHT THEME */
-body {
-  font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
-  background-color: #f5f8fc;
-  color: #222;
-  margin: 0;
-  padding: 0;
-  line-height: 1.6;
-}
-
-/* CONTAINER */
-.container-narrow {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 16px;
-}
-
-/* HEADER */
-header {
-  background-color: #ffffff;
-  border-bottom: 1px solid #e6e9ee;
-  padding: 20px 0;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-}
-
-/* NAV BUTTONS */
-nav a.btn {
-  padding: 8px 18px;
-  border-radius: 8px;
-  text-decoration: none;
-  border: 1px solid #d3d7dd;
-  background-color: #fff;
-  color: #333;
-  transition: 0.2s;
-}
-
-nav a.btn:hover {
-  background-color: #f0f4f8;
-}
-
-/* CARDS */
-.card {
-  background-color: #fff;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-}
-
-/* FOOTER */
-footer {
-  margin-top: 50px;
-  text-align: center;
-  padding: 20px;
-  font-size: 0.9rem;
-  color: #777;
-  border-top: 1px solid #e6e9ee;
-}
-
-/* DESIGN TOKENS */
+/* =========================================
+   1. GLOBAL RESET & TYPOGRAPHY
+   ========================================= */
 :root {
   --accent: #3bbfb5;
   --accent-dark: #2da39a;
-  --border-soft: #e6e9ee;
-  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.06);
+  --bg-body: #f5f8fc;
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  --border-color: #e5e7eb;
 }
 
-/* SURFACE CARDS */
-.surface-card {
-  background-color: #fff;
-  border: 1px solid var(--border-soft);
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: var(--shadow-soft);
+html, body {
+  background-color: var(--bg-body) !important;
+  color: var(--text-main) !important;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  min-height: 100%;
+  overflow-x: hidden;
+  line-height: 1.6;
 }
 
-.surface-card--large {
-  padding: 2.5rem;
+/* Fix voor Bootstrap link kleuren */
+a {
+  text-decoration: none !important;
+  color: inherit;
+  transition: color 0.2s ease;
 }
 
-.surface-card--compact {
-  padding: 1.5rem;
+a:hover {
+  color: var(--accent);
 }
 
-/* AUTH CONTAINERS */
-.auth-shell {
+/* Helper voor content padding onder fixed navbar */
+.content-wrapper {
+  padding-top: 8rem; /* Matcht met de pt-32 */
+  padding-bottom: 5rem;
+  width: 100%;
+  max-width: 80rem; /* max-w-7xl */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* =========================================
+   2. NAVIGATION BAR
+   ========================================= */
+.main-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5rem; /* h-20 */
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 50;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.nav-container {
+  height: 100%;
+  padding: 0 3rem; /* px-12 */
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.nav-link-custom {
+  color: #374151; /* gray-700 */
+  font-weight: 500;
+  font-size: 1.0625rem; /* 17px */
+}
+
+.nav-link-custom:hover,
+.nav-link-custom.active {
+  color: var(--accent);
+}
+
+/* =========================================
+   3. CARDS & PAPERS (Semantic Classes)
+   ========================================= */
+
+/* De kaart voor de Top 5 lijst (Horizontaal) */
+.paper-list-item {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: 1rem; /* rounded-2xl */
+  padding: 1rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-in-out;
+}
+
+.paper-list-item:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+/* De kaart voor het Grid (Verticaal) */
+.paper-grid-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.paper-grid-card:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  border-color: #d1d5db;
+}
+
+.paper-card-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+}
+
+/* =========================================
+   4. BADGES & SCORES
+   ========================================= */
+
+/* Cirkel met ranking nummer (1, 2, 3...) */
+.rank-badge {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  background-color: var(--accent);
+  color: white;
+  display: flex;
+  align-items: center;
   justify-content: center;
-  margin-top: 6rem;
+  font-size: 1.125rem;
+  font-weight: 700;
 }
 
-.auth-card {
-  background-color: #fff;
-  padding: 2.5rem;
-  border-radius: 20px;
-  width: 100%;
-  max-width: 28rem;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+/* Score blokjes (Business / Academic) */
+.score-box {
+  width: 7rem; /* w-28 */
+  height: 3.5rem; /* h-14 */
+  border-radius: 0.75rem; /* rounded-xl */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-width: 1px;
+  border-style: solid;
 }
 
-/* FORM ELEMENTS */
-.form-label {
-  display: block;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 0.35rem;
+.score-box-label {
+  font-size: 0.625rem; /* 10px */
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.125rem;
 }
 
-.form-control {
-  width: 100%;
-  padding: 0.85rem 1rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.95rem;
-  background-color: #fff;
-  color: #111;
-  font-size: 1rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+.score-box-value {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 900; /* font-black */
+  line-height: 1;
 }
 
-.form-control:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(59, 191, 181, 0.2);
+/* Specifieke kleuren voor scores */
+.score-green {
+  background-color: #f0fdf4; /* green-50 */
+  border-color: #bbf7d0; /* green-200 */
 }
+.score-green .score-box-label { color: rgba(22, 163, 74, 0.7); }
+.score-green .score-box-value { color: #15803d; }
 
-.form-control--muted {
-  background-color: #f8fafc;
+.score-blue {
+  background-color: #eff6ff; /* blue-50 */
+  border-color: #bfdbfe; /* blue-200 */
 }
+.score-blue .score-box-label { color: rgba(37, 99, 235, 0.7); }
+.score-blue .score-box-value { color: #1d4ed8; }
 
-.form-help {
-  color: #6b7280;
-  font-size: 0.78rem;
-  margin-top: 0.35rem;
-}
 
-.text-body {
-  color: #374151;
-  max-width: 48rem;
-  line-height: 1.75;
-  margin-bottom: 1.5rem;
-}
-
-/* PANELS */
-.dashed-panel {
-  background-color: #f8fafc;
-  border: 1px dashed rgba(59, 191, 181, 0.5);
-  border-radius: 1rem;
-  padding: 1.5rem;
-}
-
-.plain-panel {
-  background-color: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-}
-
-/* BUTTONS */
+/* =========================================
+   5. BUTTONS & FORMS
+   ========================================= */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  border-radius: 0.9rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
   font-weight: 600;
-  text-decoration: none;
   border: 1px solid transparent;
-  transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
-}
-
-.btn:hover {
-  transform: translateY(-1px);
-}
-
-.btn:focus-visible {
-  outline: 2px solid rgba(59, 191, 181, 0.35);
-  outline-offset: 2px;
+  transition: all 0.2s;
+  cursor: pointer;
 }
 
 .btn-primary {
   background-color: var(--accent);
-  color: #fff;
-  border-color: #35aa9f;
-  box-shadow: 0 10px 20px rgba(59, 191, 181, 0.25);
-  padding: 0.9rem 1.35rem;
+  color: white;
 }
-
 .btn-primary:hover {
   background-color: var(--accent-dark);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 191, 181, 0.3);
 }
 
 .btn-secondary {
-  background-color: #fff;
-  color: #1f2937;
-  border-color: #e5e7eb;
-  padding: 0.9rem 1.35rem;
+  background-color: white;
+  color: var(--text-main);
+  border-color: var(--border-color);
 }
-
 .btn-secondary:hover {
-  background-color: #f3f4f6;
+  background-color: #f9fafb;
+  border-color: #d1d5db;
 }
 
-.btn-outline {
-  background-color: #fff;
-  color: var(--accent);
+/* Forms styling behouden van vorige versie */
+.form-control {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  font-size: 1rem;
+}
+.form-control:focus {
+  outline: none;
   border-color: var(--accent);
-  padding: 0.85rem 1.2rem;
+  box-shadow: 0 0 0 3px rgba(59, 191, 181, 0.15);
 }
 
-.btn-outline:hover {
-  background-color: var(--accent);
-  color: #fff;
+/* =========================================
+   6. DASHBOARD SPECIFICS
+   ========================================= */
+
+/* Header met gradient */
+.dashboard-header {
+  background: linear-gradient(to right, #f0fdfa, #ffffff, #eff6ff); /* teal-50 -> white -> blue-50 */
+  border: 1px solid var(--border-color);
+  border-radius: 1.5rem; /* rounded-3xl */
+  padding: 2.5rem; /* p-10 */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
 }
 
-.btn-ghost {
+/* KPI Kaartjes */
+.kpi-card {
+  background-color: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.kpi-label {
+  font-size: 0.75rem; /* text-xs */
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.kpi-value {
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1;
+}
+
+/* Tags (Labels) */
+.tag {
+  display: inline-flex;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.tag-accent {
+  background-color: rgba(59, 191, 181, 0.1);
+  color: var(--accent);
+}
+
+.tag-gray {
   background-color: #f3f4f6;
   color: #374151;
   border-color: #e5e7eb;
-  padding: 0.8rem 1.1rem;
 }
 
-.btn-ghost:hover {
-  background-color: #e5e7eb;
+.tag-green {
+  background-color: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
 }
 
-.btn-danger {
-  background-color: #dc2626;
-  color: #fff;
-  border-color: #dc2626;
-  padding: 0.8rem 1.1rem;
+.tag-dashed {
+  background-color: #f9fafb;
+  color: #9ca3af;
+  border: 1px dashed #d1d5db;
 }
 
-.btn-danger:hover {
-  background-color: #b91c1c;
-}
-
-.btn-block {
-  width: 100%;
-}
-
-/* CHIPS */
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.45rem 0.9rem;
-  border-radius: 999px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  background: rgba(59, 191, 181, 0.12);
+/* Review score cirkel */
+.review-circle {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: rgba(59, 191, 181, 0.1);
+  border: 1px solid rgba(59, 191, 181, 0.3);
   color: var(--accent);
-  border: 1px solid rgba(59, 191, 181, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+/* Mini score cards in grid */
+.mini-score-card {
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  border-width: 1px;
+  border-style: solid;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+.mini-score-card span { font-size: 0.7rem; opacity: 0.8; }
+.mini-score-card strong { font-size: 1.1rem; }
+
+/* =========================================
+   FILTER BAR (De Witte Balk)
+   ========================================= */
+
+.filter-bar {
+  background-color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 1rem; /* Mooie afgeronde hoeken */
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); /* Subtiele schaduw voor "zwevend" effect */
+  
+  /* Layout: standaard onder elkaar (mobiel) */
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* Op desktop (schermen breder dan 768px): Alles op één rij */
+@media (min-width: 992px) {
+  .filter-bar {
+    flex-direction: row;
+    align-items: flex-end; /* Zorgt dat de inputs en knoppen onderaan uitlijnen */
+  }
+
+  /* Standaard groepje neemt evenveel ruimte in */
+  .filter-group {
+    flex: 1;
+    min-width: 0; /* Voorkomt dat select boxen te breed worden */
+  }
+
+  /* De zoekbalk mag iets breder zijn (flex: 2) */
+  .filter-group-search {
+    flex: 1.5;
+  }
+
+  /* Het score vakje mag kleiner */
+  .filter-group-small {
+    flex: 0.5;
+  }
+
+  /* De knoppen rechts */
+  .filter-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding-bottom: 2px; /* Kleine correctie voor visuele uitlijning met inputs */
+  }
+}
+
+/* Knoppen binnen de balk iets compacter maken */
+.filter-actions .btn {
+  padding: 0.75rem 1rem;
+  height: 46px; /* Zorgt dat knop even hoog is als de inputs */
+}
+
+/* Labels binnen de balk iets kleiner en strakker */
+.filter-bar .form-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+/* =========================================
+   7. HOME PAGE ANIMATIONS
+   ========================================= */
+
+/* Subtle lift effect for cards */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Gradient Text Utility */
+.text-gradient {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-image: linear-gradient(to right, var(--accent), #2563eb);
 }

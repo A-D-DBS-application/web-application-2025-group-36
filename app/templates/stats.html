@@ -1,77 +1,138 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1 class="text-4xl font-extrabold text-center mb-10 text-accent">
-  Statistics
-</h1>
-
-<div class="max-w-6xl mx-auto space-y-14">
-
-  <!-- STAT CARDS -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-
-    <div class="bg-white p-8 rounded-2xl shadow border border-accent/20 text-center">
-      <h2 class="text-xl font-semibold text-accent">Total Reviews Submitted</h2>
-      <p class="text-5xl font-extrabold mt-3">{{ total_reviews }}</p>
+<section class="mb-12 text-center max-w-3xl mx-auto">
+    <div class="inline-flex items-center px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-bold uppercase tracking-widest mb-4">
+        Live Data
     </div>
-
-    <div class="bg-white p-8 rounded-2xl shadow border border-accent/20 text-center">
-      <h2 class="text-xl font-semibold text-accent">Total Papers Submitted</h2>
-      <p class="text-5xl font-extrabold mt-3">{{ total_papers }}</p>
-    </div>
-
-    <div class="bg-white p-8 rounded-2xl shadow border border-blue-200 text-center">
-      <h2 class="text-xl font-semibold text-blue-600">AI Analyses Completed</h2>
-      <p class="text-5xl font-extrabold mt-3 text-blue-700">{{ ai_done }}</p>
-    </div>
-
-    <div class="bg-white p-8 rounded-2xl shadow border border-red-200 text-center">
-      <h2 class="text-xl font-semibold text-red-600">AI Analyses Pending</h2>
-      <p class="text-5xl font-extrabold mt-3 text-red-700">{{ ai_pending }}</p>
-    </div>
-
-  </div>
-
-  {% set weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] %}
-
-  <!-- REVIEW HEATMAP -->
-  <div class="bg-white p-8 rounded-2xl shadow border border-accent/20">
-    <h2 class="text-2xl font-bold text-accent mb-6">Weekly Review Heatmap</h2>
-    <p class="text-gray-600 mb-6">
-      Shows how many reviews were submitted on each day of the week.
+    <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
+        Platform <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600">Insights</span>
+    </h1>
+    <p class="text-gray-600 text-lg">
+        Real-time metrics on submissions, reviews, and AI performance across the platform.
     </p>
+</section>
 
-    <div class="grid grid-cols-7 gap-3 mt-4">
-      {% for i in range(7) %}
-        {% set count = weekday_map[i] if i in weekday_map else 0 %}
+<div class="grid md:grid-cols-3 gap-6 mb-12">
 
-        <div class="p-6 rounded-xl text-center border border-accent/20 bg-white">
-          <div class="font-semibold text-gray-900">{{ weekdays[i] }}</div>
-          <div class="text-3xl font-bold mt-2">{{ count }}</div>
+    <div class="relative group bg-white border border-gray-100 p-8 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+        <div class="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
+            <span class="text-9xl">📄</span>
         </div>
-      {% endfor %}
+        <div class="relative z-10">
+            <p class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Total Papers</p>
+            <h2 class="text-5xl font-black text-gray-900">{{ total_papers }}</h2>
+            <div class="mt-4 flex items-center text-sm text-green-600 font-medium bg-green-50 w-fit px-2 py-1 rounded-lg">
+                <span>↗ Growing archive</span>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- PAPER HEATMAP -->
-  <div class="bg-white p-8 rounded-2xl shadow border border-accent/20">
-    <h2 class="text-2xl font-bold text-accent mb-6">Weekly Paper Submission Heatmap</h2>
-    <p class="text-gray-600 mb-6">
-      Shows how many papers were submitted on each day of the week.
+    <div class="relative group bg-white border border-gray-100 p-8 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+        <div class="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
+            <span class="text-9xl">✍️</span>
+        </div>
+        <div class="relative z-10">
+            <p class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Total Reviews</p>
+            <h2 class="text-5xl font-black text-gray-900">{{ total_reviews }}</h2>
+            <div class="mt-4 flex items-center text-sm text-accent font-medium bg-teal-50 w-fit px-2 py-1 rounded-lg">
+                <span>★ Community active</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="relative group bg-gradient-to-br from-blue-50 to-white border border-blue-100 p-8 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+        <div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
+            <span class="text-9xl">🤖</span>
+        </div>
+        <div class="relative z-10">
+            <p class="text-sm font-bold text-blue-400 uppercase tracking-wider mb-1">AI Analyses</p>
+            <h2 class="text-5xl font-black text-blue-600">{{ ai_done }}</h2>
+            <div class="mt-4 flex items-center text-sm text-blue-700 font-medium bg-blue-100 w-fit px-2 py-1 rounded-lg">
+                <span>✓ Fully Processed</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% set weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] %}
+
+<div class="grid lg:grid-cols-2 gap-8">
+
+    <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h3 class="text-xl font-bold text-gray-900">Review Activity</h3>
+                <p class="text-sm text-gray-500">Submissions per day of the week</p>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center font-bold">
+                🔥
+            </div>
+        </div>
+
+        <div class="flex items-end justify-between gap-2 h-48 border-b border-gray-100 pb-2">
+            {% for i in range(7) %}
+            {% set count = weekday_map[i] if i in weekday_map else 0 %}
+            
+            <div class="flex flex-col items-center w-full group">
+                <div class="opacity-0 group-hover:opacity-100 mb-2 text-xs font-bold bg-gray-900 text-white px-2 py-1 rounded transition-opacity">
+                    {{ count }}
+                </div>
+                
+                <div class="w-full rounded-t-lg transition-all duration-500 hover:bg-orange-400 relative
+                            {% if count == 0 %} h-2 bg-gray-100 
+                            {% elif count < 5 %} h-16 bg-orange-200 
+                            {% elif count < 10 %} h-24 bg-orange-300
+                            {% else %} h-36 bg-orange-500 {% endif %}">
+                </div>
+                
+                <span class="text-xs text-gray-400 mt-3 font-medium">{{ weekdays[i] }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h3 class="text-xl font-bold text-gray-900">Paper Uploads</h3>
+                <p class="text-sm text-gray-500">New knowledge per day of the week</p>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-accent/10 text-accent flex items-center justify-center font-bold">
+                📅
+            </div>
+        </div>
+
+        <div class="flex items-end justify-between gap-2 h-48 border-b border-gray-100 pb-2">
+            {% for i in range(7) %}
+            {% set count = paper_weekday_map[i] if i in paper_weekday_map else 0 %}
+            
+            <div class="flex flex-col items-center w-full group">
+                <div class="opacity-0 group-hover:opacity-100 mb-2 text-xs font-bold bg-gray-900 text-white px-2 py-1 rounded transition-opacity">
+                    {{ count }}
+                </div>
+
+                <div class="w-full rounded-t-lg transition-all duration-500 hover:bg-teal-500 relative
+                            {% if count == 0 %} h-2 bg-gray-100 
+                            {% elif count < 5 %} h-12 bg-teal-200 
+                            {% elif count < 10 %} h-24 bg-teal-300
+                            {% else %} h-40 bg-teal-500 {% endif %}">
+                </div>
+                
+                <span class="text-xs text-gray-400 mt-3 font-medium">{{ weekdays[i] }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+<div class="mt-12 text-center">
+    <p class="text-xs text-gray-400 flex items-center justify-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+        System Status: Operational • Last updated just now
     </p>
-
-    <div class="grid grid-cols-7 gap-3 mt-4">
-      {% for i in range(7) %}
-        {% set count = paper_weekday_map[i] if i in paper_weekday_map else 0 %}
-
-        <div class="p-6 rounded-xl text-center border border-accent/20 bg-white">
-          <div class="font-semibold text-gray-900">{{ weekdays[i] }}</div>
-          <div class="text-3xl font-bold mt-2">{{ count }}</div>
-        </div>
-      {% endfor %}
-    </div>
-  </div>
-
 </div>
 
 {% endblock %}
