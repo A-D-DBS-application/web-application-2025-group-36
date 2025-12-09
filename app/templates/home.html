@@ -1,115 +1,154 @@
 {% extends "base.html" %}
+
+{% block head %}
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    accent: '#3bbfb5',
+                    'accent-dark': '#2da39a',
+                    slate: { 900: '#1f2937' }
+                }
+            }
+        }
+    }
+</script>
+<style>
+    /* Custom Override for full width hero */
+    .content-wrapper {
+        padding-top: 5rem !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+    }
+    .hover-lift { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); }
+</style>
+{% endblock %}
+
 {% block content %}
 
-<section class="hero-section relative overflow-hidden py-24 md:py-32 text-center">
-    
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+<section class="relative pt-24 pb-20 lg:pt-32 bg-slate-50 overflow-hidden">
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-teal-200/20 rounded-full blur-[80px]"></div>
+        <div class="absolute bottom-[10%] right-[-5%] w-[500px] h-[500px] bg-blue-200/20 rounded-full blur-[80px]"></div>
+    </div>
 
-    <div class="relative z-10 max-w-4xl mx-auto px-6">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-200 shadow-sm text-xs font-bold uppercase tracking-widest text-accent mb-6">
+    <div class="max-w-4xl mx-auto px-6 relative z-10 text-center">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-200 shadow-sm text-xs font-bold uppercase tracking-widest text-teal-600 mb-8">
             🚀 The Future of Reviewing
         </div>
         
-        <h1 class="text-5xl md:text-7xl font-extrabold text-gray-900 leading-tight mb-6">
+        <h1 class="text-5xl md:text-7xl font-extrabold text-gray-900 tracking-tight leading-tight mb-6">
             Accelerate Your <br>
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-600">Research Impact</span>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600">Research Impact</span>
         </h1>
 
-        <p class="text-xl text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto">
-            Connect directly with industry leaders. Submit your papers, get professional reviews, and turn scientific insights into real-world innovation.
+        <p class="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+            Connect directly with industry leaders. Submit papers, get AI-powered scores, and turn insights into innovation.
         </p>
 
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{{ url_for('main.upload_paper') }}" class="btn btn-primary text-lg px-8 py-3 shadow-lg shadow-teal-500/20">
+            <a href="{{ url_for('main.upload_paper') }}" class="btn btn-primary text-lg px-8 py-3 shadow-lg shadow-teal-500/20 hover-lift">
                 Start Submitting
             </a>
-            <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary text-lg px-8 py-3">
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary text-lg px-8 py-3 hover-lift">
                 Explore Dashboard
             </a>
         </div>
-
-        <div class="mt-12 pt-8 border-t border-gray-200/60 flex flex-wrap justify-center gap-8 text-gray-500 text-sm font-medium">
-            <span class="flex items-center gap-2">📄 <strong>{{ total_papers|default('150+') }}</strong> Papers Archived</span>
-            <span class="flex items-center gap-2">🏢 <strong>{{ companies|length|default('50+') }}</strong> R&D Partners</span>
-            <span class="flex items-center gap-2">🤖 <strong>AI</strong> Powered Analysis</span>
-        </div>
     </div>
 </section>
 
-<section class="py-20 relative">
+<section class="py-20 bg-white">
     <div class="max-w-6xl mx-auto px-6">
-        <div class="grid md:grid-cols-3 gap-8">
-
-            <div class="surface-card hover-lift group">
-                <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
-                    📝
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <div class="md:col-span-2 p-8 rounded-3xl bg-gray-50 border border-gray-100 hover:border-teal-100 transition-colors group relative overflow-hidden">
+                <div class="relative z-10">
+                    <div class="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl mb-4">🤖</div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Dual-Score AI Analysis</h3>
+                    <p class="text-gray-600 max-w-md">Our engine evaluates <span class="font-bold text-teal-600">Business Potential</span> and <span class="font-bold text-blue-600">Academic Rigor</span> separately, giving you a complete picture of your paper's value.</p>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Seamless Submission</h3>
-                <p class="text-gray-600 leading-relaxed">
-                    Upload PDFs instantly. Our system automatically parses metadata, abstract, and domain info so you don't have to.
-                </p>
+                <div class="absolute right-0 bottom-0 w-32 h-32 bg-gradient-to-tl from-teal-100/50 to-transparent rounded-tl-full"></div>
             </div>
 
-            <div class="surface-card hover-lift group">
-                <div class="w-14 h-14 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
-                    🔗
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Industry Connection</h3>
-                <p class="text-gray-600 leading-relaxed">
-                    Don't let research gather dust. Link your work directly to R&D departments looking for the next breakthrough.
-                </p>
+            <div class="p-8 rounded-3xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white hover-lift">
+                <div class="text-4xl mb-4">⚡</div>
+                <h3 class="text-xl font-bold mb-2">48h Turnaround</h3>
+                <p class="text-teal-100 text-sm leading-relaxed">Don't wait months. Get preliminary feedback and industry matching scores in under two days.</p>
             </div>
 
-            <div class="surface-card hover-lift group">
-                <div class="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
-                    ⭐
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Quality Reviews</h3>
-                <p class="text-gray-600 leading-relaxed">
-                    Get structured feedback from experts. 
+            <div class="p-8 rounded-3xl bg-white border border-gray-200 hover:shadow-lg transition-shadow">
+                <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-2xl mb-4">🤝</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Direct R&D Link</h3>
+                <p class="text-gray-500 text-sm">Your work lands directly on the screens of Innovation Heads.</p>
+            </div>
 
-[Image of the reviewing interface]
- Our dual-score system evaluates both Academic rigor and Business potential.
-                </p>
+            <div class="md:col-span-2 p-8 rounded-3xl bg-slate-900 text-white flex flex-col sm:flex-row items-center justify-around relative overflow-hidden">
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-blue-900/20 blur-3xl"></div>
+                
+                <div class="text-center relative z-10 mb-6 sm:mb-0">
+                    <div class="text-4xl font-bold mb-1">{{ total_papers|default('150+') }}</div>
+                    <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Papers Archived</div>
+                </div>
+                
+                <div class="hidden sm:block w-px h-12 bg-slate-700 relative z-10"></div>
+                
+                <div class="text-center relative z-10">
+                    <div class="text-4xl font-bold text-teal-400 mb-1">{{ companies|length|default('50+') }}</div>
+                    <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Active Partners</div>
+                </div>
             </div>
 
         </div>
     </div>
 </section>
 
-<section class="py-20 bg-white border-y border-gray-100">
-    <div class="max-w-5xl mx-auto px-6 text-center">
-        
-        <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">From Paper to Progress</h2>
-        <p class="text-gray-600 mb-16 max-w-2xl mx-auto">
-            A simplified workflow designed to respect your time and maximize impact.
-        </p>
+<section class="py-24 bg-gray-50/50 border-t border-gray-200">
+    <div class="max-w-3xl mx-auto px-6">
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-16">From PDF to Partnership</h2>
 
-        <div class="relative grid md:grid-cols-3 gap-12">
-            <div class="hidden md:block absolute top-12 left-1/6 right-1/6 h-0.5 bg-gradient-to-r from-blue-100 via-teal-100 to-purple-100 -z-10"></div>
+        <div class="relative">
+            <div class="absolute left-8 top-4 bottom-4 w-0.5 bg-gray-200"></div>
 
-            <div class="relative flex flex-col items-center">
-                <div class="w-24 h-24 bg-white border-4 border-blue-50 rounded-full flex items-center justify-center shadow-sm mb-6 z-10">
-                    <span class="text-4xl">📤</span>
+            <div class="relative flex gap-8 mb-12">
+                <div class="w-16 h-16 rounded-full bg-white border-4 border-blue-100 flex items-center justify-center text-xl font-bold text-blue-600 shadow-sm shrink-0 z-10">
+                    1
                 </div>
-                <h3 class="text-lg font-bold text-gray-900 mb-2">1. Upload</h3>
-                <p class="text-sm text-gray-500 px-4">Author submits PDF & selects domain.</p>
+                <div class="pt-3">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Upload & Parse</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Drag and drop your PDF. We automatically extract the abstract, authors, and metadata so you don't have to fill out endless forms.
+                    </p>
+                </div>
             </div>
 
-            <div class="relative flex flex-col items-center">
-                <div class="w-24 h-24 bg-white border-4 border-teal-50 rounded-full flex items-center justify-center shadow-sm mb-6 z-10">
-                    <span class="text-4xl">🤖</span>
+            <div class="relative flex gap-8 mb-12">
+                <div class="w-16 h-16 rounded-full bg-white border-4 border-teal-100 flex items-center justify-center text-xl font-bold text-teal-600 shadow-sm shrink-0 z-10">
+                    2
                 </div>
-                <h3 class="text-lg font-bold text-gray-900 mb-2">2. Analyze</h3>
-                <p class="text-sm text-gray-500 px-4">AI generates initial scores & summary.</p>
+                <div class="pt-3">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">AI Scoring</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Within minutes, our system assigns an "Innovation Score" based on current market trends and academic novelty.
+                    </p>
+                </div>
             </div>
 
-            <div class="relative flex flex-col items-center">
-                <div class="w-24 h-24 bg-white border-4 border-purple-50 rounded-full flex items-center justify-center shadow-sm mb-6 z-10">
-                    <span class="text-4xl">🤝</span>
+            <div class="relative flex gap-8">
+                <div class="w-16 h-16 rounded-full bg-slate-900 border-4 border-slate-200 flex items-center justify-center text-xl font-bold text-white shadow-md shrink-0 z-10">
+                    3
                 </div>
-                <h3 class="text-lg font-bold text-gray-900 mb-2">3. Connect</h3>
-                <p class="text-sm text-gray-500 px-4">Companies review & express interest.</p>
+                <div class="pt-3">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Match & Connect</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        High-scoring papers are pushed to our partner network. Companies can invite you for a chat or sponsor further research.
+                    </p>
+                </div>
             </div>
 
         </div>
@@ -117,16 +156,12 @@
 </section>
 
 <section class="py-20 px-6">
-    <div class="max-w-5xl mx-auto bg-gradient-to-r from-gray-900 to-gray-800 rounded-[2.5rem] p-12 text-center text-white shadow-2xl relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>
-        
-        <h2 class="text-3xl md:text-4xl font-bold mb-6 relative z-10">Ready to bridge the gap?</h2>
-        <p class="text-gray-300 mb-8 max-w-xl mx-auto relative z-10">
-            Join hundreds of researchers and forward-thinking companies building the future together.
-        </p>
-        <a href="{{ url_for('main.register') }}" class="btn btn-primary bg-white text-gray-900 hover:bg-gray-100 hover:text-accent border-transparent relative z-10">
+    <div class="max-w-4xl mx-auto text-center">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6">Ready to bridge the gap?</h2>
+        <a href="{{ url_for('main.register') }}" class="btn btn-primary text-lg px-10 py-4 shadow-xl shadow-teal-500/20 hover:scale-105 transition-transform">
             Create Free Account
         </a>
+        <p class="mt-4 text-sm text-gray-500">Free for researchers forever.</p>
     </div>
 </section>
 

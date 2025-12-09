@@ -19,7 +19,6 @@ html, body {
   line-height: 1.6;
 }
 
-/* Fix voor Bootstrap link kleuren */
 a {
   text-decoration: none !important;
   color: inherit;
@@ -30,12 +29,11 @@ a:hover {
   color: var(--accent);
 }
 
-/* Helper voor content padding onder fixed navbar */
 .content-wrapper {
-  padding-top: 8rem; /* Matcht met de pt-32 */
+  padding-top: 8rem;
   padding-bottom: 5rem;
   width: 100%;
-  max-width: 80rem; /* max-w-7xl */
+  max-width: 80rem;
   margin-left: auto;
   margin-right: auto;
   padding-left: 1rem;
@@ -50,7 +48,7 @@ a:hover {
   top: 0;
   left: 0;
   width: 100%;
-  height: 5rem; /* h-20 */
+  height: 5rem;
   background-color: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -61,7 +59,7 @@ a:hover {
 
 .nav-container {
   height: 100%;
-  padding: 0 3rem; /* px-12 */
+  padding: 0 3rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -69,9 +67,9 @@ a:hover {
 }
 
 .nav-link-custom {
-  color: #374151; /* gray-700 */
+  color: #374151;
   font-weight: 500;
-  font-size: 1.0625rem; /* 17px */
+  font-size: 1.0625rem;
 }
 
 .nav-link-custom:hover,
@@ -80,17 +78,15 @@ a:hover {
 }
 
 /* =========================================
-   3. CARDS & PAPERS (Semantic Classes)
+   3. CARDS & PAPERS
    ========================================= */
-
-/* De kaart voor de Top 5 lijst (Horizontaal) */
 .paper-list-item {
   display: flex;
   align-items: center;
   gap: 1.25rem;
   background-color: white;
   border: 1px solid var(--border-color);
-  border-radius: 1rem; /* rounded-2xl */
+  border-radius: 1rem;
   padding: 1rem;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease-in-out;
@@ -101,7 +97,6 @@ a:hover {
   transform: translateY(-1px);
 }
 
-/* De kaart voor het Grid (Verticaal) */
 .paper-grid-card {
   display: flex;
   flex-direction: column;
@@ -131,8 +126,6 @@ a:hover {
 /* =========================================
    4. BADGES & SCORES
    ========================================= */
-
-/* Cirkel met ranking nummer (1, 2, 3...) */
 .rank-badge {
   flex-shrink: 0;
   width: 2.5rem;
@@ -147,11 +140,10 @@ a:hover {
   font-weight: 700;
 }
 
-/* Score blokjes (Business / Academic) */
 .score-box {
-  width: 7rem; /* w-28 */
-  height: 3.5rem; /* h-14 */
-  border-radius: 0.75rem; /* rounded-xl */
+  width: 7rem;
+  height: 3.5rem;
+  border-radius: 0.75rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -161,7 +153,7 @@ a:hover {
 }
 
 .score-box-label {
-  font-size: 0.625rem; /* 10px */
+  font-size: 0.625rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -169,22 +161,21 @@ a:hover {
 }
 
 .score-box-value {
-  font-size: 1.25rem; /* text-xl */
-  font-weight: 900; /* font-black */
+  font-size: 1.25rem;
+  font-weight: 900;
   line-height: 1;
 }
 
-/* Specifieke kleuren voor scores */
 .score-green {
-  background-color: #f0fdf4; /* green-50 */
-  border-color: #bbf7d0; /* green-200 */
+  background-color: #f0fdf4;
+  border-color: #bbf7d0;
 }
 .score-green .score-box-label { color: rgba(22, 163, 74, 0.7); }
 .score-green .score-box-value { color: #15803d; }
 
 .score-blue {
-  background-color: #eff6ff; /* blue-50 */
-  border-color: #bfdbfe; /* blue-200 */
+  background-color: #eff6ff;
+  border-color: #bfdbfe;
 }
 .score-blue .score-box-label { color: rgba(37, 99, 235, 0.7); }
 .score-blue .score-box-value { color: #1d4ed8; }
@@ -225,7 +216,6 @@ a:hover {
   border-color: #d1d5db;
 }
 
-/* Forms styling behouden van vorige versie */
 .form-control {
   width: 100%;
   padding: 0.75rem 1rem;
@@ -242,17 +232,14 @@ a:hover {
 /* =========================================
    6. DASHBOARD SPECIFICS
    ========================================= */
-
-/* Header met gradient */
 .dashboard-header {
-  background: linear-gradient(to right, #f0fdfa, #ffffff, #eff6ff); /* teal-50 -> white -> blue-50 */
+  background: linear-gradient(to right, #f0fdfa, #ffffff, #eff6ff);
   border: 1px solid var(--border-color);
-  border-radius: 1.5rem; /* rounded-3xl */
-  padding: 2.5rem; /* p-10 */
+  border-radius: 1.5rem;
+  padding: 2.5rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
 }
 
-/* KPI Kaartjes */
 .kpi-card {
   background-color: rgba(255, 255, 255, 0.7);
   border: 1px solid var(--border-color);
@@ -261,19 +248,18 @@ a:hover {
 }
 
 .kpi-label {
-  font-size: 0.75rem; /* text-xs */
+  font-size: 0.75rem;
   color: var(--text-muted);
   margin-bottom: 0.25rem;
 }
 
 .kpi-value {
-  font-size: 1.5rem; /* text-2xl */
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--text-main);
   line-height: 1;
 }
 
-/* Tags (Labels) */
 .tag {
   display: inline-flex;
   padding: 0.25rem 0.75rem;
@@ -283,30 +269,11 @@ a:hover {
   border: 1px solid transparent;
 }
 
-.tag-accent {
-  background-color: rgba(59, 191, 181, 0.1);
-  color: var(--accent);
-}
+.tag-accent { background-color: rgba(59, 191, 181, 0.1); color: var(--accent); }
+.tag-gray { background-color: #f3f4f6; color: #374151; border-color: #e5e7eb; }
+.tag-green { background-color: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+.tag-dashed { background-color: #f9fafb; color: #9ca3af; border: 1px dashed #d1d5db; }
 
-.tag-gray {
-  background-color: #f3f4f6;
-  color: #374151;
-  border-color: #e5e7eb;
-}
-
-.tag-green {
-  background-color: #ecfdf5;
-  color: #047857;
-  border-color: #a7f3d0;
-}
-
-.tag-dashed {
-  background-color: #f9fafb;
-  color: #9ca3af;
-  border: 1px dashed #d1d5db;
-}
-
-/* Review score cirkel */
 .review-circle {
   width: 2.5rem;
   height: 2.5rem;
@@ -320,7 +287,6 @@ a:hover {
   font-weight: 700;
 }
 
-/* Mini score cards in grid */
 .mini-score-card {
   padding: 0.5rem;
   border-radius: 0.75rem;
@@ -333,62 +299,30 @@ a:hover {
 .mini-score-card span { font-size: 0.7rem; opacity: 0.8; }
 .mini-score-card strong { font-size: 1.1rem; }
 
-/* =========================================
-   FILTER BAR (De Witte Balk)
-   ========================================= */
-
 .filter-bar {
   background-color: white;
   padding: 1rem 1.5rem;
-  border-radius: 1rem; /* Mooie afgeronde hoeken */
+  border-radius: 1rem;
   border: 1px solid var(--border-color);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); /* Subtiele schaduw voor "zwevend" effect */
-  
-  /* Layout: standaard onder elkaar (mobiel) */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   gap: 1rem;
   margin-top: 2rem;
 }
 
-/* Op desktop (schermen breder dan 768px): Alles op één rij */
 @media (min-width: 992px) {
   .filter-bar {
     flex-direction: row;
-    align-items: flex-end; /* Zorgt dat de inputs en knoppen onderaan uitlijnen */
+    align-items: flex-end;
   }
-
-  /* Standaard groepje neemt evenveel ruimte in */
-  .filter-group {
-    flex: 1;
-    min-width: 0; /* Voorkomt dat select boxen te breed worden */
-  }
-
-  /* De zoekbalk mag iets breder zijn (flex: 2) */
-  .filter-group-search {
-    flex: 1.5;
-  }
-
-  /* Het score vakje mag kleiner */
-  .filter-group-small {
-    flex: 0.5;
-  }
-
-  /* De knoppen rechts */
-  .filter-actions {
-    display: flex;
-    gap: 0.5rem;
-    padding-bottom: 2px; /* Kleine correctie voor visuele uitlijning met inputs */
-  }
+  .filter-group { flex: 1; min-width: 0; }
+  .filter-group-search { flex: 1.5; }
+  .filter-group-small { flex: 0.5; }
+  .filter-actions { display: flex; gap: 0.5rem; padding-bottom: 2px; }
 }
 
-/* Knoppen binnen de balk iets compacter maken */
-.filter-actions .btn {
-  padding: 0.75rem 1rem;
-  height: 46px; /* Zorgt dat knop even hoog is als de inputs */
-}
-
-/* Labels binnen de balk iets kleiner en strakker */
+.filter-actions .btn { padding: 0.75rem 1rem; height: 46px; }
 .filter-bar .form-label {
   font-size: 0.75rem;
   text-transform: uppercase;
@@ -398,23 +332,81 @@ a:hover {
 }
 
 /* =========================================
-   7. HOME PAGE ANIMATIONS
+   8. NEW HOMEPAGE ANIMATIONS & UTILS
    ========================================= */
 
-/* Subtle lift effect for cards */
-.hover-lift {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* Floating Animation */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0px); }
 }
 
-.hover-lift:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-float-delayed { animation: float 7s ease-in-out infinite 2s; }
+
+/* Pulse Animation (Soft) */
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(0.95); }
 }
 
-/* Gradient Text Utility */
+.animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+
+/* Marquee / Scroll */
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee-container {
+  width: 100%;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  overflow: hidden;
+}
+
+.marquee-content {
+  display: flex;
+  gap: 4rem;
+  width: max-content;
+  animation: scroll 35s linear infinite;
+}
+
+/* Glassmorphism */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Button Shimmer */
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+  transform: skewX(-25deg);
+  animation: shimmer 3s infinite;
+}
+
+/* Gradient Text for Headlines */
 .text-gradient {
-  background-clip: text;
+  background: linear-gradient(135deg, var(--text-main) 0%, var(--accent) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-image: linear-gradient(to right, var(--accent), #2563eb);
+  background-clip: text;
 }
