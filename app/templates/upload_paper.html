@@ -1,110 +1,180 @@
 {% extends "base.html" %}
+
 {% block content %}
 
-<section class="surface-card surface-card--large">
-  <div class="flex items-start justify-between flex-wrap gap-6">
-    <div>
-      <p class="text-sm uppercase tracking-[0.2em] text-gray-500 mb-2">Submit</p>
-      <h1 class="text-3xl font-extrabold text-gray-800">Upload your paper</h1>
-      <p class="text-gray-600 max-w-2xl mt-2">
-        Upload a PDF, fill in the details and optionally link a research facility.
-        AI analysis will be available on the paper detail page.
-      </p>
+<div class="text-center mb-10 max-w-2xl mx-auto">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-bold uppercase tracking-widest mb-4">
+        AI Assisted
     </div>
+    <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
+        Upload & <span class="text-accent">Analyze</span>
+    </h1>
+    <p class="text-gray-600 text-lg">
+        Submit your research paper. Our AI will analyze the content while you wait and prepare the scores.
+    </p>
+</div>
 
-    <a href="{{ url_for('main.dashboard') }}"
-       class="text-accent font-semibold hover:underline">
-      Back to archive →
-    </a>
-  </div>
+<section class="surface-card p-0 overflow-hidden shadow-xl">
+    
+    <form id="uploadForm" method="post" enctype="multipart/form-data" onsubmit="showLoader()">
+        
+        <div class="grid md:grid-cols-12 min-h-[600px]">
 
-  <form method="post" enctype="multipart/form-data"
-        class="mt-8 grid md:grid-cols-2 gap-8">
+            <div class="p-8 md:p-10 md:col-span-7 flex flex-col gap-6">
+                
+                <h3 class="text-xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+                    <span>📝</span> Paper Details
+                </h3>
 
-    <!-- LEFT SIDE -->
-    <div class="space-y-6">
+                <div>
+                    <label class="form-label">Paper Title</label>
+                    <input type="text" name="title" required class="form-control" placeholder="e.g. Advances in Robotics...">
+                </div>
 
-      <!-- Title -->
-      <div>
-        <label class="form-label">Title</label>
-        <input type="text" name="title" required class="form-control">
-      </div>
+                <div>
+                    <label class="form-label">Abstract</label>
+                    <textarea name="abstract" required rows="5" class="form-control" placeholder="Paste the abstract here..."></textarea>
+                    <p class="form-help">The AI uses this to double-check the domain analysis.</p>
+                </div>
 
-      <!-- Abstract -->
-      <div>
-        <label class="form-label">Abstract</label>
-        <textarea name="abstract" required rows="7" class="form-control"></textarea>
-      </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    
+                    <div>
+                        <label class="form-label">Research Domain</label>
+                        <select name="research_domain" class="form-control cursor-pointer">
+                            {% for d in domains %}
+                            <option value="{{ d }}">{{ d }}</option>
+                            {% endfor %}
+                            <option value="Other">Other</option>
+                        </select>
+                        <input type="text" name="custom_domain" placeholder="If other, specify..." class="form-control mt-2 text-sm">
+                    </div>
 
-      <!-- Research domain -->
-      <div>
-        <label class="form-label">Research domain</label>
-        <select name="research_domain" class="form-control">
-          {% for d in domains %}
-            <option value="{{ d }}">{{ d }}</option>
-          {% endfor %}
-          <option value="Other">Other</option>
-        </select>
+                    <div>
+                        <label class="form-label">Research Facility</label>
+                        <select name="company_id" class="form-control cursor-pointer">
+                            <option value="">-- Independent --</option>
+                            {% for company in companies %}
+                            <option value="{{ company.company_id }}">{{ company.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
 
-        <input type="text" name="custom_domain" placeholder="Custom domain (optional)"
-               class="form-control mt-2">
+                <div class="mt-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Or register new facility</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" name="new_company" placeholder="New Lab Name" class="form-control text-sm">
+                        <input type="text" name="new_company_industry" placeholder="Focus Area" class="form-control text-sm">
+                    </div>
+                </div>
 
-        <p class="form-help">
-          Choose “Other” to specify your own label.
-        </p>
-      </div>
+            </div>
 
-      <!-- PDF file -->
-      <div>
-        <label class="form-label">PDF file</label>
-        <input type="file" name="file" accept="application/pdf" required
-               class="w-full text-sm text-gray-600 
-                      file:mr-4 file:py-2 file:px-4 
-                      file:rounded-full file:border-0 
-                      file:text-sm file:font-semibold 
-                      file:bg-accent/10 file:text-accent 
-                      hover:file:bg-accent/20">
-        <p class="form-help">PDF only, max 16 MB.</p>
-      </div>
+            <div class="md:col-span-5 bg-gray-50 border-l border-gray-100 p-8 md:p-10 flex flex-col justify-center relative">
+                
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-3xl mx-auto mb-4 text-accent">
+                        📄
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900">Upload PDF</h3>
+                    <p class="text-sm text-gray-500">Max file size: 16 MB</p>
+                </div>
 
-    </div>
+                <div class="relative group w-full aspect-[4/5] md:aspect-auto md:h-64 border-2 border-dashed border-gray-300 rounded-2xl hover:bg-white hover:border-accent transition-all duration-300 flex flex-col items-center justify-center cursor-pointer">
+                    
+                    <input type="file" name="file" accept="application/pdf" required
+                           class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                           onchange="updateFileName(this)">
+                    
+                    <div class="text-center z-10 pointer-events-none p-4">
+                        <p class="text-gray-900 font-bold group-hover:text-accent transition-colors" id="file-label-main">
+                            Drag & Drop or Click
+                        </p>
+                        <p class="text-xs text-gray-400 mt-2" id="file-label-sub">
+                            .PDF files only
+                        </p>
+                    </div>
+                </div>
 
-    <!-- RIGHT SIDE -->
-    <div class="space-y-6">
+                <button type="submit" class="btn btn-primary w-full py-4 mt-8 text-lg shadow-lg shadow-teal-500/20 hover:scale-[1.02] active:scale-[0.98]">
+                    🚀 Analyze & Submit
+                </button>
 
-      <!-- Existing facility -->
-      <div class="dashed-panel">
-        <p class="text-sm font-semibold text-gray-700 mb-3">Research facility</p>
-        <select name="company_id" class="form-control">
-          <option value="">-- Choose a research facility (optional) --</option>
-          {% for company in companies %}
-            <option value="{{ company.company_id }}">{{ company.name }}</option>
-          {% endfor %}
-        </select>
-        <p class="form-help">
-          This is the facility where the research took place.
-        </p>
-      </div>
+            </div>
 
-      <!-- New facility -->
-      <div class="plain-panel">
-        <p class="text-sm font-semibold text-gray-700 mb-3">Or add a new facility</p>
-        <div class="space-y-3">
-          <input type="text" name="new_company" placeholder="Facility / Lab name" class="form-control">
-          <input type="text" name="new_company_industry" placeholder="Discipline / focus" class="form-control">
         </div>
-        <p class="form-help">
-          This new facility will be registered and linked automatically.
-        </p>
-      </div>
-
-      <!-- Submit button -->
-      <button type="submit" class="btn btn-primary btn-block">
-        Submit paper
-      </button>
-
-    </div>
-  </form>
+    </form>
 </section>
+
+
+<div id="ai-loader" class="hidden fixed inset-0 z-[100] bg-white/90 backdrop-blur-md flex-col items-center justify-center text-center transition-opacity duration-500">
+    
+    <div class="relative w-32 h-32 mb-8">
+        <div class="absolute inset-0 rounded-full border-4 border-gray-100"></div>
+        <div class="absolute inset-0 rounded-full border-4 border-accent border-t-transparent animate-spin"></div>
+        <div class="absolute inset-4 bg-accent/10 rounded-full animate-pulse flex items-center justify-center">
+            <span class="text-4xl">🤖</span>
+        </div>
+    </div>
+
+    <h2 class="text-3xl font-extrabold text-gray-900 mb-2">Analyzing Paper...</h2>
+    <p class="text-gray-500 text-lg max-w-md font-medium" id="loading-text">
+        Connecting to AI Neural Network...
+    </p>
+
+    <div class="w-72 h-2 bg-gray-200 rounded-full mt-8 overflow-hidden">
+        <div class="h-full bg-accent animate-loading-bar"></div>
+    </div>
+</div>
+
+
+<script>
+    function updateFileName(input) {
+        if (input.files && input.files.length > 0) {
+            const fileName = input.files[0].name;
+            document.getElementById('file-label-main').textContent = fileName;
+            document.getElementById('file-label-main').classList.add('text-accent');
+            document.getElementById('file-label-sub').textContent = "Ready to upload";
+            // Add visual confirmation style
+            input.parentElement.classList.add('border-accent', 'bg-accent/5');
+        }
+    }
+
+    function showLoader() {
+        const loader = document.getElementById('ai-loader');
+        loader.classList.remove('hidden');
+        loader.classList.add('flex');
+
+        const texts = [
+            "Parsing abstract and metadata...",
+            "Categorizing research domain...",
+            "Calculating Business Potential...",
+            "Evaluating Academic Rigor...",
+            "Finalizing scores..."
+        ];
+        
+        let i = 0;
+        const textElement = document.getElementById('loading-text');
+        
+        setInterval(() => {
+            if (i < texts.length) {
+                textElement.innerText = texts[i];
+                i++;
+            }
+        }, 1200);
+    }
+</script>
+
+<style>
+    @keyframes loading-bar {
+        0% { width: 0%; }
+        40% { width: 60%; }
+        100% { width: 95%; }
+    }
+    .animate-loading-bar {
+        animation: loading-bar 6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+</style>
 
 {% endblock %}
