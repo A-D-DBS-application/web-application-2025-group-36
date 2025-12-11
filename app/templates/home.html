@@ -78,8 +78,10 @@
 
             <div class="p-8 rounded-3xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white hover-lift">
                 <div class="text-4xl mb-4">⚡</div>
-                <h3 class="text-xl font-bold mb-2">48h Turnaround</h3>
-                <p class="text-teal-100 text-sm leading-relaxed">Don't wait months. Get preliminary feedback and industry matching scores in under two days.</p>
+                <h3 class="text-xl font-bold mb-2">Instant Analysis</h3>
+                <p class="text-teal-100 text-sm leading-relaxed">
+                    No waiting times. Receive <strong>immediate</strong> feedback and an AI-generated innovation score as soon as you upload.
+                </p>
             </div>
 
             <div class="p-8 rounded-3xl bg-white border border-gray-200 hover:shadow-lg transition-shadow">
@@ -92,15 +94,15 @@
                 <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-blue-900/20 blur-3xl"></div>
                 
                 <div class="text-center relative z-10 mb-6 sm:mb-0">
-                    <div class="text-4xl font-bold mb-1">{{ total_papers|default('150+') }}</div>
+                    <div class="text-4xl font-bold mb-1">{{ total_papers|default(0) }}</div>
                     <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Papers Archived</div>
                 </div>
                 
                 <div class="hidden sm:block w-px h-12 bg-slate-700 relative z-10"></div>
                 
                 <div class="text-center relative z-10">
-                    <div class="text-4xl font-bold text-teal-400 mb-1">{{ companies|length|default('50+') }}</div>
-                    <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Active Partners</div>
+                    <div class="text-4xl font-bold text-teal-400 mb-1">{{ total_companies|default(0) }}</div>
+                    <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Active Companies</div>
                 </div>
             </div>
 

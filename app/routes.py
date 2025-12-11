@@ -81,8 +81,24 @@ def build_pdf_abs_path(paper: Paper) -> str:
 # ---------------------------------------------------
 @main.route("/")
 def index():
-    return render_template("home.html", title="Home")
+    # 1. Tel alle papers
+    try:
+        total_papers = Paper.query.count()
+    except:
+        total_papers = 0
 
+    # 2. Tel alle companies (gebruik jouw Company model)
+    try:
+        total_companies = Company.query.count()
+    except:
+        total_companies = 0
+
+    return render_template(
+        "home.html", 
+        title="Home",
+        total_papers=total_papers,       # Geeft een getal door (bijv. 150)
+        total_companies=total_companies  # Geeft een getal door (bijv. 12)
+    )
 
 @main.route("/vision")
 def vision():
