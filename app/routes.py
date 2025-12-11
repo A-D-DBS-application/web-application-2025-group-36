@@ -841,21 +841,45 @@ def update_paper(paper_id):
 # ---------------------------------------------------
 # DELETE PAPER
 # ---------------------------------------------------
+# app/routes.py - Zoek de bestaande delete_paper functie en vervang hem hiermee:
+
 @main.route("/paper/<int:paper_id>/delete", methods=["POST"])
 @login_required
 def delete_paper(paper_id):
     paper = Paper.query.get_or_404(paper_id)
+    
+    # Check permissies (zoals voorheen)
     if session.get("user_id") != paper.user_id and session.get("user_role") not in [
         "System/Admin",
         "Founder",
     ]:
         abort(403)
 
+    # ---------------------------------------------------------
+    # STAP 1: Verwijder het bestand uit Supabase Storage
+    # ---------------------------------------------------------
+    try:
+        supabase = get_supabase()
+        # De .remove() functie verwacht een LIJST van bestandsnamen
+        # Let op: paper.file_path is nu de naam in de bucket (bijv. "12_1783_thesis.pdf")
+        res = supabase.storage.from_(BUCKET_NAME).remove([paper.file_path])
+        
+        # Optioneel: check of er een error was in de response (afhankelijk van versie)
+        # print("Supabase remove result:", res)
+
+    except Exception as e:
+        # Als het mislukt (bijv. bestand bestond al niet meer), loggen we het
+        # Maar we gaan wel door met de DB delete, anders kan de gebruiker nooit van zijn paper af.
+        print(f"⚠️ LET OP: Kon bestand niet uit Supabase verwijderen: {e}")
+
+    # ---------------------------------------------------------
+    # STAP 2: Verwijder de record uit de Database
+    # ---------------------------------------------------------
     db.session.delete(paper)
     db.session.commit()
-    flash("Paper deleted successfully.", "success")
+    
+    flash("Paper deleted successfully (and removed from cloud storage).", "success")
     return redirect(url_for("main.dashboard"))
-
 
 # ---------------------------------------------------
 # ADD COMPANY
