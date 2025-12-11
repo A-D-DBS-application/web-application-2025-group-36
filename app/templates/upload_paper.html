@@ -16,7 +16,11 @@
 
 <section class="surface-card p-0 overflow-hidden shadow-xl">
     
-    <form id="uploadForm" method="post" enctype="multipart/form-data" onsubmit="showLoader()">
+    <form id="uploadForm"
+          action="{{ url_for('main.upload_paper') }}"
+          method="post"
+          enctype="multipart/form-data"
+          onsubmit="showLoader()">
         
         <div class="grid md:grid-cols-12 min-h-[600px]">
 
@@ -81,9 +85,15 @@
                     <p class="text-sm text-gray-500">Max file size: 16 MB</p>
                 </div>
 
-                <div class="relative group w-full aspect-[4/5] md:aspect-auto md:h-64 border-2 border-dashed border-gray-300 rounded-2xl hover:bg-white hover:border-accent transition-all duration-300 flex flex-col items-center justify-center cursor-pointer">
+                <!-- DROPZONE -->
+                <div id="dropzone"
+                     class="relative group w-full aspect-[4/5] md:aspect-auto md:h-64 border-2 border-dashed border-gray-300 rounded-2xl hover:bg-white hover:border-accent transition-all duration-300 flex flex-col items-center justify-center cursor-pointer">
                     
-                    <input type="file" name="file" accept="application/pdf" required
+                    <input type="file"
+                           id="file-input"
+                           name="file"
+                           accept="application/pdf"
+                           required
                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                            onchange="updateFileName(this)">
                     
@@ -136,7 +146,6 @@
             document.getElementById('file-label-main').textContent = fileName;
             document.getElementById('file-label-main').classList.add('text-accent');
             document.getElementById('file-label-sub').textContent = "Ready to upload";
-            // Add visual confirmation style
             input.parentElement.classList.add('border-accent', 'bg-accent/5');
         }
     }
@@ -164,6 +173,51 @@
             }
         }, 1200);
     }
+
+    // --------- DRAG & DROP SUPPORT (CROSS-BROWSER) ----------
+    document.addEventListener("DOMContentLoaded", function () {
+        const dropzone = document.getElementById("dropzone");
+        const fileInput = document.getElementById("file-input");
+
+        if (!dropzone || !fileInput) return;
+
+        // voorkom dat browser het bestand opent als nieuwe pagina
+        ["dragover", "drop"].forEach(eventName => {
+            window.addEventListener(eventName, function (e) {
+                e.preventDefault();
+            });
+        });
+
+        ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
+            dropzone.addEventListener(eventName, function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        });
+
+        dropzone.addEventListener("dragover", function () {
+            dropzone.classList.add("border-accent", "bg-accent/5");
+        });
+
+        dropzone.addEventListener("dragleave", function () {
+            dropzone.classList.remove("border-accent", "bg-accent/5");
+        });
+
+        dropzone.addEventListener("drop", function (e) {
+            const files = e.dataTransfer && e.dataTransfer.files;
+            dropzone.classList.remove("border-accent", "bg-accent/5");
+            if (!files || !files.length) return;
+
+            // koppel bestanden aan het file-input element
+            try {
+                fileInput.files = files;
+            } catch (err) {
+                // fallback: alleen naam tonen
+                console.warn("Could not assign files programmatically:", err);
+            }
+            updateFileName(fileInput);
+        });
+    });
 </script>
 
 <style>
