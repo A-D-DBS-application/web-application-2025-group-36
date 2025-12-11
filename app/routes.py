@@ -16,26 +16,34 @@ from collections import Counter
 from datetime import datetime
 import os
 import time
+import io # Nodig om bestanden in het geheugen te lezen
+from supabase import create_client # Nodig voor communicatie met Supabase
 
 from sqlalchemy import or_, func
 from sqlalchemy.orm import joinedload
 from werkzeug.utils import secure_filename
+from pypdf import PdfReader # Zorg dat je pypdf geinstalleerd hebt
 
 from .models import db, User, Company, Paper, Review, PaperCompany, Complaint
-from app.services.pdf_extract import extract_text_from_pdf
-from app.services.ai_analysis import analyze_paper_text
+# We gebruiken analyze_paper_text nog steeds, maar extract_text_from_pdf doen we nu inline
+from app.services.ai_analysis import analyze_paper_text 
 
 main = Blueprint("main", __name__)
 
 # ---------------------------------------------------
-# CONSTANTS & GENERIC HELPERS
+# CONSTANTS & CONFIG
 # ---------------------------------------------------
 ALLOWED_EXTENSIONS = {"pdf"}
+BUCKET_NAME = "paper-pdfs" # Zorg dat deze bucket bestaat in Supabase en 'Public' is
 
+def get_supabase():
+    """Helper om de Supabase client op te halen uit de config"""
+    url = current_app.config["SUPABASE_URL"]
+    key = current_app.config["SUPABASE_KEY"]
+    return create_client(url, key)
 
 def allowed_file(filename: str) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
 def login_required(view):
     """Decorator: require a logged-in user."""
@@ -45,9 +53,7 @@ def login_required(view):
             flash("Please log in first.", "error")
             return redirect(url_for("main.login"))
         return view(*args, **kwargs)
-
     return wrapped_view
-
 
 def roles_required(*allowed_roles):
     """Decorator: require user to have one of the given roles."""
@@ -63,31 +69,19 @@ def roles_required(*allowed_roles):
                 return redirect(url_for("main.index"))
 
             return view(*args, **kwargs)
-
         return wrapped_view
-
     return decorator
-
-
-def build_pdf_abs_path(paper: Paper) -> str:
-    """Build absolute filesystem path for a paper's PDF."""
-    folder = current_app.config["UPLOAD_FOLDER"]  # static/papers
-    filename = os.path.basename(paper.file_path)
-    return os.path.join(folder, filename)
-
 
 # ---------------------------------------------------
 # BASIC PAGES
 # ---------------------------------------------------
 @main.route("/")
 def index():
-    # 1. Tel alle papers
     try:
         total_papers = Paper.query.count()
     except:
         total_papers = 0
 
-    # 2. Tel alle companies (gebruik jouw Company model)
     try:
         total_companies = Company.query.count()
     except:
@@ -96,14 +90,13 @@ def index():
     return render_template(
         "home.html", 
         title="Home",
-        total_papers=total_papers,       # Geeft een getal door (bijv. 150)
-        total_companies=total_companies  # Geeft een getal door (bijv. 12)
+        total_papers=total_papers,
+        total_companies=total_companies 
     )
 
 @main.route("/vision")
 def vision():
     return render_template("vision.html", title="Vision")
-
 
 @main.route("/about")
 def about():
@@ -124,27 +117,23 @@ def get_user_domain_preferences(user: User):
             total += 1
 
     if total == 0:
-        return {}  # No history → no preference boost
+        return {} 
 
     return {domain: count / total for domain, count in counts.items()}
 
 
 def compute_paper_score(paper: Paper, user_prefs, score_map, now: datetime):
     """Combine personalization, popularity, and recency into one score."""
-    # 1. Personalization by domain
     domain = paper.research_domain
     pref_score = user_prefs.get(domain, 0)
 
-    # 2. Popularity (avg review score, normalized between 0-1)
     pop_score = 0
     if paper.paper_id in score_map and score_map[paper.paper_id]["avg"] is not None:
         pop_score = score_map[paper.paper_id]["avg"] / 5.0
 
-    # 3. Recency (1 if today, 0 if older dan 30 dagen)
     days_old = (now - paper.upload_date).days if paper.upload_date else 365
     recency_score = max(0, 1 - (days_old / 30))
 
-    # Weighted final score
     return 0.5 * pref_score + 0.3 * pop_score + 0.2 * recency_score
 
 
@@ -160,12 +149,9 @@ def get_dashboard_data(args, sess):
     # ACTIVE FILTERS
     # ------------------------------
     active_filters = 0
-    if search:
-        active_filters += 1
-    if selected_domain != "all":
-        active_filters += 1
-    if selected_company:
-        active_filters += 1
+    if search: active_filters += 1
+    if selected_domain != "all": active_filters += 1
+    if selected_company: active_filters += 1
     if min_score:
         try:
             float(min_score)
@@ -328,19 +314,25 @@ def search_papers():
 
 
 # ---------------------------------------------------
-# DOWNLOAD PAPER
+# DOWNLOAD PAPER (AANGEPAST VOOR SUPABASE)
 # ---------------------------------------------------
 @main.route("/paper/<int:paper_id>/download")
 def download_paper(paper_id):
     paper = Paper.query.get_or_404(paper_id)
-    filename = os.path.basename(paper.file_path)
-    folder = current_app.config["UPLOAD_FOLDER"]  # static/papers
-
-    return send_from_directory(folder, filename, as_attachment=True)
+    
+    # We bouwen de publieke URL naar Supabase
+    supabase_url = current_app.config["SUPABASE_URL"]
+    
+    # URL Formaat: https://[PROJECT_ID].supabase.co/storage/v1/object/public/[BUCKET]/[PATH]
+    # Let op: 'paper.file_path' is nu alleen de unieke bestandsnaam (bijv. "12_178383_thesis.pdf")
+    public_url = f"{supabase_url}/storage/v1/object/public/{BUCKET_NAME}/{paper.file_path}"
+    
+    # We redirecten de gebruiker naar Supabase, waar de browser de PDF zal openen/downloaden
+    return redirect(public_url)
 
 
 # ---------------------------------------------------
-# UPLOAD PAPER HELPERS
+# UPLOAD PAPER HELPERS (AANGEPAST VOOR SUPABASE)
 # ---------------------------------------------------
 def get_upload_paper_context():
     companies = Company.query.order_by(Company.name).all()
@@ -373,25 +365,39 @@ def process_paper_upload(user_id: int):
         flash("PDF files only.", "error")
         return redirect(url_for("main.upload_paper"))
 
+    # 1. Bestandsnaam veilig maken
     filename = secure_filename(file.filename)
-    unique_name = f"{user_id}_{int(time.time())}_{filename}"
+    unique_name = f"{user_id}_{int(time.time())}_{filename}" # Dit wordt de key in Supabase
 
-    save_folder = current_app.config["UPLOAD_FOLDER"]
-    abs_path = os.path.join(save_folder, unique_name)
+    # 2. Uploaden naar Supabase Storage
+    try:
+        supabase = get_supabase()
+        
+        # We moeten de file pointer uitlezen. 
+        # BELANGRIJK: Na .read() staat de pointer aan het eind. We slaan het op in een variabele.
+        file_content = file.read() 
+        
+        res = supabase.storage.from_(BUCKET_NAME).upload(
+            path=unique_name,
+            file=file_content,
+            file_options={"content-type": "application/pdf"}
+        )
+        
+        # Opslaan in database: Alleen de bestandsnaam (path in bucket)
+        db_file_path = unique_name
+        
+    except Exception as e:
+        print(f"❌ SUPABASE UPLOAD ERROR: {e}")
+        flash(f"Upload failed: {e}", "error")
+        return redirect(url_for("main.upload_paper"))
 
-    # Save file
-    file.save(abs_path)
-
-    # Relative path for HTML serving
-    rel_path = f"papers/{unique_name}"
-
-    # CREATE PAPER (AI pending)
+    # CREATE PAPER
     paper = Paper(
         title=title,
         abstract=abstract,
         research_domain=research_domain,
         user_id=user_id,
-        file_path=rel_path,
+        file_path=db_file_path, # Nu de Supabase filename
         ai_status="pending",
     )
 
@@ -425,15 +431,18 @@ def process_paper_upload(user_id: int):
 
     db.session.commit()
 
-    # AUTOMATIC AI ANALYSIS
-    print(f"🔍 Starting automatic AI analysis for: {abs_path}")
+    # AUTOMATIC AI ANALYSIS (Aangepast voor In-Memory PDF)
+    print(f"🔍 Starting automatic AI analysis for: {unique_name}")
 
     try:
-        from pypdf import PdfReader
-
-        reader = PdfReader(abs_path)
+        # We gebruiken de bytes die we net hebben geupload (file_content)
+        # We wrappen dit in io.BytesIO zodat PyPDF denkt dat het een bestand is
+        pdf_stream = io.BytesIO(file_content)
+        
+        reader = PdfReader(pdf_stream)
         full_text = "\n".join(page.extract_text() or "" for page in reader.pages)
 
+        # Roep de AI service aan
         ai_result = analyze_paper_text(full_text)
 
         if ai_result:
@@ -1136,24 +1145,32 @@ def delete_account():
 
 
 # ---------------------------------------------------
-# AI ANALYSIS ROUTE
+# AI ANALYSIS ROUTE (AANGEPAST VOOR SUPABASE)
 # ---------------------------------------------------
 @main.route("/analyze_paper/<int:paper_id>", methods=["POST"])
 @login_required
 def analyze_paper(paper_id):
     paper = Paper.query.get_or_404(paper_id)
 
-    abs_path = build_pdf_abs_path(paper)
-    print("🔍 ABSOLUTE PDF PATH:", abs_path)
-
-    if not os.path.exists(abs_path):
-        flash("PDF not found on server.", "error")
-        return redirect(url_for("main.paper_detail", paper_id=paper_id))
+    # In de nieuwe situatie hebben we geen lokaal path meer.
+    # We moeten het bestand downloaden van Supabase om het opnieuw te analyseren.
+    print(f"🔍 Re-analyzing Supabase file: {paper.file_path}")
 
     try:
-        full_text = extract_text_from_pdf(abs_path)
+        supabase = get_supabase()
+        
+        # Download bytes van Supabase
+        res = supabase.storage.from_(BUCKET_NAME).download(paper.file_path)
+        
+        # Zet bytes om naar stream
+        pdf_stream = io.BytesIO(res)
+        
+        # Lees PDF
+        reader = PdfReader(pdf_stream)
+        full_text = "\n".join(page.extract_text() or "" for page in reader.pages)
+        
     except Exception as e:
-        flash("PDF extraction failed.", "error")
+        flash("PDF extraction from Supabase failed.", "error")
         print("❌ PDF extraction error:", e)
         return redirect(url_for("main.paper_detail", paper_id=paper_id))
 
@@ -1174,4 +1191,5 @@ def analyze_paper(paper_id):
         flash("AI analysis failed.", "error")
 
     return redirect(url_for("main.paper_detail", paper_id=paper_id))
-
+# ---------------------------------------------------
+# END OF FILE
