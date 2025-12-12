@@ -1,54 +1,48 @@
 {% extends "base.html" %}
 {% block content %}
 
-<section class="mb-12 text-center max-w-3xl mx-auto">
-    <div class="inline-flex items-center px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-bold uppercase tracking-widest mb-4">
+<div class="stats-header">
+    <div class="tag tag-accent" style="margin-bottom: 1rem;">
         Live Data
     </div>
-    <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
-        Platform <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600">Insights</span>
+    <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">
+        Platform <span class="text-gradient">Insights</span>
     </h1>
-    <p class="text-gray-600 text-lg">
+    <p style="font-size: 1.1rem; color: var(--text-muted);">
         Real-time metrics on submissions, reviews, and AI performance across the platform.
     </p>
-</section>
+</div>
 
-<div class="grid md:grid-cols-3 gap-6 mb-12">
+<div class="stats-kpi-grid">
 
-    <div class="relative group bg-white border border-gray-100 p-8 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-        <div class="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-            <span class="text-9xl">📄</span>
-        </div>
-        <div class="relative z-10">
-            <p class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Total Papers</p>
-            <h2 class="text-5xl font-black text-gray-900">{{ total_papers }}</h2>
-            <div class="mt-4 flex items-center text-sm text-green-600 font-medium bg-green-50 w-fit px-2 py-1 rounded-lg">
+    <div class="stats-kpi-card">
+        <div class="kpi-bg-icon">📄</div>
+        <div style="position: relative; z-index: 10;">
+            <p class="stat-label-simple">Total Papers</p>
+            <h2 class="kpi-main-value">{{ total_papers }}</h2>
+            <div class="kpi-sub-badge green">
                 <span>↗ Growing archive</span>
             </div>
         </div>
     </div>
 
-    <div class="relative group bg-white border border-gray-100 p-8 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-        <div class="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-            <span class="text-9xl">✍️</span>
-        </div>
-        <div class="relative z-10">
-            <p class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Total Reviews</p>
-            <h2 class="text-5xl font-black text-gray-900">{{ total_reviews }}</h2>
-            <div class="mt-4 flex items-center text-sm text-accent font-medium bg-teal-50 w-fit px-2 py-1 rounded-lg">
+    <div class="stats-kpi-card">
+        <div class="kpi-bg-icon">✍️</div>
+        <div style="position: relative; z-index: 10;">
+            <p class="stat-label-simple">Total Reviews</p>
+            <h2 class="kpi-main-value">{{ total_reviews }}</h2>
+            <div class="kpi-sub-badge teal">
                 <span>★ Community active</span>
             </div>
         </div>
     </div>
 
-    <div class="relative group bg-gradient-to-br from-blue-50 to-white border border-blue-100 p-8 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-        <div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-            <span class="text-9xl">🤖</span>
-        </div>
-        <div class="relative z-10">
-            <p class="text-sm font-bold text-blue-400 uppercase tracking-wider mb-1">AI Analyses</p>
-            <h2 class="text-5xl font-black text-blue-600">{{ ai_done }}</h2>
-            <div class="mt-4 flex items-center text-sm text-blue-700 font-medium bg-blue-100 w-fit px-2 py-1 rounded-lg">
+    <div class="stats-kpi-card blue-gradient">
+        <div class="kpi-bg-icon">🤖</div>
+        <div style="position: relative; z-index: 10;">
+            <p class="stat-label-simple" style="color: #60a5fa;">AI Analyses</p>
+            <h2 class="kpi-main-value" style="color: #2563eb;">{{ ai_done }}</h2>
+            <div class="kpi-sub-badge blue">
                 <span>✓ Fully Processed</span>
             </div>
         </div>
@@ -58,69 +52,61 @@
 
 {% set weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] %}
 
-<div class="grid lg:grid-cols-2 gap-8">
+<div class="chart-grid">
 
-    <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm">
-        <div class="flex items-center justify-between mb-8">
+    <div class="chart-card">
+        <div class="chart-header">
             <div>
-                <h3 class="text-xl font-bold text-gray-900">Review Activity</h3>
-                <p class="text-sm text-gray-500">Submissions per day of the week</p>
+                <h3 style="font-size: 1.25rem; margin-bottom: 0.25rem;">Review Activity</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Submissions per day of the week</p>
             </div>
-            <div class="w-10 h-10 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center font-bold">
-                🔥
-            </div>
+            <div class="chart-icon-circle orange">🔥</div>
         </div>
 
-        <div class="flex items-end justify-between gap-2 h-48 border-b border-gray-100 pb-2">
+        <div class="chart-area">
             {% for i in range(7) %}
             {% set count = weekday_map[i] if i in weekday_map else 0 %}
             
-            <div class="flex flex-col items-center w-full group">
-                <div class="opacity-0 group-hover:opacity-100 mb-2 text-xs font-bold bg-gray-900 text-white px-2 py-1 rounded transition-opacity">
-                    {{ count }}
+            <div class="chart-col">
+                <div class="chart-tooltip">{{ count }}</div>
+                
+                <div class="chart-bar
+                            {% if count == 0 %} bar-0
+                            {% elif count < 5 %} bar-sm bar-orange
+                            {% elif count < 10 %} bar-md bar-orange
+                            {% else %} bar-lg bar-orange {% endif %}">
                 </div>
                 
-                <div class="w-full rounded-t-lg transition-all duration-500 hover:bg-orange-400 relative
-                            {% if count == 0 %} h-2 bg-gray-100 
-                            {% elif count < 5 %} h-16 bg-orange-200 
-                            {% elif count < 10 %} h-24 bg-orange-300
-                            {% else %} h-36 bg-orange-500 {% endif %}">
-                </div>
-                
-                <span class="text-xs text-gray-400 mt-3 font-medium">{{ weekdays[i] }}</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; font-weight: 500;">{{ weekdays[i] }}</span>
             </div>
             {% endfor %}
         </div>
     </div>
 
-    <div class="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm">
-        <div class="flex items-center justify-between mb-8">
+    <div class="chart-card">
+        <div class="chart-header">
             <div>
-                <h3 class="text-xl font-bold text-gray-900">Paper Uploads</h3>
-                <p class="text-sm text-gray-500">New knowledge per day of the week</p>
+                <h3 style="font-size: 1.25rem; margin-bottom: 0.25rem;">Paper Uploads</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">New knowledge per day of the week</p>
             </div>
-            <div class="w-10 h-10 rounded-full bg-accent/10 text-accent flex items-center justify-center font-bold">
-                📅
-            </div>
+            <div class="chart-icon-circle teal">📅</div>
         </div>
 
-        <div class="flex items-end justify-between gap-2 h-48 border-b border-gray-100 pb-2">
+        <div class="chart-area">
             {% for i in range(7) %}
             {% set count = paper_weekday_map[i] if i in paper_weekday_map else 0 %}
             
-            <div class="flex flex-col items-center w-full group">
-                <div class="opacity-0 group-hover:opacity-100 mb-2 text-xs font-bold bg-gray-900 text-white px-2 py-1 rounded transition-opacity">
-                    {{ count }}
-                </div>
-
-                <div class="w-full rounded-t-lg transition-all duration-500 hover:bg-teal-500 relative
-                            {% if count == 0 %} h-2 bg-gray-100 
-                            {% elif count < 5 %} h-12 bg-teal-200 
-                            {% elif count < 10 %} h-24 bg-teal-300
-                            {% else %} h-40 bg-teal-500 {% endif %}">
+            <div class="chart-col">
+                <div class="chart-tooltip">{{ count }}</div>
+                
+                <div class="chart-bar
+                            {% if count == 0 %} bar-0
+                            {% elif count < 5 %} bar-sm bar-teal
+                            {% elif count < 10 %} bar-md bar-teal
+                            {% else %} bar-lg bar-teal {% endif %}">
                 </div>
                 
-                <span class="text-xs text-gray-400 mt-3 font-medium">{{ weekdays[i] }}</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; font-weight: 500;">{{ weekdays[i] }}</span>
             </div>
             {% endfor %}
         </div>
@@ -128,9 +114,9 @@
 
 </div>
 
-<div class="mt-12 text-center">
-    <p class="text-xs text-gray-400 flex items-center justify-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+<div style="margin-top: 3rem; text-align: center;">
+    <p style="font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+        <span class="pulse-dot" style="background-color: #22c55e;"></span>
         System Status: Operational • Last updated just now
     </p>
 </div>

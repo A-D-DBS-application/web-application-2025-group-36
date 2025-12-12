@@ -1,338 +1,229 @@
 {% extends "base.html" %}
 {% block content %}
 
-{# ---------- HEADER CARD ---------- #}
-<div class="relative bg-white border border-gray-200 rounded-[2rem] shadow-sm overflow-hidden mb-8">
-    <!-- Gradient strip bovenaan -->
-    <div class="h-24 w-full bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600"></div>
+<div class="profile-header">
+    <div class="profile-cover"></div>
+    
+    <div class="profile-content">
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <div class="profile-avatar">
+                {{ user.name[0] | upper }}
+            </div>
+            
+            <div style="padding-top: 0.5rem;">
+                <h1 style="font-size: 1.5rem; margin-bottom: 0.5rem;">{{ user.name }}</h1>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
+                    {% if user.role == 'Researcher' %}
+                        <span class="tag" style="background: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe;">Researcher</span>
+                    {% elif user.role == 'Company' %}
+                        <span class="tag" style="background: #f0fdfa; color: #0f766e; border: 1px solid #ccfbf1;">Company</span>
+                    {% else %}
+                        <span class="tag tag-gray">{{ user.role }}</span>
+                    {% endif %}
 
-    <div class="px-8 pb-8">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div class="flex items-center gap-4">
-                <!-- Avatar die over de gradient hangt, maar tekst blijft op wit -->
-                <div class="relative">
-                    <div class="w-24 h-24 rounded-full border-4 border-white bg-gray-900 text-white flex items-center justify-center text-2xl font-semibold shadow-md -mt-10">
-                        {{ user.name[0] | upper }}
-                    </div>
-                </div>
-
-                <!-- Naam + meta: volledig op wit -->
-                <div class="pt-2">
-                    <h1 class="text-2xl font-semibold text-gray-900">{{ user.name }}</h1>
-                    <div class="flex flex-wrap items-center gap-3 mt-2 text-sm text-gray-600">
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider
-                            {% if user.role == 'Researcher' %} bg-blue-50 text-blue-700 border border-blue-100
-                            {% elif user.role == 'Company' %} bg-teal-50 text-teal-700 border border-teal-100
-                            {% else %} bg-gray-100 text-gray-700 {% endif %}">
-                            {{ user.role }}
-                        </span>
-
-                        {% if company %}
-                            <span class="h-1 w-1 bg-gray-300 rounded-full"></span>
-                            <span class="text-gray-500">
-                                Company <span class="font-medium text-gray-700">{{ company.name }}</span>
-                            </span>
-                        {% endif %}
-                    </div>
+                    {% if company %}
+                        <span style="width: 4px; height: 4px; background: #d1d5db; border-radius: 50%;"></span>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">Company <strong>{{ company.name }}</strong></span>
+                    {% endif %}
                 </div>
             </div>
+        </div>
 
-            <!-- Profile settings knop: enkel tekst, op wit -->
-            <div class="mt-2 md:mt-0">
-                <a href="{{ url_for('main.edit_profile') }}"
-                   class="inline-flex items-center px-4 py-2 rounded-full border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                    Profile settings
-                </a>
-            </div>
+        <div>
+            <a href="{{ url_for('main.edit_profile') }}" class="btn btn-secondary">
+                Profile settings
+            </a>
         </div>
     </div>
 </div>
 
-{# ---------- STATS ROW (2 CARDS) ---------- #}
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-    <div class="bg-white border border-gray-100 p-5 rounded-2xl">
-        <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Reviews given</p>
-        <p class="text-2xl font-semibold text-gray-900">{{ reviews_count }}</p>
+<div class="profile-stats-grid">
+    <div class="stat-card-simple">
+        <div class="stat-label-simple">Reviews given</div>
+        <div class="stat-value-simple">{{ reviews_count }}</div>
     </div>
 
-    <div class="bg-white border border-gray-100 p-5 rounded-2xl">
-        <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
+    <div class="stat-card-simple">
+        <div class="stat-label-simple">
             {% if user.role == 'Company' %}Papers marked as interesting{% else %}Active domains{% endif %}
-        </p>
-        <p class="text-2xl font-semibold text-gray-900">
+        </div>
+        <div class="stat-value-simple">
             {% if user.role == 'Company' %}
                 {{ interested_papers|length }}
             {% else %}
                 {{ user.reviews|map(attribute='paper')|selectattr('research_domain')|list|length }}
             {% endif %}
-        </p>
+        </div>
     </div>
 </div>
 
-{# ---------- MAIN CONTENT ---------- #}
-
-{# --- CASE 1: COMPANY USER (Recommended => Saved) --- #}
+{# --- CASE 1: COMPANY USER --- #}
 {% if user.role == 'Company' %}
 
-{# ---------- RECOMMENDED (HERO BLOCK) ---------- #}
-{% if recommended_papers %}
-<section class="mb-12">
-    <h2 class="text-xl font-semibold text-gray-900 mb-2 flex items-center gap-2">
-        🎯 Recommended for {{ company.name or user.name }}
-    </h2>
+    {# RECOMMENDED #}
+    {% if recommended_papers %}
+    <section style="margin-bottom: 3rem;">
+        <h2 style="font-size: 1.25rem; margin-bottom: 0.5rem;">🎯 Recommended for {{ company.name or user.name }}</h2>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+            Based on your interests: 
+            {% if company and company.interests %}
+                <span class="text-accent" style="font-weight: 600;">{{ company.interests }}</span>
+            {% endif %}
+        </p>
 
-    <p class="text-sm text-gray-500 mb-4">
-        Based on your selected interests:
-        {% if company and company.interests %}
-            <span class="font-medium text-accent">
-                {{ company.interests }}
-            </span>
-        {% endif %}
-    </p>
-
-    <div class="flex flex-col gap-4">
-        {% for paper in recommended_papers %}
-            <div class="
-                bg-accent/5 border border-accent/20
-                rounded-xl p-5
-                hover:border-accent/40 hover:shadow-sm
-                transition-all duration-150
-            ">
-                <div class="flex justify-between items-start mb-1.5">
-                    <a href="{{ url_for('main.paper_detail', paper_id=paper.paper_id) }}"
-                       class="font-semibold text-gray-900 hover:text-accent transition-colors">
-                        {{ paper.title }}
-                    </a>
-
-                    <span class="text-xs bg-white text-gray-600
-                               px-2 py-0.5 rounded-full border border-gray-100">
-                        {{ paper.research_domain }}
-                    </span>
-                </div>
-
-                <p class="text-sm text-gray-600 line-clamp-2 mb-2">
-                    {{ paper.abstract or "No abstract provided." }}
-                </p>
-
-                <div class="text-xs text-gray-400 flex items-center gap-2">
-                    {% if paper.author %}
-                        <span>by {{ paper.author.name }}</span>
-                    {% endif %}
-
-                    {% if paper.upload_date %}
-                        <span>• {{ paper.upload_date.strftime('%b %d, %Y') }}</span>
-                    {% endif %}
-
-                    {% if paper.ai_status == 'done' %}
-                        <span class="h-1 w-1 bg-gray-300 rounded-full"></span>
-                        <span class="text-green-600 font-medium">
-                            AI scored
-                        </span>
-                    {% endif %}
-                </div>
-            </div>
-        {% endfor %}
-    </div>
-</section>
-{% endif %}
-
-{# ---------- SAVED INTEREST ---------- #}
-<section class="mb-10">
-    <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-semibold text-gray-900">
-            Saved interest
-        </h2>
-    </div>
-
-    {% if interested_papers %}
-        <div class="flex flex-col gap-4">
-            {% for paper in interested_papers %}
-                <div class="
-                    bg-white border border-gray-200
-                    rounded-xl p-5
-                    hover:shadow-sm transition-all duration-150
-                ">
-                    <div class="flex justify-between items-start mb-1.5">
-                        <a href="{{ url_for('main.paper_detail', paper_id=paper.paper_id) }}"
-                           class="font-semibold text-gray-900 hover:text-accent transition-colors">
+        <div>
+            {% for paper in recommended_papers %}
+                <div class="compact-card highlight">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <a href="{{ url_for('main.paper_detail', paper_id=paper.paper_id) }}" style="font-weight: 600; font-size: 1.1rem;">
                             {{ paper.title }}
                         </a>
-
-                        <form method="post" action="{{ url_for('main.toggle_interest', paper_id=paper.paper_id) }}">
-                            <button type="submit"
-                                    class="
-                                        px-3 py-1 text-xs font-medium
-                                        border border-gray-300 text-gray-600
-                                        rounded-full
-                                        hover:bg-gray-100
-                                    ">
-                                Remove
-                            </button>
-                        </form>
+                        <span class="tag" style="background: white; border: 1px solid var(--border-color);">{{ paper.research_domain }}</span>
                     </div>
 
-                    <div class="flex items-center gap-2 text-xs text-gray-500">
-                        <span class="bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100">
-                            {{ paper.research_domain }}
-                        </span>
+                    <p style="font-size: 0.9rem; color: #4b5563; margin-bottom: 0.75rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-clamp: 2;">
+                        {{ paper.abstract or "No abstract provided." }}
+                    </p>
 
-                        {% if paper.author %}
-                            <span>by {{ paper.author.name }}</span>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; gap: 0.75rem; align-items: center;">
+                        {% if paper.author %}<span>by {{ paper.author.name }}</span>{% endif %}
+                        {% if paper.upload_date %}<span>• {{ paper.upload_date.strftime('%b %d, %Y') }}</span>{% endif %}
+                        {% if paper.ai_status == 'done' %}
+                            <span style="color: #16a34a; font-weight: 600;">• AI scored</span>
                         {% endif %}
                     </div>
                 </div>
             {% endfor %}
         </div>
-    {% else %}
-        <div class="
-            text-center py-8
-            bg-gray-50 border border-dashed border-gray-200
-            rounded-xl
-        ">
-            <p class="text-sm text-gray-500 mb-2">
-                No papers saved as interesting yet.
-            </p>
-
-            <a href="{{ url_for('main.dashboard') }}"
-               class="inline-flex items-center
-                      text-sm font-medium
-                      text-accent hover:underline">
-                Explore the dashboard
-            </a>
-        </div>
+    </section>
     {% endif %}
-</section>
 
-{# --- CASE 2: NIET-COMPANY USER (oude layout met My Papers + My Reviews) --- #}
-{% else %}
-
-<div class="grid lg:grid-cols-2 gap-8 mb-12">
-
-    {# My Papers #}
+    {# SAVED INTEREST #}
     <section>
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold text-gray-900">
-                My papers
-                <span class="text-sm font-normal text-gray-400">({{ authored_papers|length }})</span>
-            </h2>
-            <a href="{{ url_for('main.upload_paper') }}"
-               class="text-sm font-medium text-accent hover:underline">
-                New upload
-            </a>
-        </div>
-
-        {% if authored_papers %}
-            <div class="flex flex-col gap-4">
-                {% for paper in authored_papers %}
-                    <div class="group bg-white border border-gray-200 rounded-xl p-5 hover:border-accent/40 hover:shadow-sm transition-all duration-150">
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium uppercase bg-gray-50 text-gray-600 border border-gray-100">
-                                {{ paper.research_domain }}
-                            </span>
-                            <a href="{{ url_for('main.update_paper', paper_id=paper.paper_id) }}"
-                               class="text-xs text-gray-400 hover:text-accent">
-                                Edit
-                            </a>
-                        </div>
-
-                        <h3 class="font-semibold text-gray-900 mb-1 leading-snug group-hover:text-accent transition-colors">
-                            <a href="{{ url_for('main.paper_detail', paper_id=paper.paper_id) }}">
+        <h2 style="font-size: 1.1rem; margin-bottom: 1rem;">Saved interest</h2>
+        
+        {% if interested_papers %}
+            <div>
+                {% for paper in interested_papers %}
+                    <div class="compact-card">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                            <a href="{{ url_for('main.paper_detail', paper_id=paper.paper_id) }}" style="font-weight: 600;">
                                 {{ paper.title }}
                             </a>
-                        </h3>
-
-                        <p class="text-sm text-gray-500 line-clamp-2 mb-2">
-                            {{ paper.abstract or 'No abstract provided.' }}
-                        </p>
-
-                        <div class="text-xs text-gray-400 flex items-center gap-2">
-                            {% if paper.upload_date %}
-                                <span>Uploaded {{ paper.upload_date.strftime('%b %d, %Y') }}</span>
-                            {% endif %}
-                            {% if paper.ai_status == 'done' %}
-                                <span class="h-1 w-1 bg-gray-300 rounded-full"></span>
-                                <span class="text-green-600 font-medium">AI scored</span>
-                            {% endif %}
+                            
+                            <form method="post" action="{{ url_for('main.toggle_interest', paper_id=paper.paper_id) }}">
+                                <button type="submit" class="btn btn-secondary btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.75rem;">
+                                    Remove
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <div style="display: flex; gap: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">
+                             <span class="tag tag-gray" style="font-size: 0.7rem;">{{ paper.research_domain }}</span>
+                             {% if paper.author %}<span>by {{ paper.author.name }}</span>{% endif %}
                         </div>
                     </div>
                 {% endfor %}
             </div>
         {% else %}
-            <div class="text-center py-8 bg-gray-50 border border-dashed border-gray-200 rounded-xl">
-                <p class="text-sm text-gray-500 mb-2">You haven’t published any papers yet.</p>
-                <a href="{{ url_for('main.upload_paper') }}"
-                   class="inline-flex items-center text-sm font-medium text-accent hover:underline">
-                    Upload your first paper
-                </a>
+            <div style="text-align: center; padding: 2rem; border: 1px dashed var(--border-color); border-radius: 1rem; background-color: #f9fafb;">
+                <p style="margin-bottom: 0.5rem; color: var(--text-muted);">No papers saved as interesting yet.</p>
+                <a href="{{ url_for('main.dashboard') }}" class="text-accent">Explore the dashboard</a>
             </div>
         {% endif %}
     </section>
 
-    {# My Reviews #}
-    <section>
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold text-gray-900">
-                My reviews
-            </h2>
-        </div>
+{# --- CASE 2: REGULAR USER --- #}
+{% else %}
 
-        {% if reviews %}
-            <div class="flex flex-col gap-4">
-                {% for review in reviews[:5] %}
-                    <div class="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-sm transition-all duration-150">
-                        <div class="flex justify-between items-start mb-1.5">
-                            <span class="text-xs text-gray-400">
-                                {{ review.date_submitted.strftime('%d %b %Y') if review.date_submitted else '' }}
-                            </span>
-                            <div class="flex items-center gap-1 text-xs text-gray-700">
-                                <span class="font-medium">Score</span>
-                                <span class="font-semibold">{{ review.score if review.score is not none else '-' }}/10</span>
-                            </div>
+<div style="display: grid; gap: 2rem;">
+    <style> @media (min-width: 1024px) { .user-content-split { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; } } </style>
+    
+    <div class="user-content-split">
+        
+        {# My Papers #}
+        <section>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2 style="font-size: 1.1rem;">My papers <span style="font-weight: 400; color: var(--text-muted);">({{ authored_papers|length }})</span></h2>
+                <a href="{{ url_for('main.upload_paper') }}" class="text-accent" style="font-size: 0.9rem; font-weight: 600;">New upload</a>
+            </div>
+
+            {% if authored_papers %}
+                {% for paper in authored_papers %}
+                    <div class="compact-card">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                            <span class="tag tag-gray" style="font-size: 0.7rem;">{{ paper.research_domain }}</span>
+                            <a href="{{ url_for('main.update_paper', paper_id=paper.paper_id) }}" style="font-size: 0.75rem; color: var(--text-muted);">Edit</a>
                         </div>
+                        
+                        <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">
+                            <a href="{{ url_for('main.paper_detail', paper_id=paper.paper_id) }}">{{ paper.title }}</a>
+                        </h3>
+                        
+                        <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                             {{ paper.abstract or 'No abstract' }}
+                        </p>
+                        
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">
+                             {{ paper.upload_date.strftime('%b %d, %Y') if paper.upload_date else '' }}
+                             {% if paper.ai_status == 'done' %} <span style="color: #16a34a; margin-left: 0.5rem;">AI scored</span> {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div style="text-align: center; padding: 2rem; border: 1px dashed var(--border-color); border-radius: 1rem; background-color: #f9fafb;">
+                    <p style="margin-bottom: 0.5rem; color: var(--text-muted);">You haven’t published any papers yet.</p>
+                    <a href="{{ url_for('main.upload_paper') }}" class="text-accent">Upload your first paper</a>
+                </div>
+            {% endif %}
+        </section>
 
-                        <h4 class="text-sm font-semibold text-gray-900 mb-1">
-                            <a href="{{ url_for('main.paper_detail', paper_id=review.paper.paper_id) }}"
-                               class="text-accent hover:underline">
-                                {{ review.paper.title }}
-                            </a>
+        {# My Reviews #}
+        <section>
+            <h2 style="font-size: 1.1rem; margin-bottom: 1rem;">My reviews</h2>
+            {% if reviews %}
+                {% for review in reviews[:5] %}
+                    <div class="compact-card">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.8rem;">
+                            <span style="color: var(--text-muted);">{{ review.date_submitted.strftime('%d %b %Y') if review.date_submitted else '' }}</span>
+                            <span>Score: <strong>{{ review.score }}/10</strong></span>
+                        </div>
+                        
+                        <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem;">
+                             <a href="{{ url_for('main.paper_detail', paper_id=review.paper.paper_id) }}" class="text-accent">{{ review.paper.title }}</a>
                         </h4>
-
+                        
                         {% if review.comments %}
-                            <p class="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-100 mt-2">
-                                {{ review.comments[:140] }}{% if review.comments|length > 140 %}…{% endif %}
-                            </p>
+                            <div style="background: #f9fafb; padding: 0.5rem; border-radius: 0.5rem; font-size: 0.85rem; color: #4b5563;">
+                                {{ review.comments[:100] }}...
+                            </div>
                         {% endif %}
                     </div>
                 {% endfor %}
-            </div>
-        {% else %}
-            <div class="text-center py-8 bg-gray-50 border border-dashed border-gray-200 rounded-xl">
-                <p class="text-sm text-gray-500 mb-2">You haven’t written any reviews yet.</p>
-                <a href="{{ url_for('main.dashboard') }}"
-                   class="inline-flex items-center text-sm font-medium text-accent hover:underline">
-                    Start reviewing
-                </a>
-            </div>
-        {% endif %}
-    </section>
-
+            {% else %}
+                <div style="text-align: center; padding: 2rem; border: 1px dashed var(--border-color); border-radius: 1rem; background-color: #f9fafb;">
+                    <p style="margin-bottom: 0.5rem; color: var(--text-muted);">No reviews yet.</p>
+                    <a href="{{ url_for('main.dashboard') }}" class="text-accent">Start reviewing</a>
+                </div>
+            {% endif %}
+        </section>
+        
+    </div>
 </div>
+
 {% endif %}
 
-{# ---------- DANGER ZONE ---------- #}
-<section class="border-t border-gray-200 pt-8">
-    <div class="bg-red-50/50 border border-red-100 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+<section class="danger-section">
+    <div class="danger-card">
         <div>
-            <h3 class="text-base font-semibold text-red-700">Delete account</h3>
-            <p class="text-sm text-red-600/80">
+            <h3 style="font-size: 1rem; font-weight: 600; color: #b91c1c; margin-bottom: 0.25rem;">Delete account</h3>
+            <p style="font-size: 0.85rem; color: #991b1b; opacity: 0.8; margin: 0;">
                 This will permanently remove your account and all associated data. This action cannot be undone.
             </p>
         </div>
-        <form method="post"
-              action="{{ url_for('main.delete_account') }}"
-              onsubmit="return confirm('Are you sure you want to permanently delete your account? This cannot be undone.');">
-            <button type="submit"
-                    class="px-5 py-2.5 bg-white border border-red-200 text-red-600 text-sm font-medium rounded-xl hover:bg-red-600 hover:text-white hover:border-red-600 transition-all">
+        
+        <form method="post" action="{{ url_for('main.delete_account') }}" onsubmit="return confirm('Are you sure you want to permanently delete your account? This cannot be undone.');">
+            <button type="submit" class="btn btn-sm" style="background-color: white; border: 1px solid #fca5a5; color: #dc2626;">
                 Delete account
             </button>
         </form>
@@ -340,9 +231,3 @@
 </section>
 
 {% endblock %}
-
-
-
-
-
-

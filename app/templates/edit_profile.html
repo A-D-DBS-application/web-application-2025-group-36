@@ -1,91 +1,74 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="max-w-xl mx-auto mt-12">
+<div style="max-width: 40rem; margin: 0 auto;">
 
-  <h1 class="text-3xl font-extrabold text-center mb-8 text-accent">
+  <h1 style="text-align: center; margin-bottom: 2rem;">
     Edit Your Profile
   </h1>
 
-  <div class="bg-white p-8 shadow-lg rounded-2xl border border-accent/20">
+  <div class="paper-grid-card">
+    <div class="paper-card-body">
 
-    <form method="post" class="space-y-6">
+      <form method="post">
 
-      <!-- NAME -->
-      <div>
-        <label class="block text-lg font-semibold text-accent mb-1">Name</label>
-        <input type="text" name="name" value="{{ user.name }}"
-               class="w-full px-4 py-2 rounded-lg border border-accent/40 focus:outline-none"
-               required>
-      </div>
-
-      <!-- EMAIL -->
-      <div>
-        <label class="block text-lg font-semibold text-accent mb-1">Email</label>
-        <input type="email" name="email" value="{{ user.email }}"
-               class="w-full px-4 py-2 rounded-lg border border-accent/40 focus:outline-none"
-               required>
-      </div>
-
-
-      <!-- 🔹 COMPANY INTEREST TAGS (alleen zichtbaar voor Company) -->
-      {% if user.role == "Company" %}
-
-      <div class="pt-4">
-        <label class="block text-lg font-semibold text-accent mb-2">
-          Company Interests
-        </label>
-
-        <p class="text-sm text-gray-500 mb-3">
-          Select the research domains your company is interested in.  
-          Papers from these domains will be recommended to you.
-        </p>
-
-        <div class="grid grid-cols-2 gap-3">
-          {% for tag in interest_tags %}
-
-            <label class="flex items-center gap-2 bg-gray-50 border border-accent/20 px-3 py-2 rounded-lg cursor-pointer hover:bg-accent/5">
-
-              <input
-                type="checkbox"
-                name="interests"
-                value="{{ tag }}"
-                class="accent-accent"
-                {% if tag in company_interests %}checked{% endif %}
-              >
-
-              <span class="text-sm font-medium text-gray-700">
-                {{ tag }}
-              </span>
-
-            </label>
-
-          {% endfor %}
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--accent);">Name</label>
+          <input type="text" name="name" value="{{ user.name }}" class="form-control" required>
         </div>
-      </div>
 
-      {% endif %}
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--accent);">Email</label>
+          <input type="email" name="email" value="{{ user.email }}" class="form-control" required>
+        </div>
 
 
-      <!-- BUTTONS -->
-      <div class="flex justify-between mt-8">
+        {% if user.role == "Company" %}
 
-        <a href="{{ url_for('main.profile') }}"
-           class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
-          Cancel
-        </a>
+        <div style="margin-top: 2rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--accent);">
+            Company Interests
+          </label>
 
-        <button type="submit"
-                class="px-6 py-2 bg-accent text-white rounded-lg hover:bg-accent/80">
-          Save Changes
-        </button>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">
+            Select the research domains your company is interested in. 
+            Papers from these domains will be recommended to you.
+          </p>
 
-      </div>
+          <div class="checkbox-grid">
+            {% for tag in interest_tags %}
+              <label class="checkbox-card">
+                <input 
+                  type="checkbox" 
+                  name="interests" 
+                  value="{{ tag }}" 
+                  {% if tag in company_interests %}checked{% endif %}
+                >
+                <span style="font-size: 0.9rem; font-weight: 500; color: var(--text-main);">
+                  {{ tag }}
+                </span>
+              </label>
+            {% endfor %}
+          </div>
+        </div>
 
-    </form>
+        {% endif %}
 
+        <div class="form-actions">
+          <a href="{{ url_for('main.profile') }}" class="btn btn-secondary">
+            Cancel
+          </a>
+
+          <button type="submit" class="btn btn-primary">
+            Save Changes
+          </button>
+        </div>
+
+      </form>
+
+    </div>
   </div>
+
 </div>
 
 {% endblock %}
-

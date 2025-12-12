@@ -1,106 +1,88 @@
 {% extends "base.html" %}
 {% block content %}
 
-<section class="surface-card surface-card--large">
-  <div class="flex items-start justify-between flex-wrap gap-6">
-    <div>
-      <p class="text-sm uppercase tracking-[0.2em] text-gray-500 mb-2">Edit</p>
-      <h1 class="text-3xl font-extrabold text-gray-800">Update your paper</h1>
-      <p class="text-gray-600 max-w-2xl mt-2">
-        Update your research details below.
-      </p>
+<div class="upload-header">
+    <div class="tag tag-gray" style="margin-bottom: 1rem;">
+        Edit Mode
     </div>
-    <a href="{{ url_for('main.dashboard') }}" class="text-accent font-semibold hover:underline">Back to archive →</a>
-  </div>
+    <h1>
+        Update <span class="text-gradient">Paper Details</span>
+    </h1>
+    <p>
+        Modify title, abstract, or domain metadata. AI scores will <strong>not</strong> be regenerated.
+    </p>
+</div>
 
-  <form method="post" enctype="multipart/form-data" class="mt-8 grid md:grid-cols-2 gap-8">
-    <div class="space-y-6">
+<section class="upload-card" style="max-width: 50rem; margin: 0 auto;">
+    
+    <div style="padding: 2.5rem;">
+        
+        <form method="post" enctype="multipart/form-data">
+            
+            <h3 class="upload-section-title" style="margin-bottom: 1.5rem;">
+                <span>📝</span> Paper Metadata
+            </h3>
 
-      <!-- TITLE -->
-      <div>
-        <label class="form-label">Title</label>
-        <input type="text" name="title" required
-               value="{{ paper.title }}"
-               class="form-control">
-      </div>
+            <div class="form-stack">
 
-      <!-- ABSTRACT -->
-      <div>
-        <label class="form-label">Abstract</label>
-        <textarea name="abstract" required rows="7"
-                  class="form-control">{{ paper.abstract }}</textarea>
-      </div>
+                <div>
+                    <label class="form-label">Paper Title</label>
+                    <input type="text" name="title" required value="{{ paper.title }}" class="form-control">
+                </div>
 
-      <!-- RESEARCH DOMAIN -->
-      <div>
-        <label class="form-label">Research domain</label>
-        <select name="research_domain"
-                class="form-control">
-          {% for d in domains %}
-            <option value="{{ d }}" {% if paper.research_domain == d %}selected{% endif %}>{{ d }}</option>
-          {% endfor %}
-          <option value="Other" {% if paper.research_domain not in domains %}selected{% endif %}>Other</option>
-        </select>
+                <div>
+                    <label class="form-label">Abstract</label>
+                    <textarea name="abstract" required rows="7" class="form-control">{{ paper.abstract }}</textarea>
+                </div>
 
-        <input type="text" name="custom_domain"
-               placeholder="Custom domain (optional)"
-               value="{% if paper.research_domain not in domains %}{{ paper.research_domain }}{% endif %}"
-               class="form-control mt-2">
+                <div class="form-grid-2" style="margin-top: 0; gap: 1.5rem;">
+                    
+                    <div>
+                        <label class="form-label">Research Domain</label>
+                        <select name="research_domain" class="form-control">
+                            {% for d in domains %}
+                            <option value="{{ d }}" {% if paper.research_domain == d %}selected{% endif %}>{{ d }}</option>
+                            {% endfor %}
+                            <option value="Other" {% if paper.research_domain not in domains %}selected{% endif %}>Other</option>
+                        </select>
 
-        <p class="form-help">
-          Choose “Other” and enter your own label here (e.g. Quantum Sensing).
-        </p>
-      </div>
+                        <input type="text" name="custom_domain" 
+                               placeholder="If other, specify..." 
+                               value="{% if paper.research_domain not in domains %}{{ paper.research_domain }}{% endif %}"
+                               class="form-control" 
+                               style="margin-top: 0.5rem; font-size: 0.85rem;">
+                    </div>
+
+                    <div>
+                        <label class="form-label">Research Facility</label>
+                        <select name="company_id" class="form-control">
+                            <option value="">-- Independent --</option>
+                            {% for company in companies %}
+                            <option value="{{ company.company_id }}" 
+                                {% if current_facility and current_facility.company_id == company.company_id %} selected {% endif %}>
+                                {{ company.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="new-facility-box">
+                    <p class="stat-label-simple" style="margin-bottom: 1rem;">Or register new facility connection</p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <input type="text" name="new_company" placeholder="New Lab Name" class="form-control">
+                        <input type="text" name="new_company_industry" placeholder="Focus Area" class="form-control">
+                    </div>
+                    <p class="form-help">This will create a new facility and link it to this paper.</p>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 1rem;">
+                    Update Paper Details
+                </button>
+
+            </div>
+        </form>
     </div>
-
-    <div class="space-y-6">
-
-      <!-- EXISTING FACILITY -->
-      <div class="dashed-panel">
-        <p class="text-sm font-semibold text-gray-700 mb-3">Research facility</p>
-
-        <select name="company_id"
-                class="form-control">
-          <option value="">-- Choose a research facility (optional) --</option>
-
-          {% for company in companies %}
-            <option value="{{ company.company_id }}"
-              {% if current_facility and current_facility.company_id == company.company_id %}
-                  selected
-              {% endif %}
-            >
-              {{ company.name }}
-            </option>
-          {% endfor %}
-        </select>
-
-        <p class="form-help">
-          This is the facility/lab where the research took place.
-        </p>
-      </div>
-
-      <!-- NEW FACILITY -->
-      <div class="plain-panel">
-        <p class="text-sm font-semibold text-gray-700 mb-3">Or add a new research facility</p>
-        <div class="space-y-3">
-          <input type="text" name="new_company" placeholder="Research facility / Lab name"
-                 class="form-control">
-          <input type="text" name="new_company_industry" placeholder="Discipline / focus"
-                 class="form-control">
-        </div>
-        <p class="form-help">
-          This new facility will be registered and linked automatically.
-        </p>
-      </div>
-
-      <!-- SUBMIT BUTTON -->
-      <button type="submit"
-              class="btn btn-primary btn-block">
-        Update paper
-      </button>
-
-    </div>
-  </form>
 </section>
 
 {% endblock %}

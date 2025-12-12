@@ -1,38 +1,34 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="auth-shell">
+<div class="auth-container">
   <div class="auth-card">
 
-    <h2 class="text-center text-2xl font-bold text-gray-800 mb-6">
+    <h2 class="auth-title">
       Login
     </h2>
 
-    <form method="post" class="flex flex-col gap-6">
+    <form method="post">
 
-      <!-- EMAIL -->
-      <div>
+      <div class="form-group">
         <label class="form-label">Email</label>
         <input type="email" name="email" required class="form-control">
       </div>
 
-      <!-- BUTTON -->
-      <button type="submit" class="btn btn-primary btn-block">
+      <button type="submit" class="btn btn-primary btn-full">
         Login
       </button>
 
     </form>
 
-    <p class="text-center mt-5 text-gray-600">
+    <div class="auth-footer">
       No account yet?
-      <a href="{{ url_for('main.register') }}" class="text-teal-500 font-semibold hover:underline">
+      <a href="{{ url_for('main.register') }}" class="auth-link">
         Create one
       </a>
-    </p>
+    </div>
 
   </div>
 </div>
 
 {% endblock %}
-
-

@@ -3,363 +3,263 @@
 
 {% set pdf_url = url_for('main.download_paper', paper_id=paper.paper_id) %}
 
-<section class="bg-white border border-gray-200 rounded-3xl shadow-xl overflow-hidden">
-
-  <!-- HEADER -->
-  <div class="bg-gradient-to-r from-accent/10 via-white to-blue-50 p-10 flex flex-col gap-4">
-
-    <!-- TAGS -->
-    <div class="flex flex-wrap gap-3 items-center">
-      <span class="px-3 py-1 text-xs font-semibold rounded-full bg-accent text-white">
-        Research Paper
-      </span>
-
-      <span class="px-3 py-1 text-xs font-semibold rounded-full bg-white text-accent border border-accent">
-        {{ paper.research_domain }}
-      </span>
-
-      {% for link in paper.companies %}
-      <span class="px-3 py-1 text-xs rounded-full bg-white text-gray-800 border border-gray-200">
-        🏥 {{ link.company.name }}
-      </span>
-      {% endfor %}
+<div class="paper-header">
+    
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+        <span class="tag tag-accent">Research Paper</span>
+        <span class="tag tag-dashed" style="border-color: var(--accent); color: var(--accent);">{{ paper.research_domain }}</span>
+        {% for link in paper.companies %}
+            <span class="tag tag-gray">🏥 {{ link.company.name }}</span>
+        {% endfor %}
     </div>
 
-    <h1 class="text-4xl font-extrabold text-gray-900 leading-tight">
-      {{ paper.title }}
+    <h1 class="paper-title">
+        {{ paper.title }}
     </h1>
-    <p class="text-gray-600 max-w-4xl">{{ paper.abstract }}</p>
+    
+    <p style="max-width: 60rem; font-size: 1.1rem;">
+        {{ paper.abstract }}
+    </p>
 
-    <!-- ACTION BUTTONS -->
-    <div class="flex flex-wrap gap-3 mt-4 items-center">
-
-      <a href="{{ pdf_url }}" target="_blank"
-         class="px-5 py-3 bg-accent text-white rounded-xl font-semibold hover:bg-teal-600 transition">
-        Download PDF
-      </a>
-
-      <a href="{{ url_for('main.dashboard') }}"
-         class="px-5 py-3 bg-white border border-gray-200 text-gray-800 rounded-xl font-semibold hover:bg-gray-100 transition">
-        ← Back to archive
-      </a>
-
-      {% if session.get("user_id") == paper.user_id or session.get("user_role") in ["System/Admin", "Founder"] %}
-      <div class="ml-auto flex gap-3">
-        <a href="{{ url_for('main.update_paper', paper_id=paper.paper_id) }}"
-           class="px-5 py-3 bg-yellow-500 text-darkbg rounded-xl font-semibold hover:bg-yellow-600 transition">
-          Edit
+    <div class="paper-actions">
+        <a href="{{ pdf_url }}" target="_blank" class="btn btn-primary">
+            Download PDF
         </a>
 
-        <form method="POST" action="{{ url_for('main.delete_paper', paper_id=paper.paper_id) }}">
-          <button type="submit"
-                  class="px-5 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition"
-                  onclick="return confirm('Are you sure you want to delete this paper?');">
-            Delete
-          </button>
-        </form>
-      </div>
-      {% endif %}
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">
+            ← Back to archive
+        </a>
+
+        {% if session.get("user_id") == paper.user_id or session.get("user_role") in ["System/Admin", "Founder"] %}
+        <div style="margin-left: auto; display: flex; gap: 0.75rem;">
+            <a href="{{ url_for('main.update_paper', paper_id=paper.paper_id) }}" class="btn btn-warning">
+                Edit
+            </a>
+            <form method="POST" action="{{ url_for('main.delete_paper', paper_id=paper.paper_id) }}">
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this paper?');">
+                    Delete
+                </button>
+            </form>
+        </div>
+        {% endif %}
     </div>
 
-  </div>
+</div>
 
-  <!-- CONTENT -->
-  <div class="p-10 grid md:grid-cols-3 gap-8">
+<div class="paper-content-grid">
 
-    <!-- LEFT (Main Content) -->
-    <div class="md:col-span-2 space-y-10">
-
-      <!-- PAPER META -->
-      <div class="grid grid-cols-3 gap-4">
-        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4">
-          <p class="text-xs text-gray-500">Uploaded</p>
-          <p class="text-lg font-semibold text-gray-900">
-            {{ paper.upload_date.strftime('%d %b %Y') if paper.upload_date else '' }}
-          </p>
-        </div>
-
-        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4">
-          <p class="text-xs text-gray-500">AI Status</p>
-          <p class="text-lg font-semibold text-gray-900">
-            {% if paper.ai_status == "pending" %}
-              ⏳ Pending
-            {% elif paper.ai_status == "done" %}
-              ✅ Completed
-            {% elif paper.ai_status == "failed" %}
-              ❌ Failed
-            {% else %}
-              — None
-            {% endif %}
-          </p>
-        </div>
-
-        <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4">
-          <p class="text-xs text-gray-500">Author</p>
-          <p class="text-lg font-semibold text-gray-900">
-            {{ paper.author.name if paper.author else "Unknown" }}
-          </p>
-        </div>
-      </div>
-
-      <!-- AI ANALYSIS -->
-      <div class="space-y-4">
-
-        <div class="flex items-center justify-between">
-          <h2 class="text-2xl font-bold text-gray-900">AI Analysis</h2>
-        </div>
-
-        {% if paper.ai_status == "done" %}
-
-        <!-- AI RESULTS -->
-        <div class="space-y-6">
-
-          <!-- Scores -->
-          <div class="grid grid-cols-2 gap-4">
-            <div class="bg-green-50 border border-green-200 rounded-2xl p-4">
-              <p class="text-xs text-gray-500">Business Score</p>
-              <p class="text-3xl font-extrabold text-green-700">{{ paper.ai_business_score }}</p>
+    <div>
+        
+        <div class="meta-grid">
+            <div class="meta-box">
+                <div class="meta-label">Uploaded</div>
+                <div class="meta-value">{{ paper.upload_date.strftime('%d %b %Y') if paper.upload_date else '' }}</div>
             </div>
-
-            <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4">
-              <p class="text-xs text-gray-500">Academic Score</p>
-              <p class="text-3xl font-extrabold text-blue-700">{{ paper.ai_academic_score }}</p>
-            </div>
-          </div>
-
-          <!-- Summary -->
-          <div class="bg-gray-50 border border-gray-200 rounded-2xl p-6">
-            <h3 class="text-lg font-semibold mb-2">Summary</h3>
-            <p class="text-gray-700 leading-relaxed">{{ paper.ai_summary }}</p>
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-6">
-              <h3 class="text-lg font-semibold mb-2">Strengths</h3>
-              <p class="text-gray-700 whitespace-pre-line">{{ paper.ai_strengths }}</p>
-            </div>
-
-            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-6">
-              <h3 class="text-lg font-semibold mb-2">Weaknesses</h3>
-              <p class="text-gray-700 whitespace-pre-line">{{ paper.ai_weaknesses }}</p>
-            </div>
-          </div>
-
-        </div>
-
-        {% elif paper.ai_status == "pending" %}
-
-        <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-6 text-yellow-800">
-          <h3 class="text-lg font-semibold">⏳ AI analysis in progress</h3>
-          <p class="text-sm mt-1">
-            This paper is currently being processed. Refresh the page in a few seconds.
-          </p>
-        </div>
-
-        {% elif paper.ai_status == "failed" %}
-
-        <div class="bg-red-50 border border-red-200 rounded-2xl p-6 text-red-800">
-          <h3 class="text-lg font-semibold">❌ AI analysis failed</h3>
-          <p class="text-sm mt-1">
-            The AI could not process this paper.
-          </p>
-        </div>
-
-        {% else %}
-
-        <div class="bg-gray-100 border border-gray-300 rounded-2xl p-6 text-gray-600">
-          AI analysis unavailable.
-        </div>
-
-        {% endif %}
-
-      </div>
-
-    <!-- REPORT BLOCK -->
-      <!-- REPORT A CONCERN -->
-      <div id="report-block" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-6">
-        <div class="flex flex-wrap items-start gap-4">
-          <div class="flex-1">
-            <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold">Flag this paper</p>
-            <h2 class="text-2xl font-bold text-gray-900">Report a concern</h2>
-            <p class="text-sm text-gray-600 mt-1">
-              Raise issues like plagiarism, inappropriate content, or data integrity. Reports go to the review team.
-            </p>
-          </div>
-          <button id="toggle-report-panel"
-                  type="button"
-                  class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition">
-            Report paper
-          </button>
-        </div>
-
-        <div id="report-panel" class="hidden">
-          <form method="post" action="{{ url_for('main.submit_complaint', paper_id=paper.paper_id) }}" class="grid md:grid-cols-2 gap-4">
-
-            <div class="md:col-span-2">
-              <label class="text-sm text-gray-700 font-semibold">Type of issue</label>
-              <select name="complaint_category" class="w-full mt-2 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-red-300">
-                <option value="Plagiarism">Plagiarism</option>
-                <option value="Ethics / Compliance">Ethics / Compliance</option>
-                <option value="Data quality">Data quality</option>
-                <option value="Inappropriate content">Inappropriate content</option>
-                <option value="Other" selected>Other</option>
-              </select>
-            </div>
-
-            <div class="md:col-span-2">
-              <label class="text-sm text-gray-700 font-semibold">Describe the issue</label>
-              <textarea name="complaint_description" rows="4" required
-                        class="w-full mt-2 px-3 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-red-300"
-                        placeholder="Provide as much detail as possible"></textarea>
-            </div>
-
-            <div>
-              <label class="text-sm text-gray-700 font-semibold">Your name (optional)</label>
-              <input type="text" name="reporter_name"
-                     value="{{ session.get('user_name', '') }}"
-                     class="w-full mt-2 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-red-300"
-                     placeholder="Anonymous">
-            </div>
-
-            <div>
-              <label class="text-sm text-gray-700 font-semibold">Contact email (optional)</label>
-              <input type="email" name="reporter_email"
-                     class="w-full mt-2 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-red-300"
-                     placeholder="we'll only use this to follow up">
-            </div>
-
-            <div class="md:col-span-2 flex items-start gap-3 text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded-xl p-3">
-              <span class="text-red-500 text-lg">!</span>
-              <p>Reports are confidential and reviewed by moderators. Misuse may lead to account action.</p>
-            </div>
-
-            <div class="md:col-span-2 flex justify-end">
-              <button type="submit"
-                      class="px-5 py-3 bg-accent text-gray-900 font-semibold rounded-lg hover:bg-teal-600 hover:text-white transition">
-                Submit report
-              </button>
-            </div>
-          </form>
-        </div>
-
-        {% if complaint_submitted %}
-          <div id="complaint-confirmation"
-               class="flex items-start gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-4">
-            <div class="text-xl leading-none pt-0.5">✓</div>
-            <div class="flex-1">
-              <p class="font-semibold">Complaint received</p>
-              <p class="text-sm text-emerald-900">
-                Thank you. Your report has been logged.
-              </p>
-            </div>
-            <button type="button"
-                    class="text-sm text-emerald-700 hover:text-emerald-900 px-2"
-                    aria-label="Dismiss confirmation"
-                    onclick="document.getElementById('complaint-confirmation')?.remove();">
-              ✕
-            </button>
-          </div>
-        {% endif %}
-
-        {% if can_view_complaints %}
-          <div class="border-t border-gray-200 pt-4 space-y-3">
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold text-gray-900">Recent reports</h3>
-              <span class="text-xs text-gray-500 uppercase tracking-wide">{{ complaints|length }} total</span>
-            </div>
-
-            {% if complaints %}
-              <div class="space-y-3">
-                {% for c in complaints %}
-                <div class="border border-gray-200 rounded-xl p-3 bg-gray-50">
-                  <div class="flex items-center justify-between">
-                    <p class="text-sm font-semibold text-gray-800">{{ c.category }}</p>
-                    <span class="text-xs text-gray-500">{{ c.created_at.strftime('%d %b %Y, %H:%M') }}</span>
-                  </div>
-                  <p class="text-sm text-gray-700 mt-2 leading-relaxed">{{ c.description }}</p>
-                  <p class="text-xs text-gray-500 mt-1">
-                    Reported by {{ c.reporter_name or "Anonymous" }}
-                    {% if c.reporter_email %} · {{ c.reporter_email }}{% endif %}
-                  </p>
+            <div class="meta-box">
+                <div class="meta-label">AI Status</div>
+                <div class="meta-value">
+                    {% if paper.ai_status == "pending" %} ⏳ Pending
+                    {% elif paper.ai_status == "done" %} ✅ Completed
+                    {% elif paper.ai_status == "failed" %} ❌ Failed
+                    {% else %} — None {% endif %}
                 </div>
-                {% endfor %}
-              </div>
-            {% else %}
-              <p class="text-sm text-gray-500">No reports yet.</p>
-            {% endif %}
-          </div>
-        {% else %}
-          <div class="border-t border-gray-200 pt-4 text-sm text-gray-500">
-            Reports are only visible to administrators.
-          </div>
-        {% endif %}
-      </div>
-
-    </div>
-
-    <!-- RIGHT COLUMN (REVIEWS) -->
-    <div class="md:col-span-1">
-      <div class="bg-gray-900 text-white rounded-2xl p-6 shadow-lg sticky top-32">
-        <h3 class="text-xl font-bold mb-2">Review / Score</h3>
-        <p class="text-sm text-gray-200 mb-4">
-          Submit a score out of 10 and a comment.
-        </p>
-
-        {% if can_review %}
-        <form method="post" class="space-y-4">
-
-          <div>
-            <label class="text-sm text-gray-200">Score (0–10)</label>
-            <input type="number" name="score" step="0.1" min="0" max="10"
-                   class="w-full mt-2 px-3 py-2 rounded-lg text-black">
-          </div>
-
-          <div>
-            <label class="text-sm text-gray-200">Comment</label>
-            <textarea name="comments" rows="4"
-                      class="w-full mt-2 px-3 py-2 rounded-lg text-black"
-                      placeholder="Feedback..."></textarea>
-          </div>
-
-          <button type="submit"
-                  class="w-full py-3 bg-accent text-gray-900 font-semibold rounded-lg hover:bg-white transition">
-            Publish review
-          </button>
-
-        </form>
-        {% else %}
-        <div class="bg-white text-gray-800 rounded-xl p-4">
-          <p class="font-semibold">Log in to review.</p>
+            </div>
+            <div class="meta-box">
+                <div class="meta-label">Author</div>
+                <div class="meta-value">{{ paper.author.name if paper.author else "Unknown" }}</div>
+            </div>
         </div>
-        {% endif %}
 
-      </div>
+        <div style="margin-bottom: 3rem;">
+            <h2 style="margin-bottom: 1.5rem;">AI Analysis</h2>
+
+            {% if paper.ai_status == "done" %}
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="analysis-card green" style="text-align: center;">
+                        <div class="meta-label">Business Score</div>
+                        <div style="font-size: 2.5rem; font-weight: 800; color: #15803d; line-height: 1;">
+                            {{ paper.ai_business_score }}
+                        </div>
+                    </div>
+                    <div class="analysis-card blue" style="text-align: center;">
+                        <div class="meta-label">Academic Score</div>
+                        <div style="font-size: 2.5rem; font-weight: 800; color: #1d4ed8; line-height: 1;">
+                            {{ paper.ai_academic_score }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analysis-card gray">
+                    <h3>Summary</h3>
+                    <p>{{ paper.ai_summary }}</p>
+                </div>
+
+                <div style="display: grid; gap: 1rem; margin-top: 1rem;">
+                     <div class="analysis-card gray">
+                        <h3>Strengths</h3>
+                        <p style="white-space: pre-line;">{{ paper.ai_strengths }}</p>
+                     </div>
+                     <div class="analysis-card gray">
+                        <h3>Weaknesses</h3>
+                        <p style="white-space: pre-line;">{{ paper.ai_weaknesses }}</p>
+                     </div>
+                </div>
+
+            {% elif paper.ai_status == "pending" %}
+                <div class="alert alert-info">
+                    ⏳ <strong>Analysis in progress.</strong> Refresh the page in a few seconds.
+                </div>
+            {% elif paper.ai_status == "failed" %}
+                <div class="alert alert-error">
+                    ❌ <strong>Analysis failed.</strong> The AI could not process this paper.
+                </div>
+            {% else %}
+                <div class="alert alert-info">AI analysis unavailable.</div>
+            {% endif %}
+        </div>
+
+        <div id="report-block" class="report-block">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+                <div>
+                    <div class="meta-label">FLAG THIS PAPER</div>
+                    <h3>Report a concern</h3>
+                    <p style="margin: 0; font-size: 0.9rem;">Raise issues like plagiarism, inappropriate content, or data integrity.</p>
+                </div>
+                <button id="toggle-report-panel" class="btn btn-danger">
+                    Report paper
+                </button>
+            </div>
+
+            <div id="report-panel" class="hidden" style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                <form method="post" action="{{ url_for('main.submit_complaint', paper_id=paper.paper_id) }}" style="display: grid; gap: 1rem;">
+                    
+                    <div>
+                        <label class="form-label">Type of issue</label>
+                        <select name="complaint_category" class="form-control">
+                            <option value="Plagiarism">Plagiarism</option>
+                            <option value="Ethics / Compliance">Ethics / Compliance</option>
+                            <option value="Data quality">Data quality</option>
+                            <option value="Inappropriate content">Inappropriate content</option>
+                            <option value="Other" selected>Other</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Describe the issue</label>
+                        <textarea name="complaint_description" rows="4" class="form-control" required placeholder="Provide detail..."></textarea>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <label class="form-label">Your name (optional)</label>
+                            <input type="text" name="reporter_name" value="{{ session.get('user_name', '') }}" class="form-control" placeholder="Anonymous">
+                        </div>
+                        <div>
+                             <label class="form-label">Contact email (optional)</label>
+                             <input type="email" name="reporter_email" class="form-control" placeholder="For follow up">
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info" style="font-size: 0.85rem;">
+                         Reports are confidential and reviewed by moderators.
+                    </div>
+
+                    <div style="text-align: right;">
+                        <button type="submit" class="btn btn-primary">Submit report</button>
+                    </div>
+                </form>
+            </div>
+            
+            {% if complaint_submitted %}
+            <div id="complaint-confirmation" class="alert alert-success" style="margin-top: 1rem; justify-content: space-between;">
+                <span>✓ Complaint received. Thank you.</span>
+                <button type="button" onclick="document.getElementById('complaint-confirmation')?.remove();" style="background:none; border:none; cursor:pointer;">✕</button>
+            </div>
+            {% endif %}
+
+            {% if can_view_complaints %}
+            <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                <h4>Recent reports ({{ complaints|length }})</h4>
+                {% if complaints %}
+                    {% for c in complaints %}
+                    <div style="background: #f9fafb; padding: 1rem; border-radius: 0.5rem; margin-bottom: 0.5rem;">
+                        <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 0.9rem;">
+                            <span>{{ c.category }}</span>
+                            <span style="color: var(--text-muted);">{{ c.created_at.strftime('%d %b %Y') }}</span>
+                        </div>
+                        <p style="margin: 0.5rem 0; font-size: 0.9rem;">{{ c.description }}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No reports yet.</p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+        </div>
+
     </div>
 
-  </div>
-</section>
+    <div>
+        <div class="sidebar-card">
+            <h3 class="sidebar-title">Review / Score</h3>
+            <p class="sidebar-text">
+                Submit a score out of 10 and a comment regarding this research.
+            </p>
+
+            {% if can_review %}
+            <form method="post" style="display: flex; flex-direction: column; gap: 1rem;">
+                <div>
+                    <label class="sidebar-label">Score (0–10)</label>
+                    <input type="number" name="score" step="0.1" min="0" max="10" class="form-control sidebar-input">
+                </div>
+
+                <div>
+                    <label class="sidebar-label">Comment</label>
+                    <textarea name="comments" rows="4" class="form-control sidebar-input" placeholder="Feedback..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    Publish review
+                </button>
+            </form>
+            {% else %}
+            <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 0.5rem; text-align: center;">
+                <p style="margin: 0; color: #d1d5db;">Log in to review.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const toggleButton = document.getElementById("toggle-report-panel");
     const panel = document.getElementById("report-panel");
 
-    const openPanel = () => {
-      if (panel) {
-        panel.classList.remove("hidden");
-      }
-    };
-
     if (toggleButton && panel) {
       toggleButton.addEventListener("click", () => {
         panel.classList.toggle("hidden");
+        // Simple toggle for the 'hidden' class defined in your general CSS or just inline style
+        if(panel.style.display === 'none' || panel.classList.contains('hidden')) {
+             panel.style.display = 'grid';
+             panel.classList.remove('hidden');
+        } else {
+             panel.style.display = 'none';
+             panel.classList.add('hidden');
+        }
       });
     }
 
-    if (window.location.hash === "#report-block") {
-      openPanel();
+    if (window.location.hash === "#report-block" && panel) {
+       panel.style.display = 'grid';
+       panel.classList.remove('hidden');
     }
   });
 </script>
+
+<style> .hidden { display: none !important; } </style>
 
 {% endblock %}

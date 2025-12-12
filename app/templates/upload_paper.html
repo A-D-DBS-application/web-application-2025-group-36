@@ -1,20 +1,19 @@
 {% extends "base.html" %}
-
 {% block content %}
 
-<div class="text-center mb-10 max-w-2xl mx-auto">
-    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-bold uppercase tracking-widest mb-4">
+<div class="upload-header">
+    <div class="tag tag-accent" style="margin-bottom: 1rem;">
         AI Assisted
     </div>
-    <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
-        Upload & <span class="text-accent">Analyze</span>
+    <h1>
+        Upload & <span class="text-gradient">Analyze</span>
     </h1>
-    <p class="text-gray-600 text-lg">
+    <p>
         Submit your research paper. Our AI will analyze the content while you wait and prepare the scores.
     </p>
 </div>
 
-<section class="surface-card p-0 overflow-hidden shadow-xl">
+<section class="upload-card">
     
     <form id="uploadForm"
           action="{{ url_for('main.upload_paper') }}"
@@ -22,92 +21,90 @@
           enctype="multipart/form-data"
           onsubmit="showLoader()">
         
-        <div class="grid md:grid-cols-12 min-h-[600px]">
+        <div class="upload-layout">
 
-            <div class="p-8 md:p-10 md:col-span-7 flex flex-col gap-6">
+            <div class="upload-details">
                 
-                <h3 class="text-xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+                <h3 class="upload-section-title">
                     <span>📝</span> Paper Details
                 </h3>
 
-                <div>
-                    <label class="form-label">Paper Title</label>
-                    <input type="text" name="title" required class="form-control" placeholder="e.g. Advances in Robotics...">
-                </div>
-
-                <div>
-                    <label class="form-label">Abstract</label>
-                    <textarea name="abstract" required rows="5" class="form-control" placeholder="Paste the abstract here..."></textarea>
-                    <p class="form-help">The AI uses this to double-check the domain analysis.</p>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    
+                <div class="form-stack">
                     <div>
-                        <label class="form-label">Research Domain</label>
-                        <select name="research_domain" class="form-control cursor-pointer">
-                            {% for d in domains %}
-                            <option value="{{ d }}">{{ d }}</option>
-                            {% endfor %}
-                            <option value="Other">Other</option>
-                        </select>
-                        <input type="text" name="custom_domain" placeholder="If other, specify..." class="form-control mt-2 text-sm">
+                        <label class="form-label">Paper Title</label>
+                        <input type="text" name="title" required class="form-control" placeholder="e.g. Advances in Robotics...">
                     </div>
 
                     <div>
-                        <label class="form-label">Research Facility</label>
-                        <select name="company_id" class="form-control cursor-pointer">
-                            <option value="">-- Independent --</option>
-                            {% for company in companies %}
-                            <option value="{{ company.company_id }}">{{ company.name }}</option>
-                            {% endfor %}
-                        </select>
+                        <label class="form-label">Abstract</label>
+                        <textarea name="abstract" required rows="5" class="form-control" placeholder="Paste the abstract here..."></textarea>
+                        <p class="form-help">The AI uses this to double-check the domain analysis.</p>
                     </div>
-                </div>
 
-                <div class="mt-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
-                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Or register new facility</p>
-                    <div class="grid grid-cols-2 gap-3">
-                        <input type="text" name="new_company" placeholder="New Lab Name" class="form-control text-sm">
-                        <input type="text" name="new_company_industry" placeholder="Focus Area" class="form-control text-sm">
+                    <div class="form-grid-2" style="margin-top: 0; gap: 1rem;">
+                        <div>
+                            <label class="form-label">Research Domain</label>
+                            <select name="research_domain" class="form-control">
+                                {% for d in domains %}
+                                <option value="{{ d }}">{{ d }}</option>
+                                {% endfor %}
+                                <option value="Other">Other</option>
+                            </select>
+                            <input type="text" name="custom_domain" placeholder="If other, specify..." class="form-control" style="margin-top: 0.5rem; font-size: 0.85rem;">
+                        </div>
+
+                        <div>
+                            <label class="form-label">Research Facility</label>
+                            <select name="company_id" class="form-control">
+                                <option value="">-- Independent --</option>
+                                {% for company in companies %}
+                                <option value="{{ company.company_id }}">{{ company.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="new-facility-box">
+                        <p class="stat-label-simple">Or register new facility</p>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                            <input type="text" name="new_company" placeholder="New Lab Name" class="form-control" style="font-size: 0.9rem;">
+                            <input type="text" name="new_company_industry" placeholder="Focus Area" class="form-control" style="font-size: 0.9rem;">
+                        </div>
                     </div>
                 </div>
 
             </div>
 
-            <div class="md:col-span-5 bg-gray-50 border-l border-gray-100 p-8 md:p-10 flex flex-col justify-center relative">
+            <div class="upload-drop-area">
                 
-                <div class="text-center mb-6">
-                    <div class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-3xl mx-auto mb-4 text-accent">
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div style="width: 4rem; height: 4rem; background-color: white; border-radius: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1rem auto; color: var(--accent);">
                         📄
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900">Upload PDF</h3>
-                    <p class="text-sm text-gray-500">Max file size: 16 MB</p>
+                    <h3>Upload PDF</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">Max file size: 16 MB</p>
                 </div>
 
-                <!-- DROPZONE -->
-                <div id="dropzone"
-                     class="relative group w-full aspect-[4/5] md:aspect-auto md:h-64 border-2 border-dashed border-gray-300 rounded-2xl hover:bg-white hover:border-accent transition-all duration-300 flex flex-col items-center justify-center cursor-pointer">
-                    
+                <div id="dropzone" class="dropzone">
                     <input type="file"
                            id="file-input"
                            name="file"
                            accept="application/pdf"
                            required
-                           class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                           class="dropzone-input"
                            onchange="updateFileName(this)">
                     
-                    <div class="text-center z-10 pointer-events-none p-4">
-                        <p class="text-gray-900 font-bold group-hover:text-accent transition-colors" id="file-label-main">
+                    <div style="text-align: center; pointer-events: none; padding: 1rem;">
+                        <p id="file-label-main" style="font-weight: 700; color: var(--text-main);">
                             Drag & Drop or Click
                         </p>
-                        <p class="text-xs text-gray-400 mt-2" id="file-label-sub">
+                        <p id="file-label-sub" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
                             .PDF files only
                         </p>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-full py-4 mt-8 text-lg shadow-lg shadow-teal-500/20 hover:scale-[1.02] active:scale-[0.98]">
+                <button type="submit" class="btn btn-primary btn-lg btn-shimmer" style="width: 100%; margin-top: 2rem; padding: 1rem;">
                     🚀 Analyze & Submit
                 </button>
 
@@ -117,43 +114,43 @@
     </form>
 </section>
 
-
-<div id="ai-loader" class="hidden fixed inset-0 z-[100] bg-white/90 backdrop-blur-md flex-col items-center justify-center text-center transition-opacity duration-500">
+<div id="ai-loader" class="loader-overlay">
     
-    <div class="relative w-32 h-32 mb-8">
-        <div class="absolute inset-0 rounded-full border-4 border-gray-100"></div>
-        <div class="absolute inset-0 rounded-full border-4 border-accent border-t-transparent animate-spin"></div>
-        <div class="absolute inset-4 bg-accent/10 rounded-full animate-pulse flex items-center justify-center">
-            <span class="text-4xl">🤖</span>
+    <div class="loader-circle-container">
+        <div class="loader-ring"></div>
+        <div class="loader-ring-spin"></div>
+        <div style="position: absolute; inset: 1rem; background-color: rgba(59, 191, 181, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <span style="font-size: 2.5rem;">🤖</span>
         </div>
     </div>
 
-    <h2 class="text-3xl font-extrabold text-gray-900 mb-2">Analyzing Paper...</h2>
-    <p class="text-gray-500 text-lg max-w-md font-medium" id="loading-text">
+    <h2 style="margin-bottom: 0.5rem;">Analyzing Paper...</h2>
+    <p style="color: var(--text-muted); font-size: 1.1rem; font-weight: 500;" id="loading-text">
         Connecting to AI Neural Network...
     </p>
 
-    <div class="w-72 h-2 bg-gray-200 rounded-full mt-8 overflow-hidden">
-        <div class="h-full bg-accent animate-loading-bar"></div>
+    <div class="loader-bar-container">
+        <div class="loader-bar-fill"></div>
     </div>
 </div>
-
 
 <script>
     function updateFileName(input) {
         if (input.files && input.files.length > 0) {
             const fileName = input.files[0].name;
-            document.getElementById('file-label-main').textContent = fileName;
-            document.getElementById('file-label-main').classList.add('text-accent');
+            const mainLabel = document.getElementById('file-label-main');
+            mainLabel.textContent = fileName;
+            mainLabel.style.color = 'var(--accent)';
             document.getElementById('file-label-sub').textContent = "Ready to upload";
-            input.parentElement.classList.add('border-accent', 'bg-accent/5');
+            
+            // Add active class to parent dropzone
+            input.parentElement.classList.add('active');
         }
     }
 
     function showLoader() {
         const loader = document.getElementById('ai-loader');
-        loader.classList.remove('hidden');
-        loader.classList.add('flex');
+        loader.classList.add('flex'); // Add flex class to show it
 
         const texts = [
             "Parsing abstract and metadata...",
@@ -174,14 +171,14 @@
         }, 1200);
     }
 
-    // --------- DRAG & DROP SUPPORT (CROSS-BROWSER) ----------
+    // --------- DRAG & DROP SUPPORT ----------
     document.addEventListener("DOMContentLoaded", function () {
         const dropzone = document.getElementById("dropzone");
         const fileInput = document.getElementById("file-input");
 
         if (!dropzone || !fileInput) return;
 
-        // voorkom dat browser het bestand opent als nieuwe pagina
+        // Prevent browser opening file
         ["dragover", "drop"].forEach(eventName => {
             window.addEventListener(eventName, function (e) {
                 e.preventDefault();
@@ -196,39 +193,33 @@
         });
 
         dropzone.addEventListener("dragover", function () {
-            dropzone.classList.add("border-accent", "bg-accent/5");
+            dropzone.classList.add("active");
         });
 
         dropzone.addEventListener("dragleave", function () {
-            dropzone.classList.remove("border-accent", "bg-accent/5");
+            // Only remove if no file selected yet, or strictly on leave
+            // Ideally we check if file input is empty, but simple toggle is okay
+             if (!fileInput.files.length) {
+                dropzone.classList.remove("active");
+             }
         });
 
         dropzone.addEventListener("drop", function (e) {
             const files = e.dataTransfer && e.dataTransfer.files;
-            dropzone.classList.remove("border-accent", "bg-accent/5");
+            
+            // Remove active hover state (will re-add if valid file)
+            dropzone.classList.remove("active");
+
             if (!files || !files.length) return;
 
-            // koppel bestanden aan het file-input element
             try {
                 fileInput.files = files;
             } catch (err) {
-                // fallback: alleen naam tonen
                 console.warn("Could not assign files programmatically:", err);
             }
             updateFileName(fileInput);
         });
     });
 </script>
-
-<style>
-    @keyframes loading-bar {
-        0% { width: 0%; }
-        40% { width: 60%; }
-        100% { width: 95%; }
-    }
-    .animate-loading-bar {
-        animation: loading-bar 6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    }
-</style>
 
 {% endblock %}

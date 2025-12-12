@@ -1,31 +1,26 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="auth-shell">
+<div class="auth-container">
   <div class="auth-card">
 
-    <!-- TITLE -->
-    <h2 class="text-center text-2xl font-bold text-gray-800 mb-6">
+    <h2 class="auth-title">
       Create Your Account
     </h2>
 
-    <!-- FORM -->
-    <form method="post" class="flex flex-col gap-6">
+    <form method="post">
 
-      <!-- NAME -->
-      <div>
+      <div class="form-group">
         <label class="form-label">Name</label>
         <input type="text" name="name" required class="form-control">
       </div>
 
-      <!-- EMAIL -->
-      <div>
+      <div class="form-group">
         <label class="form-label">Email</label>
         <input type="email" name="email" required class="form-control">
       </div>
 
-      <!-- ROLE -->
-      <div>
+      <div class="form-group">
         <label class="form-label">Role</label>
         <select name="role" required class="form-control">
           <option value="">-- Select your role --</option>
@@ -36,23 +31,20 @@
         </select>
       </div>
 
-      <!-- SUBMIT BUTTON -->
-      <button type="submit" class="btn btn-primary btn-block">
+      <button type="submit" class="btn btn-primary btn-full">
         Create Account
       </button>
 
     </form>
 
-    <!-- LOGIN LINK -->
-    <p class="text-center mt-5 text-gray-600">
+    <div class="auth-footer">
       Already have an account?
-      <a href="{{ url_for('main.login') }}" class="text-teal-500 font-semibold hover:underline">
+      <a href="{{ url_for('main.login') }}" class="auth-link">
         Login here
       </a>
-    </p>
+    </div>
 
   </div>
 </div>
 
 {% endblock %}
-

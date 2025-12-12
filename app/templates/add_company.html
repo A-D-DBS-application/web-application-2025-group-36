@@ -1,22 +1,37 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1 class="text-3xl font-extrabold mb-6">Add Company</h1>
+<div style="max-width: 35rem; margin: 0 auto;">
 
-<form method="post" class="max-w-xl space-y-4">
-  <div>
-    <label class="form-label">Name</label>
-    <input type="text" name="name" required class="form-control">
+  <div style="text-align: center; margin-bottom: 2.5rem;">
+    <h1>Add Company</h1>
+    <p style="color: var(--text-muted);">Register a new facility to the ecosystem.</p>
   </div>
 
-  <div>
-    <label class="form-label">Industry</label>
-    <input type="text" name="industry" class="form-control">
+  <div class="paper-grid-card">
+    <div class="paper-card-body">
+      
+      <form method="post" class="form-stack">
+        
+        <div>
+          <label class="form-label">Name</label>
+          <input type="text" name="name" required class="form-control" placeholder="e.g. BioTech Labs">
+        </div>
+
+        <div>
+          <label class="form-label">Industry</label>
+          <input type="text" name="industry" class="form-control" placeholder="e.g. Pharmaceuticals">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+          Add Company
+        </button>
+
+      </form>
+
+    </div>
   </div>
 
-  <button type="submit" class="btn btn-primary">
-    Add Company
-  </button>
-</form>
+</div>
 
 {% endblock %}

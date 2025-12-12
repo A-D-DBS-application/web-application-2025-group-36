@@ -1,69 +1,61 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="max-w-4xl mx-auto text-center mb-12">
-    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-bold uppercase tracking-widest mb-4">
+<div class="page-header-center">
+    <div class="tag tag-accent" style="margin-bottom: 1rem; text-transform: uppercase;">
         Network
     </div>
-    <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6">
-        Research <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600">Ecosystem</span>
+    <h1>
+        Research <span class="text-gradient">Ecosystem</span>
     </h1>
-    <p class="text-lg text-gray-600 mb-8">
+    <p>
         Discover the facilities, universities, and companies driving innovation on REVIEWR.
     </p>
 
-    <div class="relative max-w-xl mx-auto group">
-        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <svg class="h-5 w-5 text-gray-400 group-focus-within:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+    <div class="search-container">
+        <div class="search-icon">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
         </div>
         <input type="text" id="companySearch" 
-               class="block w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl leading-5 placeholder-gray-400 focus:outline-none focus:border-accent focus:ring-4 focus:ring-teal-500/10 transition-all shadow-sm text-lg" 
+               class="search-input-lg" 
                placeholder="Find a research facility..."
                onkeyup="filterCompanies()">
-        <div class="absolute inset-y-0 right-0 pr-4 flex items-center">
-            <span class="text-xs text-gray-400 font-mono border border-gray-200 rounded px-2 py-0.5">CTRL+K</span>
-        </div>
+        <div class="search-shortcut">CTRL+K</div>
     </div>
 </div>
 
 {% if companies %}
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="companyGrid">
+<div class="features-grid" id="companyGrid">
     
     {% for c in companies %}
-    <div class="company-card group bg-white border border-gray-200 rounded-3xl p-6 hover:shadow-xl hover:border-accent/30 transition-all duration-300 flex flex-col h-full relative overflow-hidden">
-        
-        <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-gray-50 to-gray-100 rounded-bl-[4rem] -z-0 group-hover:from-teal-50 group-hover:to-blue-50 transition-colors duration-300"></div>
-
-        <div class="relative z-10 flex flex-col h-full">
+    <div class="company-card item-card"> <div class="company-content">
             
-            <div class="flex items-start justify-between mb-4">
-                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 text-white flex items-center justify-center text-2xl font-bold shadow-lg group-hover:scale-110 transition-transform duration-300">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div class="company-logo-box">
                     {{ c.name[:2].upper() }}
                 </div>
                 
                 {% if c.industry %}
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-bold bg-white border border-gray-200 text-gray-600 shadow-sm">
+                <span class="tag tag-dashed" style="background: white;">
                     {{ c.industry }}
                 </span>
                 {% endif %}
             </div>
 
-            <div class="mb-6 flex-grow">
-                <h2 class="text-xl font-bold text-gray-900 mb-1 company-name group-hover:text-accent transition-colors">{{ c.name }}</h2>
-                <p class="text-sm text-gray-500 line-clamp-2">
+            <div style="flex-grow: 1; margin-bottom: 1.5rem;">
+                <h2 class="company-name" style="font-size: 1.25rem; margin-bottom: 0.5rem;">{{ c.name }}</h2>
+                    <p class="company-description">
                     Active research partner contributing to the scientific archive.
-                </p>
+                    </p>
             </div>
 
-            <div class="pt-4 border-t border-gray-100 flex items-center justify-between mt-auto">
-                <div class="text-xs text-gray-400 font-medium flex items-center gap-1">
-                    <span class="w-2 h-2 rounded-full bg-green-500"></span> Verified
+            <div class="company-footer">
+                <div class="verified-badge">
+                    <span class="verified-dot"></span> Verified
                 </div>
                 
-                <a href="{{ url_for('main.dashboard', company=c.name) }}" 
-                   class="inline-flex items-center gap-1 text-sm font-bold text-gray-900 hover:text-accent transition-colors group/link">
-                   View Papers 
-                   <span class="transform group-hover/link:translate-x-1 transition-transform">→</span>
+                <a href="{{ url_for('main.dashboard', company=c.name) }}" class="link-arrow">
+                    View Papers <span>→</span>
                 </a>
             </div>
         </div>
@@ -72,19 +64,19 @@
 
 </div>
 
-<div id="noResults" class="hidden text-center py-20">
-    <div class="inline-block p-4 rounded-full bg-gray-50 mb-4">
-        <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+<div id="noResults" style="display: none; text-align: center; padding: 5rem 0;">
+    <div style="display: inline-block; padding: 1rem; background-color: #f9fafb; border-radius: 50%; margin-bottom: 1rem;">
+        <svg style="width: 3rem; height: 3rem; color: #d1d5db;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
     </div>
-    <h3 class="text-lg font-medium text-gray-900">No facilities found</h3>
-    <p class="text-gray-500">Try searching for a different name.</p>
+    <h3>No facilities found</h3>
+    <p>Try searching for a different name.</p>
 </div>
 
 {% else %}
-<div class="text-center py-20 bg-white border border-dashed border-gray-300 rounded-3xl">
-    <div class="text-6xl mb-4">🏢</div>
-    <h3 class="text-2xl font-bold text-gray-900 mb-2">No Companies Yet</h3>
-    <p class="text-gray-500 max-w-md mx-auto mb-8">
+<div style="text-align: center; padding: 5rem 0; border: 2px dashed var(--border-color); border-radius: 1.5rem; background-color: white;">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">🏢</div>
+    <h3>No Companies Yet</h3>
+    <p style="max-width: 30rem; margin: 0 auto 2rem auto;">
         The ecosystem is just getting started. Be the first to register a research facility or company.
     </p>
     {% if session.get('user_role') in ['Admin', 'Founder', 'System/Admin'] %}
@@ -93,21 +85,22 @@
 </div>
 {% endif %}
 
-<section class="mt-20 bg-gray-900 rounded-[2.5rem] p-12 text-center text-white relative overflow-hidden">
-    <div class="absolute top-0 right-0 w-64 h-64 bg-accent/20 rounded-full blur-3xl"></div>
-    <div class="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl"></div>
+<section class="cta-dark-section">
+    <div class="cta-glow" style="top: 0; right: 0; background-color: var(--accent);"></div>
+    <div class="cta-glow" style="bottom: 0; left: 0; background-color: #3b82f6;"></div>
     
-    <div class="relative z-10 max-w-2xl mx-auto">
-        <h2 class="text-3xl font-bold mb-4">Missing a Facility?</h2>
-        <p class="text-gray-400 mb-8">
+    <div style="position: relative; z-index: 10; max-width: 40rem; margin: 0 auto;">
+        <h2 style="color: white; margin-bottom: 1rem;">Missing a Facility?</h2>
+        <p style="color: rgba(255,255,255,0.7); margin-bottom: 2rem;">
             If you are a System Admin or Founder, you can expand our network by registering new research partners.
         </p>
+        
         {% if session.get('user_role') in ['Admin', 'Founder', 'System/Admin'] %}
-            <a href="{{ url_for('main.add_company') }}" class="btn btn-primary border-transparent bg-white text-gray-900 hover:bg-gray-100">
+            <a href="{{ url_for('main.add_company') }}" class="btn" style="background-color: white; color: #111827;">
                 Register New Facility
             </a>
         {% else %}
-            <button disabled class="btn btn-secondary opacity-50 cursor-not-allowed text-white border-gray-700">
+            <button disabled class="btn" style="background-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); cursor: not-allowed;">
                 Contact Admin to Add
             </button>
         {% endif %}
@@ -119,7 +112,8 @@
         const input = document.getElementById('companySearch');
         const filter = input.value.toUpperCase();
         const grid = document.getElementById('companyGrid');
-        const cards = grid.getElementsByClassName('company-card');
+        // Updated class selector to match new HTML
+        const cards = grid.getElementsByClassName('item-card');
         const noResults = document.getElementById('noResults');
         let visibleCount = 0;
 
@@ -137,13 +131,13 @@
 
         // Toggle "No Results" message
         if (visibleCount === 0) {
-            noResults.classList.remove('hidden');
+            noResults.style.display = "block";
         } else {
-            noResults.classList.add('hidden');
+            noResults.style.display = "none";
         }
     }
 
-    // Optional: Focus search on Ctrl+K
+    // Focus search on Ctrl+K
     document.addEventListener('keydown', function(e) {
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
             e.preventDefault();
