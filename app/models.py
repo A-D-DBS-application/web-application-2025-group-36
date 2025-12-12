@@ -10,7 +10,16 @@ class User(db.Model):
     user_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
-    role = db.Column(db.String(100), nullable=False)
+    role = db.Column(db.String(100), nullable=False, default ='User')
+    
+    @property
+    def role_display(self):
+        """Get readable role name"""
+        from app.constants import USER_ROLES
+        for value, label in USER_ROLES:
+            if value == self.role:
+                return label
+        return self.role
 
     # Relationships
     papers = db.relationship(

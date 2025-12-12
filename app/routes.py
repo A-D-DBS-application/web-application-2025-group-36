@@ -28,7 +28,7 @@ from .models import db, User, Company, Paper, Review, PaperCompany, Complaint
 # We gebruiken analyze_paper_text nog steeds, maar extract_text_from_pdf doen we nu inline
 from app.services.ai_analysis import analyze_paper_text
 # Import alleen HIER in routes
-from app.constants import PAPER_CATEGORIES, RESEARCH_DOMAINS
+from app.constants import PAPER_CATEGORIES, RESEARCH_DOMAINS, USER_ROLES
 
 main = Blueprint("main", __name__)
 
@@ -484,7 +484,7 @@ def upload_paper():
             companies=companies,
             paper_categories=PAPER_CATEGORIES,
             research_domains=RESEARCH_DOMAINS
-        )
+        )   
     if request.method == "POST":
         return process_paper_upload(session["user_id"])
 
@@ -679,6 +679,11 @@ def login():
 
 @main.route("/register", methods=["GET", "POST"])
 def register():
+    if request.method == 'GET':
+        return render_template('register.html', 
+                             user_roles=USER_ROLES,  # <-- NIEUW
+                             title='Register')
+    
     if request.method == "POST":
         name = request.form.get("name")
         email = request.form.get("email")

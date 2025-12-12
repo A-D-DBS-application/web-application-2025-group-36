@@ -12,3 +12,9 @@ RESEARCH_DOMAINS = [
     ('Software', 'Software Engineering'),
     ('Other', 'Other')
 ]
+USER_ROLES = [
+    ('researcher', 'Researcher'),
+    ('reviewer', 'Reviewer'),
+    ('editor', 'Editor'),
+    ('admin', 'Administrator')
+]

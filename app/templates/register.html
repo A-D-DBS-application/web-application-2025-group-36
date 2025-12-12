@@ -24,11 +24,23 @@
         <label class="form-label">Role</label>
         <select name="role" required class="form-control">
           <option value="">-- Select your role --</option>
-          <option value="Researcher">Researcher</option>
-          <option value="Reviewer">Reviewer</option>
-          <option value="Company">Company</option>
-          <option value="User">User</option>
+          
+          {% if user_roles %}
+            <!-- Use the constants from your route -->
+            {% for value, label in user_roles %}
+            <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          {% else %}
+            <!-- Fallback if user_roles not provided -->
+            <option value="researcher">Researcher</option>
+            <option value="reviewer">Reviewer</option>
+            <option value="editor">Editor</option>
+            <option value="admin">Administrator</option>
+          {% endif %}
         </select>
+        <small class="form-text text-muted">
+          Select the role that best describes your primary function
+        </small>
       </div>
 
       <button type="submit" class="btn btn-primary btn-full">
