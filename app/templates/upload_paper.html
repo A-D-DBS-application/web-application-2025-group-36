@@ -30,29 +30,67 @@
                 </h3>
 
                 <div class="form-stack">
+                    <!-- Paper Title -->
                     <div>
-                        <label class="form-label">Paper Title</label>
+                        <label class="form-label">Paper Title *</label>
                         <input type="text" name="title" required class="form-control" placeholder="e.g. Advances in Robotics...">
                     </div>
 
+                    <!-- NEW: Paper Category Dropdown -->
                     <div>
-                        <label class="form-label">Abstract</label>
+                        <label class="form-label">Paper Category *</label>
+                        <select name="category" required class="form-control">
+                            <option value="">-- Select a category --</option>
+                            {% if paper_categories %}
+                                {% for value, label in paper_categories %}
+                                <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Fallback if paper_categories not provided -->
+                                <option value="cs_ai">Computer Science - AI</option>
+                                <option value="cs_se">Computer Science - SE</option>
+                                <option value="math">Mathematics</option>
+                                <option value="physics">Physics</option>
+                                <option value="other">Other</option>
+                            {% endif %}
+                        </select>
+                        <p class="form-help">Select the primary field of your paper</p>
+                    </div>
+
+                    <!-- Abstract -->
+                    <div>
+                        <label class="form-label">Abstract *</label>
                         <textarea name="abstract" required rows="5" class="form-control" placeholder="Paste the abstract here..."></textarea>
                         <p class="form-help">The AI uses this to double-check the domain analysis.</p>
                     </div>
 
+                    <!-- Research Domain Dropdown (Updated) -->
                     <div class="form-grid-2" style="margin-top: 0; gap: 1rem;">
                         <div>
-                            <label class="form-label">Research Domain</label>
-                            <select name="research_domain" class="form-control">
-                                {% for d in domains %}
-                                <option value="{{ d }}">{{ d }}</option>
-                                {% endfor %}
-                                <option value="Other">Other</option>
+                            <label class="form-label">Research Domain *</label>
+                            <select name="research_domain" required class="form-control" id="researchDomainSelect">
+                                <option value="">-- Select a domain --</option>
+                                {% if research_domains %}
+                                    {% for value, label in research_domains %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                    {% endfor %}
+                                {% else %}
+                                    <!-- Fallback if research_domains not provided -->
+                                    {% for d in domains %}
+                                    <option value="{{ d }}">{{ d }}</option>
+                                    {% endfor %}
+                                    <option value="Other">Other</option>
+                                {% endif %}
                             </select>
-                            <input type="text" name="custom_domain" placeholder="If other, specify..." class="form-control" style="margin-top: 0.5rem; font-size: 0.85rem;">
+                            <!-- Custom Domain Input (hidden by default) -->
+                            <div id="customDomainGroup" style="display: none; margin-top: 0.5rem;">
+                                <input type="text" name="custom_domain" 
+                                       placeholder="Please specify your research domain..."
+                                       class="form-control" style="font-size: 0.9rem;">
+                            </div>
                         </div>
 
+                        <!-- Research Facility -->
                         <div>
                             <label class="form-label">Research Facility</label>
                             <select name="company_id" class="form-control">
@@ -64,8 +102,9 @@
                         </div>
                     </div>
 
+                    <!-- New Facility (optional) -->
                     <div class="new-facility-box">
-                        <p class="stat-label-simple">Or register new facility</p>
+                        <p class="stat-label-simple">Or register new facility (optional)</p>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
                             <input type="text" name="new_company" placeholder="New Lab Name" class="form-control" style="font-size: 0.9rem;">
                             <input type="text" name="new_company_industry" placeholder="Focus Area" class="form-control" style="font-size: 0.9rem;">
@@ -75,6 +114,7 @@
 
             </div>
 
+            <!-- Upload Area -->
             <div class="upload-drop-area">
                 
                 <div style="text-align: center; margin-bottom: 1.5rem;">
@@ -85,6 +125,7 @@
                     <p style="font-size: 0.9rem; color: var(--text-muted);">Max file size: 16 MB</p>
                 </div>
 
+                <!-- File Dropzone -->
                 <div id="dropzone" class="dropzone">
                     <input type="file"
                            id="file-input"
@@ -104,6 +145,7 @@
                     </div>
                 </div>
 
+                <!-- Submit Button -->
                 <button type="submit" class="btn btn-primary btn-lg btn-shimmer" style="width: 100%; margin-top: 2rem; padding: 1rem;">
                     🚀 Analyze & Submit
                 </button>
@@ -114,6 +156,7 @@
     </form>
 </section>
 
+<!-- AI Loader -->
 <div id="ai-loader" class="loader-overlay">
     
     <div class="loader-circle-container">
@@ -135,6 +178,7 @@
 </div>
 
 <script>
+    // File upload handling
     function updateFileName(input) {
         if (input.files && input.files.length > 0) {
             const fileName = input.files[0].name;
@@ -148,6 +192,44 @@
         }
     }
 
+    // Research Domain dropdown logic - FOR "Other" OPTION
+    document.addEventListener('DOMContentLoaded', function() {
+        const researchDomainSelect = document.getElementById('researchDomainSelect');
+        const customDomainGroup = document.getElementById('customDomainGroup');
+        
+        if (researchDomainSelect && customDomainGroup) {
+            // Initial check
+            if (researchDomainSelect.value === 'Other') {
+                customDomainGroup.style.display = 'block';
+            }
+            
+            // Change event listener
+            researchDomainSelect.addEventListener('change', function() {
+                if (this.value === 'Other') {
+                    customDomainGroup.style.display = 'block';
+                } else {
+                    customDomainGroup.style.display = 'none';
+                }
+            });
+        }
+        
+        // Form validation for custom domain when "Other" is selected
+        const form = document.getElementById('uploadForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const researchDomain = researchDomainSelect.value;
+                const customDomain = document.querySelector('input[name="custom_domain"]');
+                
+                if (researchDomain === 'Other' && customDomain && customDomain.value.trim() === '') {
+                    e.preventDefault();
+                    alert('Please specify your research domain when selecting "Other"');
+                    customDomain.focus();
+                }
+            });
+        }
+    });
+
+    // Loader animation
     function showLoader() {
         const loader = document.getElementById('ai-loader');
         loader.classList.add('flex'); // Add flex class to show it
@@ -155,6 +237,7 @@
         const texts = [
             "Parsing abstract and metadata...",
             "Categorizing research domain...",
+            "Analyzing paper category...",
             "Calculating Business Potential...",
             "Evaluating Academic Rigor...",
             "Finalizing scores..."
@@ -171,7 +254,7 @@
         }, 1200);
     }
 
-    // --------- DRAG & DROP SUPPORT ----------
+    // Drag & Drop support
     document.addEventListener("DOMContentLoaded", function () {
         const dropzone = document.getElementById("dropzone");
         const fileInput = document.getElementById("file-input");
@@ -197,17 +280,14 @@
         });
 
         dropzone.addEventListener("dragleave", function () {
-            // Only remove if no file selected yet, or strictly on leave
-            // Ideally we check if file input is empty, but simple toggle is okay
-             if (!fileInput.files.length) {
+            if (!fileInput.files.length) {
                 dropzone.classList.remove("active");
-             }
+            }
         });
 
         dropzone.addEventListener("drop", function (e) {
             const files = e.dataTransfer && e.dataTransfer.files;
             
-            // Remove active hover state (will re-add if valid file)
             dropzone.classList.remove("active");
 
             if (!files || !files.length) return;

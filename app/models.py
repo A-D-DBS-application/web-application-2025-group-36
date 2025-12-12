@@ -66,6 +66,35 @@ class Paper(db.Model):
     upload_date = db.Column(db.DateTime, server_default=db.func.now())
 
     file_path = db.Column(db.String(512), nullable=False)
+    
+    @property
+    def category_display(self):
+        """Get readable category name - NO IMPORT HERE"""
+        categories = [
+            ('cs_ai', 'Computer Science - AI'),
+            ('cs_se', 'Computer Science - SE'),
+            ('cs_ds', 'Computer Science - Data Science'),
+            ('math', 'Mathematics'),
+            ('other', 'Other')
+        ]
+        for val, label in categories:
+            if val == self.category:
+                return label
+        return self.category
+    
+    @property
+    def research_domain_display(self):
+        """Get readable domain name - NO IMPORT HERE"""
+        domains = [
+            ('AI', 'Artificial Intelligence'),
+            ('Robotics', 'Robotics'),
+            ('Software', 'Software Engineering'),
+            ('Other', 'Other')
+        ]
+        for val, label in domains:
+            if val == self.research_domain:
+                return label
+        return self.research_domain
 
     # Relationships
     reviews = db.relationship(

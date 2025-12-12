@@ -26,7 +26,9 @@ from pypdf import PdfReader # Zorg dat je pypdf geinstalleerd hebt
 
 from .models import db, User, Company, Paper, Review, PaperCompany, Complaint
 # We gebruiken analyze_paper_text nog steeds, maar extract_text_from_pdf doen we nu inline
-from app.services.ai_analysis import analyze_paper_text 
+from app.services.ai_analysis import analyze_paper_text
+# Import alleen HIER in routes
+from app.constants import PAPER_CATEGORIES, RESEARCH_DOMAINS
 
 main = Blueprint("main", __name__)
 
@@ -472,6 +474,17 @@ def process_paper_upload(user_id: int):
 @login_required
 @roles_required("Researcher", "Founder", "System/Admin")
 def upload_paper():
+    if request.method == "GET":
+        # Krijg companies zoals voorheen
+        companies = Company.query.order_by(Company.name).all()
+        
+        # Geef dropdowns door aan template
+        return render_template(
+            "upload_paper.html",
+            companies=companies,
+            paper_categories=PAPER_CATEGORIES,
+            research_domains=RESEARCH_DOMAINS
+        )
     if request.method == "POST":
         return process_paper_upload(session["user_id"])
 
