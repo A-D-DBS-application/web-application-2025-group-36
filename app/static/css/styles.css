@@ -475,8 +475,12 @@ body { display: flex; flex-direction: column; }
 }
 .feature-card.bg-gray { background-color: #f9fafb; }
 .feature-card.bg-gradient {
-  background: linear-gradient(135deg, var(--accent) 0%, #059669 100%);
-  color: white; border: none;
+  background: linear-gradient(135deg, #0f766e 0%, #0ea5e9 100%) !important;
+  background-color: #0f766e !important;
+  color: white !important;
+  border: none;
+  box-shadow: 0 16px 32px rgba(0,0,0,0.18);
+  opacity: 1;
 }
 .feature-card.bg-dark {
   background-color: #0f172a; color: white; border: none;

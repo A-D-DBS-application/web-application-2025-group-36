@@ -28,7 +28,13 @@ from .models import db, User, Company, Paper, Review, PaperCompany, Complaint
 # We gebruiken analyze_paper_text nog steeds, maar extract_text_from_pdf doen we nu inline
 from app.services.ai_analysis import analyze_paper_text
 # Import alleen HIER in routes
-from app.constants import PAPER_CATEGORIES, RESEARCH_DOMAINS, USER_ROLES, PUBLIC_REGISTER_ROLES
+from app.constants import (
+    PAPER_CATEGORIES,
+    RESEARCH_DOMAINS,
+    USER_ROLES,
+    PUBLIC_REGISTER_ROLES,
+    ADMIN_ACCESS_PASSWORD,
+)
 
 main = Blueprint("main", __name__)
 
@@ -514,7 +520,7 @@ def handle_review_post(paper: Paper, can_review: bool):
 
     if not can_review:
         flash(
-            "Only reviewers or company users can leave a score/comment.",
+            "Please log in to leave a score or comment.",
             "error",
         )
         return redirect(url_for("main.paper_detail", paper_id=paper.paper_id))
@@ -595,8 +601,7 @@ def build_paper_detail_context(
 def paper_detail(paper_id):
     paper = load_paper_with_relations(paper_id)
     companies = Company.query.order_by(Company.name).all()
-    can_review_roles = ["Reviewer", "Company", "System/Admin", "Founder"]
-    can_review = session.get("user_role") in can_review_roles
+    can_review = bool(session.get("user_id"))
 
     if request.method == "POST":
         return handle_review_post(paper, can_review)
@@ -703,6 +708,12 @@ def register():
         name = request.form.get("name")
         email = request.form.get("email")
         role = request.form.get("role")
+        admin_password = (request.form.get("admin_password") or "").strip()
+
+        restricted_roles = {"Founder", "System/Admin"}
+        if role in restricted_roles and admin_password != ADMIN_ACCESS_PASSWORD:
+            flash("Invalid access password for the selected role.", "error")
+            return redirect(url_for("main.register"))
 
         if User.query.filter_by(email=email).first():
             flash("Email already exists.", "error")
@@ -751,30 +762,25 @@ def change_role():
     user = User.query.get_or_404(session.get("user_id"))
 
     founder_email = current_app.config.get("FOUNDER_EMAIL")
-
-    # -----------------------------------
-    # Bepaal toegestane rollen
-    # -----------------------------------
-    if user.email == founder_email:
-        allowed_roles = USER_ROLES.copy()
-
-    elif user.role == "System/Admin":
-        allowed_roles = [r for r in USER_ROLES if r != "Founder"]
-
-    else:
-        allowed_roles = PUBLIC_REGISTER_ROLES
+    role_values = [value for value, _ in USER_ROLES]
+    restricted_roles = {"Founder", "System/Admin"}
 
     # -----------------------------------
     # POST: rol wijzigen
     # -----------------------------------
     if request.method == "POST":
         new_role = request.form.get("role")
+        admin_password = (request.form.get("admin_password") or "").strip()
 
-        if not new_role or new_role not in allowed_roles:
+        if not new_role or new_role not in role_values:
             flash("You are not allowed to select this role.", "error")
             return redirect(url_for("main.change_role"))
 
-        if new_role == "Founder" and user.email != founder_email:
+        if new_role in restricted_roles and admin_password != ADMIN_ACCESS_PASSWORD:
+            flash("Invalid access password for the selected role.", "error")
+            return redirect(url_for("main.change_role"))
+
+        if new_role == "Founder" and founder_email and user.email != founder_email:
             flash("Only the designated founder email can have this role.", "error")
             return redirect(url_for("main.change_role"))
 
@@ -791,7 +797,7 @@ def change_role():
     return render_template(
         "change_role.html",
         title="Change Role",
-        roles=allowed_roles,
+        roles=role_values,
         user=user
     )
 
