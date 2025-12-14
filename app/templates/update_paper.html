@@ -9,7 +9,8 @@
         Update <span class="text-gradient">Paper Details</span>
     </h1>
     <p>
-        Modify title, abstract, or domain metadata. AI scores will <strong>not</strong> be regenerated.
+        Modify title, abstract, or domain metadata.
+        AI scores will <strong>not</strong> be regenerated.
     </p>
 </div>
 
@@ -17,7 +18,7 @@
     
     <div style="padding: 2.5rem;">
         
-        <form method="post" enctype="multipart/form-data">
+        <form method="post">
             
             <h3 class="upload-section-title" style="margin-bottom: 1.5rem;">
                 <span>📝</span> Paper Metadata
@@ -25,58 +26,127 @@
 
             <div class="form-stack">
 
+                <!-- Title -->
                 <div>
                     <label class="form-label">Paper Title</label>
-                    <input type="text" name="title" required value="{{ paper.title }}" class="form-control">
+                    <input
+                        type="text"
+                        name="title"
+                        required
+                        value="{{ paper.title }}"
+                        class="form-control"
+                    >
                 </div>
 
+                <!-- Abstract -->
                 <div>
                     <label class="form-label">Abstract</label>
-                    <textarea name="abstract" required rows="7" class="form-control">{{ paper.abstract }}</textarea>
+                    <textarea
+                        name="abstract"
+                        required
+                        rows="7"
+                        class="form-control"
+                    >{{ paper.abstract }}</textarea>
                 </div>
 
+                <!-- Domain + Facility -->
                 <div class="form-grid-2" style="margin-top: 0; gap: 1.5rem;">
                     
+                    <!-- Research Domain -->
                     <div>
                         <label class="form-label">Research Domain</label>
-                        <select name="research_domain" class="form-control">
-                            {% for d in domains %}
-                            <option value="{{ d }}" {% if paper.research_domain == d %}selected{% endif %}>{{ d }}</option>
+
+                        <select
+                            name="research_domain"
+                            class="form-control"
+                            id="researchDomainSelect"
+                        >
+                            <option value="" disabled>
+                                -- Select a domain --
+                            </option>
+
+                            {% for value, label in research_domains %}
+                                <option
+                                    value="{{ value }}"
+                                    {% if paper.research_domain == value %}selected{% endif %}
+                                >
+                                    {{ label }}
+                                </option>
                             {% endfor %}
-                            <option value="Other" {% if paper.research_domain not in domains %}selected{% endif %}>Other</option>
+
+                            <option
+                                value="Other"
+                                {% if paper.research_domain not in research_domains | map(attribute=0) %}selected{% endif %}
+                            >
+                                Other
+                            </option>
                         </select>
 
-                        <input type="text" name="custom_domain" 
-                               placeholder="If other, specify..." 
-                               value="{% if paper.research_domain not in domains %}{{ paper.research_domain }}{% endif %}"
-                               class="form-control" 
-                               style="margin-top: 0.5rem; font-size: 0.85rem;">
+                        <!-- Custom domain (only if Other) -->
+                        <div id="customDomainGroup" style="margin-top: 0.5rem; display: none;">
+                            <input
+                                type="text"
+                                name="custom_domain"
+                                class="form-control"
+                                placeholder="If other, specify..."
+                                value="{% if paper.research_domain not in research_domains | map(attribute=0) %}{{ paper.research_domain }}{% endif %}"
+                                style="font-size: 0.85rem;"
+                            >
+                        </div>
                     </div>
 
+                    <!-- Research Facility -->
                     <div>
                         <label class="form-label">Research Facility</label>
+
                         <select name="company_id" class="form-control">
-                            <option value="">-- Independent --</option>
-                            {% for company in companies %}
-                            <option value="{{ company.company_id }}" 
-                                {% if current_facility and current_facility.company_id == company.company_id %} selected {% endif %}>
-                                {{ company.name }}
+                            <option value="">
+                                -- Independent --
                             </option>
+
+                            {% for company in companies %}
+                                <option
+                                    value="{{ company.company_id }}"
+                                    {% if current_facility and current_facility.company_id == company.company_id %}selected{% endif %}
+                                >
+                                    {{ company.name }}
+                                </option>
                             {% endfor %}
                         </select>
                     </div>
                 </div>
 
+                <!-- New Facility -->
                 <div class="new-facility-box">
-                    <p class="stat-label-simple" style="margin-bottom: 1rem;">Or register new facility connection</p>
+                    <p class="stat-label-simple" style="margin-bottom: 1rem;">
+                        Or register new facility connection
+                    </p>
+
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <input type="text" name="new_company" placeholder="New Lab Name" class="form-control">
-                        <input type="text" name="new_company_industry" placeholder="Focus Area" class="form-control">
+                        <input
+                            type="text"
+                            name="new_company"
+                            placeholder="New Lab Name"
+                            class="form-control"
+                        >
+                        <input
+                            type="text"
+                            name="new_company_industry"
+                            placeholder="Focus Area"
+                            class="form-control"
+                        >
                     </div>
-                    <p class="form-help">This will create a new facility and link it to this paper.</p>
+
+                    <p class="form-help">
+                        This will create a new facility and link it to this paper.
+                    </p>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 1rem;">
+                <button
+                    type="submit"
+                    class="btn btn-primary btn-lg"
+                    style="width: 100%; margin-top: 1rem;"
+                >
                     Update Paper Details
                 </button>
 
@@ -84,5 +154,25 @@
         </form>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const domainSelect = document.getElementById('researchDomainSelect');
+    const customGroup = document.getElementById('customDomainGroup');
+
+    if (!domainSelect || !customGroup) return;
+
+    function toggleCustomDomain() {
+        if (domainSelect.value === 'Other') {
+            customGroup.style.display = 'block';
+        } else {
+            customGroup.style.display = 'none';
+        }
+    }
+
+    toggleCustomDomain();
+    domainSelect.addEventListener('change', toggleCustomDomain);
+});
+</script>
 
 {% endblock %}

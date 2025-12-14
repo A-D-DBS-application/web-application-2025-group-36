@@ -31,3 +31,4 @@ class Config:
     
     # Naam van de bucket in Supabase Storage
     SUPABASE_BUCKET = "thesis-pdfs"
+    FOUNDER_EMAIL = "frederic@nowjobs.com"

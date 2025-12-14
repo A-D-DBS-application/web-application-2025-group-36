@@ -30,63 +30,64 @@
                 </h3>
 
                 <div class="form-stack">
+
                     <!-- Paper Title -->
                     <div>
                         <label class="form-label">Paper Title *</label>
-                        <input type="text" name="title" required class="form-control" placeholder="e.g. Advances in Robotics...">
-                    </div>
-
-                    <!-- NEW: Paper Category Dropdown -->
-                    <div>
-                        <label class="form-label">Paper Category *</label>
-                        <select name="category" required class="form-control">
-                            <option value="">-- Select a category --</option>
-                            {% if paper_categories %}
-                                {% for value, label in paper_categories %}
-                                <option value="{{ value }}">{{ label }}</option>
-                                {% endfor %}
-                            {% else %}
-                                <!-- Fallback if paper_categories not provided -->
-                                <option value="cs_ai">Computer Science - AI</option>
-                                <option value="cs_se">Computer Science - SE</option>
-                                <option value="math">Mathematics</option>
-                                <option value="physics">Physics</option>
-                                <option value="other">Other</option>
-                            {% endif %}
-                        </select>
-                        <p class="form-help">Select the primary field of your paper</p>
+                        <input
+                            type="text"
+                            name="title"
+                            required
+                            class="form-control"
+                            placeholder="e.g. Advances in Robotics..."
+                        >
                     </div>
 
                     <!-- Abstract -->
                     <div>
                         <label class="form-label">Abstract *</label>
-                        <textarea name="abstract" required rows="5" class="form-control" placeholder="Paste the abstract here..."></textarea>
-                        <p class="form-help">The AI uses this to double-check the domain analysis.</p>
+                        <textarea
+                            name="abstract"
+                            required
+                            rows="5"
+                            class="form-control"
+                            placeholder="Paste the abstract here..."
+                        ></textarea>
+                        <p class="form-help">
+                            The AI uses this to double-check the domain analysis.
+                        </p>
                     </div>
 
-                    <!-- Research Domain Dropdown (Updated) -->
+                    <!-- Research Domain + Facility -->
                     <div class="form-grid-2" style="margin-top: 0; gap: 1rem;">
+
+                        <!-- Research Domain -->
                         <div>
                             <label class="form-label">Research Domain *</label>
-                            <select name="research_domain" required class="form-control" id="researchDomainSelect">
-                                <option value="">-- Select a domain --</option>
-                                {% if research_domains %}
-                                    {% for value, label in research_domains %}
+                            <select
+                                name="research_domain"
+                                required
+                                class="form-control"
+                                id="researchDomainSelect"
+                            >
+                                <option value="" disabled selected>
+                                    -- Select a domain --
+                                </option>
+
+                                {% for value, label in research_domains %}
                                     <option value="{{ value }}">{{ label }}</option>
-                                    {% endfor %}
-                                {% else %}
-                                    <!-- Fallback if research_domains not provided -->
-                                    {% for d in domains %}
-                                    <option value="{{ d }}">{{ d }}</option>
-                                    {% endfor %}
-                                    <option value="Other">Other</option>
-                                {% endif %}
+                                {% endfor %}
                             </select>
-                            <!-- Custom Domain Input (hidden by default) -->
+
+                            <!-- Custom Domain (only for Other) -->
                             <div id="customDomainGroup" style="display: none; margin-top: 0.5rem;">
-                                <input type="text" name="custom_domain" 
-                                       placeholder="Please specify your research domain..."
-                                       class="form-control" style="font-size: 0.9rem;">
+                                <input
+                                    type="text"
+                                    name="custom_domain"
+                                    class="form-control"
+                                    placeholder="Please specify your research domain..."
+                                    style="font-size: 0.9rem;"
+                                >
                             </div>
                         </div>
 
@@ -94,9 +95,14 @@
                         <div>
                             <label class="form-label">Research Facility</label>
                             <select name="company_id" class="form-control">
-                                <option value="">-- Independent --</option>
+                                <option value="">
+                                    -- Independent --
+                                </option>
+
                                 {% for company in companies %}
-                                <option value="{{ company.company_id }}">{{ company.name }}</option>
+                                    <option value="{{ company.company_id }}">
+                                        {{ company.name }}
+                                    </option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -104,14 +110,29 @@
 
                     <!-- New Facility (optional) -->
                     <div class="new-facility-box">
-                        <p class="stat-label-simple">Or register new facility (optional)</p>
+                        <p class="stat-label-simple">
+                            Or register new facility (optional)
+                        </p>
+
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-                            <input type="text" name="new_company" placeholder="New Lab Name" class="form-control" style="font-size: 0.9rem;">
-                            <input type="text" name="new_company_industry" placeholder="Focus Area" class="form-control" style="font-size: 0.9rem;">
+                            <input
+                                type="text"
+                                name="new_company"
+                                placeholder="New Lab Name"
+                                class="form-control"
+                                style="font-size: 0.9rem;"
+                            >
+                            <input
+                                type="text"
+                                name="new_company_industry"
+                                placeholder="Focus Area"
+                                class="form-control"
+                                style="font-size: 0.9rem;"
+                            >
                         </div>
                     </div>
-                </div>
 
+                </div>
             </div>
 
             <!-- Upload Area -->
@@ -122,21 +143,25 @@
                         📄
                     </div>
                     <h3>Upload PDF</h3>
-                    <p style="font-size: 0.9rem; color: var(--text-muted);">Max file size: 16 MB</p>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">
+                        Max file size: 16 MB
+                    </p>
                 </div>
 
                 <!-- File Dropzone -->
                 <div id="dropzone" class="dropzone">
-                    <input type="file"
-                           id="file-input"
-                           name="file"
-                           accept="application/pdf"
-                           required
-                           class="dropzone-input"
-                           onchange="updateFileName(this)">
+                    <input
+                        type="file"
+                        id="file-input"
+                        name="file"
+                        accept="application/pdf"
+                        required
+                        class="dropzone-input"
+                        onchange="updateFileName(this)"
+                    >
                     
                     <div style="text-align: center; pointer-events: none; padding: 1rem;">
-                        <p id="file-label-main" style="font-weight: 700; color: var(--text-main);">
+                        <p id="file-label-main" style="font-weight: 700;">
                             Drag & Drop or Click
                         </p>
                         <p id="file-label-sub" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
@@ -146,7 +171,11 @@
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" class="btn btn-primary btn-lg btn-shimmer" style="width: 100%; margin-top: 2rem; padding: 1rem;">
+                <button
+                    type="submit"
+                    class="btn btn-primary btn-lg btn-shimmer"
+                    style="width: 100%; margin-top: 2rem; padding: 1rem;"
+                >
                     🚀 Analyze & Submit
                 </button>
 
@@ -158,7 +187,6 @@
 
 <!-- AI Loader -->
 <div id="ai-loader" class="loader-overlay">
-    
     <div class="loader-circle-container">
         <div class="loader-ring"></div>
         <div class="loader-ring-spin"></div>
@@ -167,139 +195,21 @@
         </div>
     </div>
 
-    <h2 style="margin-bottom: 0.5rem;">Analyzing Paper...</h2>
-    <p style="color: var(--text-muted); font-size: 1.1rem; font-weight: 500;" id="loading-text">
-        Connecting to AI Neural Network...
-    </p>
-
-    <div class="loader-bar-container">
-        <div class="loader-bar-fill"></div>
-    </div>
+    <h2>Analyzing Paper...</h2>
+    <p id="loading-text">Connecting to AI Neural Network...</p>
 </div>
 
 <script>
-    // File upload handling
-    function updateFileName(input) {
-        if (input.files && input.files.length > 0) {
-            const fileName = input.files[0].name;
-            const mainLabel = document.getElementById('file-label-main');
-            mainLabel.textContent = fileName;
-            mainLabel.style.color = 'var(--accent)';
-            document.getElementById('file-label-sub').textContent = "Ready to upload";
-            
-            // Add active class to parent dropzone
-            input.parentElement.classList.add('active');
-        }
+document.addEventListener('DOMContentLoaded', function () {
+    const domainSelect = document.getElementById('researchDomainSelect');
+    const customGroup = document.getElementById('customDomainGroup');
+
+    if (domainSelect && customGroup) {
+        domainSelect.addEventListener('change', function () {
+            customGroup.style.display = this.value === 'Other' ? 'block' : 'none';
+        });
     }
-
-    // Research Domain dropdown logic - FOR "Other" OPTION
-    document.addEventListener('DOMContentLoaded', function() {
-        const researchDomainSelect = document.getElementById('researchDomainSelect');
-        const customDomainGroup = document.getElementById('customDomainGroup');
-        
-        if (researchDomainSelect && customDomainGroup) {
-            // Initial check
-            if (researchDomainSelect.value === 'Other') {
-                customDomainGroup.style.display = 'block';
-            }
-            
-            // Change event listener
-            researchDomainSelect.addEventListener('change', function() {
-                if (this.value === 'Other') {
-                    customDomainGroup.style.display = 'block';
-                } else {
-                    customDomainGroup.style.display = 'none';
-                }
-            });
-        }
-        
-        // Form validation for custom domain when "Other" is selected
-        const form = document.getElementById('uploadForm');
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                const researchDomain = researchDomainSelect.value;
-                const customDomain = document.querySelector('input[name="custom_domain"]');
-                
-                if (researchDomain === 'Other' && customDomain && customDomain.value.trim() === '') {
-                    e.preventDefault();
-                    alert('Please specify your research domain when selecting "Other"');
-                    customDomain.focus();
-                }
-            });
-        }
-    });
-
-    // Loader animation
-    function showLoader() {
-        const loader = document.getElementById('ai-loader');
-        loader.classList.add('flex'); // Add flex class to show it
-
-        const texts = [
-            "Parsing abstract and metadata...",
-            "Categorizing research domain...",
-            "Analyzing paper category...",
-            "Calculating Business Potential...",
-            "Evaluating Academic Rigor...",
-            "Finalizing scores..."
-        ];
-        
-        let i = 0;
-        const textElement = document.getElementById('loading-text');
-        
-        setInterval(() => {
-            if (i < texts.length) {
-                textElement.innerText = texts[i];
-                i++;
-            }
-        }, 1200);
-    }
-
-    // Drag & Drop support
-    document.addEventListener("DOMContentLoaded", function () {
-        const dropzone = document.getElementById("dropzone");
-        const fileInput = document.getElementById("file-input");
-
-        if (!dropzone || !fileInput) return;
-
-        // Prevent browser opening file
-        ["dragover", "drop"].forEach(eventName => {
-            window.addEventListener(eventName, function (e) {
-                e.preventDefault();
-            });
-        });
-
-        ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
-            dropzone.addEventListener(eventName, function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-            });
-        });
-
-        dropzone.addEventListener("dragover", function () {
-            dropzone.classList.add("active");
-        });
-
-        dropzone.addEventListener("dragleave", function () {
-            if (!fileInput.files.length) {
-                dropzone.classList.remove("active");
-            }
-        });
-
-        dropzone.addEventListener("drop", function (e) {
-            const files = e.dataTransfer && e.dataTransfer.files;
-            
-            dropzone.classList.remove("active");
-
-            if (!files || !files.length) return;
-
-            try {
-                fileInput.files = files;
-            } catch (err) {
-                console.warn("Could not assign files programmatically:", err);
-            }
-            updateFileName(fileInput);
-        });
-    });
+});
 </script>
 
 {% endblock %}

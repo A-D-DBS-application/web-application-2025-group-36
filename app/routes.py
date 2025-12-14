@@ -28,7 +28,7 @@ from .models import db, User, Company, Paper, Review, PaperCompany, Complaint
 # We gebruiken analyze_paper_text nog steeds, maar extract_text_from_pdf doen we nu inline
 from app.services.ai_analysis import analyze_paper_text
 # Import alleen HIER in routes
-from app.constants import PAPER_CATEGORIES, RESEARCH_DOMAINS, USER_ROLES
+from app.constants import PAPER_CATEGORIES, RESEARCH_DOMAINS, USER_ROLES, PUBLIC_REGISTER_ROLES
 
 main = Blueprint("main", __name__)
 
@@ -733,23 +733,53 @@ def test_db():
 @main.route("/change_role", methods=["GET", "POST"])
 @login_required
 def change_role():
-    user = User.query.get(session.get("user_id"))
+    user = User.query.get_or_404(session.get("user_id"))
 
+    founder_email = current_app.config.get("FOUNDER_EMAIL")
+
+    # -----------------------------------
+    # Bepaal toegestane rollen
+    # -----------------------------------
+    if user.email == founder_email:
+        allowed_roles = USER_ROLES.copy()
+
+    elif user.role == "System/Admin":
+        allowed_roles = [r for r in USER_ROLES if r != "Founder"]
+
+    else:
+        allowed_roles = PUBLIC_REGISTER_ROLES
+
+    # -----------------------------------
+    # POST: rol wijzigen
+    # -----------------------------------
     if request.method == "POST":
         new_role = request.form.get("role")
-        if not new_role:
-            flash("Choose a valid role.", "error")
+
+        if not new_role or new_role not in allowed_roles:
+            flash("You are not allowed to select this role.", "error")
             return redirect(url_for("main.change_role"))
+
+        if new_role == "Founder" and user.email != founder_email:
+            flash("Only the designated founder email can have this role.", "error")
+            return redirect(url_for("main.change_role"))
+
         user.role = new_role
         db.session.commit()
+
         session["user_role"] = new_role
         flash("Role updated successfully.", "success")
         return redirect(url_for("main.index"))
 
-    roles = ["Researcher", "Reviewer", "Company", "User", "System/Admin", "Founder"]
+    # -----------------------------------
+    # GET: dropdown tonen
+    # -----------------------------------
     return render_template(
-        "change_role.html", title="Change Role", roles=roles, user=user
+        "change_role.html",
+        title="Change Role",
+        roles=allowed_roles,
+        user=user
     )
+
 
 
 # ---------------------------------------------------
@@ -757,23 +787,16 @@ def change_role():
 # ---------------------------------------------------
 def build_update_paper_context(paper: Paper, current_facility):
     companies = Company.query.order_by(Company.name).all()
-    domains = [
-        "AI",
-        "Robotics",
-        "Biotech",
-        "Health",
-        "Energy",
-        "Physics",
-        "Chemistry",
-    ]
+
     return {
         "paper": paper,
         "companies": companies,
-        "domains": domains,
         "current_facility": current_facility,
+        "research_domains": RESEARCH_DOMAINS,  # 👈 CRUCIAAL
         "title": "Update Paper",
         "edit": True,
     }
+
 
 
 def handle_update_paper_post(paper: Paper):

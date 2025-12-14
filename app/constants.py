@@ -13,8 +13,14 @@ RESEARCH_DOMAINS = [
     ('Other', 'Other')
 ]
 USER_ROLES = [
-    ('researcher', 'Researcher'),
-    ('reviewer', 'Reviewer'),
-    ('editor', 'Editor'),
-    ('admin', 'Administrator')
+    ( 'Researcher'),
+    ( 'Reviewer'),
+    ('Company'),
+    ('System/Admin'),
+    ('Founder')
+]
+PUBLIC_REGISTER_ROLES = [
+    "Researcher",
+    "Reviewer",
+    "Company",
 ]
