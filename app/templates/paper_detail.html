@@ -45,10 +45,8 @@
 
 <div class="paper-content-grid">
 
-    <!-- LEFT COLUMN -->
     <div>
 
-        <!-- META -->
         <div class="meta-grid">
             <div class="meta-box">
                 <div class="meta-label">Uploaded</div>
@@ -56,12 +54,20 @@
                     {{ paper.upload_date.strftime('%d %b %Y') if paper.upload_date else '—' }}
                 </div>
             </div>
+            
             <div class="meta-box">
                 <div class="meta-label">Author</div>
                 <div class="meta-value">
                     {{ paper.author.name if paper.author else 'Unknown' }}
+                    
+                    {% if paper.author and paper.author.email %}
+                        <div style="font-size: 0.85rem; color: #666; margin-top: 0.3rem; user-select: all;">
+                            {{ paper.author.email }}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
+
             <div class="meta-box">
                 <div class="meta-label">AI Status</div>
                 <div class="meta-value">
@@ -73,7 +79,6 @@
             </div>
         </div>
 
-        <!-- AI ANALYSIS -->
         {% if paper.ai_status == "done" %}
         <div style="margin: 2.5rem 0;">
             <h2>AI Analysis</h2>
@@ -106,7 +111,6 @@
         </div>
         {% endif %}
 
-        <!-- REPORT / COMPLAINT -->
         <div id="report-block" class="report-block">
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                 <div>
@@ -174,7 +178,6 @@
 
     </div>
 
-    <!-- RIGHT COLUMN: REVIEW -->
     <div>
         <div class="sidebar-card">
             <h3 class="sidebar-title">Review</h3>

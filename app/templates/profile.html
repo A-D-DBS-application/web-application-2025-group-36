@@ -60,6 +60,43 @@
 {# --- CASE 1: COMPANY USER --- #}
 {% if user.role == 'Company' %}
 
+    
+    {# SAVED INTEREST #}
+    <section>
+        <h2 style="font-size: 1.1rem; margin-bottom: 1rem;">Saved interest</h2>
+        
+        {% if interested_papers %}
+            <div>
+                {% for paper in interested_papers %}
+                    <div class="compact-card">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                            <a href="{{ url_for('main.paper_detail', paper_id=paper.paper_id) }}" style="font-weight: 600;">
+                                {{ paper.title }}
+                            </a>
+                            
+                            <form method="post" action="{{ url_for('main.toggle_interest', paper_id=paper.paper_id) }}">
+                                <button type="submit" class="btn btn-secondary btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.75rem;">
+                                    Remove
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <div style="display: flex; gap: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">
+                             <span class="tag tag-gray" style="font-size: 0.7rem;">{{ paper.research_domain }}</span>
+                             {% if paper.author %}<span>by {{ paper.author.name }}</span>{% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 2rem; border: 1px dashed var(--border-color); border-radius: 1rem; background-color: #f9fafb;">
+                <p style="margin-bottom: 0.5rem; color: var(--text-muted);">No papers saved as interesting yet.</p>
+                <a href="{{ url_for('main.dashboard') }}" class="text-accent">Explore the dashboard</a>
+            </div>
+        {% endif %}
+    </section>
+
+
     {# RECOMMENDED #}
     {% if recommended_papers %}
     <section style="margin-bottom: 3rem;">
@@ -97,41 +134,6 @@
         </div>
     </section>
     {% endif %}
-
-    {# SAVED INTEREST #}
-    <section>
-        <h2 style="font-size: 1.1rem; margin-bottom: 1rem;">Saved interest</h2>
-        
-        {% if interested_papers %}
-            <div>
-                {% for paper in interested_papers %}
-                    <div class="compact-card">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                            <a href="{{ url_for('main.paper_detail', paper_id=paper.paper_id) }}" style="font-weight: 600;">
-                                {{ paper.title }}
-                            </a>
-                            
-                            <form method="post" action="{{ url_for('main.toggle_interest', paper_id=paper.paper_id) }}">
-                                <button type="submit" class="btn btn-secondary btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.75rem;">
-                                    Remove
-                                </button>
-                            </form>
-                        </div>
-                        
-                        <div style="display: flex; gap: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">
-                             <span class="tag tag-gray" style="font-size: 0.7rem;">{{ paper.research_domain }}</span>
-                             {% if paper.author %}<span>by {{ paper.author.name }}</span>{% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div style="text-align: center; padding: 2rem; border: 1px dashed var(--border-color); border-radius: 1rem; background-color: #f9fafb;">
-                <p style="margin-bottom: 0.5rem; color: var(--text-muted);">No papers saved as interesting yet.</p>
-                <a href="{{ url_for('main.dashboard') }}" class="text-accent">Explore the dashboard</a>
-            </div>
-        {% endif %}
-    </section>
 
 {# --- CASE 2: REGULAR USER --- #}
 {% else %}
