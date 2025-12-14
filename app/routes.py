@@ -612,24 +612,39 @@ def paper_detail(paper_id):
 # REPORT / COMPLAINT
 # ---------------------------------------------------
 @main.route("/papers/<int:paper_id>/report", methods=["POST"])
+@login_required
 def submit_complaint(paper_id):
     paper = Paper.query.get_or_404(paper_id)
 
     description = (request.form.get("complaint_description") or "").strip()
-    category = (request.form.get("complaint_category") or "Other").strip() or "Other"
+    category = (request.form.get("complaint_category") or "").strip()
     reporter_name = (request.form.get("reporter_name") or "").strip()
     reporter_email = (request.form.get("reporter_email") or "").strip()
 
-    if not reporter_name:
-        reporter_name = session.get("user_name") or "Anonymous"
+    # Extra validatie
+    if not category:
+        flash("Please select a complaint category.", "error")
+        return redirect(
+            url_for(
+                "main.paper_detail",
+                paper_id=paper_id,
+                _anchor="report-block",
+            )
+        )
 
     if not description:
         flash("Please describe the issue before submitting a report.", "error")
         return redirect(
             url_for(
-                "main.paper_detail", paper_id=paper_id, _anchor="report-block"
+                "main.paper_detail",
+                paper_id=paper_id,
+                _anchor="report-block",
             )
         )
+
+    # Fallback naam = ingelogde user
+    if not reporter_name:
+        reporter_name = session.get("user_name")
 
     complaint = Complaint(
         paper_id=paper.paper_id,

@@ -91,51 +91,116 @@
 {% endif %}
 
 <form method="get" class="filter-bar">
-    
+
+    <!-- Search -->
     <div class="filter-group filter-group-search">
         <label class="form-label">Search</label>
-        <input type="text" name="q" placeholder="Keywords, title..." value="{{ query }}" class="form-control">
+        <input
+            type="text"
+            name="q"
+            placeholder="Keywords, title..."
+            value="{{ query }}"
+            class="form-control"
+        >
     </div>
 
+    <!-- Domain filter -->
     <div class="filter-group">
         <label class="form-label">Domain</label>
         <select name="domain" class="form-control">
-            <option value="all" {% if selected_domain == 'all' %}selected{% endif %}>All domains</option>
+            <option value="all" {% if selected_domain == 'all' %}selected{% endif %}>
+                All domains
+            </option>
+
             {% for d in domains %}
-            <option value="{{ d }}" {% if selected_domain == d %}selected{% endif %}>{{ d }}</option>
+                <option value="{{ d }}" {% if selected_domain == d %}selected{% endif %}>
+                    {{ d }}
+                </option>
             {% endfor %}
         </select>
     </div>
 
+    <!-- Facility filter -->
     <div class="filter-group">
         <label class="form-label">Facility</label>
         <select name="company" class="form-control">
-            <option value="" {% if not selected_company %}selected{% endif %}>All facilities</option>
+            <option value="" {% if not selected_company %}selected{% endif %}>
+                All facilities
+            </option>
+
             {% for company in companies %}
-            <option value="{{ company.name }}" {% if selected_company == company.name %}selected{% endif %}>{{ company.name }}</option>
+                <option
+                    value="{{ company.name }}"
+                    {% if selected_company == company.name %}selected{% endif %}
+                >
+                    {{ company.name }}
+                </option>
             {% endfor %}
         </select>
     </div>
 
+    <!-- Minimum score -->
     <div class="filter-group filter-group-small">
-        <label class="form-label">Score ></label>
-        <input type="number" step="0.1" min="0" max="10" name="min_score" value="{{ min_score }}" class="form-control" style="text-align: center; font-weight: bold;">
+        <label class="form-label">Score ≥</label>
+        <input
+            type="number"
+            step="0.1"
+            min="0"
+            max="10"
+            name="min_score"
+            value="{{ min_score }}"
+            class="form-control"
+            style="text-align: center; font-weight: bold;"
+        >
     </div>
 
+    <!-- Sort -->
     <div class="filter-group">
-        <label class="form-label">Sort By</label>
+        <label class="form-label">Sort by</label>
         <select name="sort" class="form-control">
-            <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest</option>
-            <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest</option>
-            <option value="best" {% if sort == 'best' %}selected{% endif %}>Best Reviews</option>
-            <option value="ai_score" {% if sort == 'ai_score' %}selected{% endif %}>High AI Score</option>
+            <option value="newest" {% if sort == 'newest' %}selected{% endif %}>
+                Newest
+            </option>
+            <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>
+                Oldest
+            </option>
+            <option value="best" {% if sort == 'best' %}selected{% endif %}>
+                Best reviewed
+            </option>
+            <option value="most_reviewed" {% if sort == 'most_reviewed' %}selected{% endif %}>
+                Most reviewed
+            </option>
+            <option value="a_to_z" {% if sort == 'a_to_z' %}selected{% endif %}>
+                Title A → Z
+            </option>
+            <option value="z_to_a" {% if sort == 'z_to_a' %}selected{% endif %}>
+                Title Z → A
+            </option>
+            <option value="ai_score" {% if sort == 'ai_score' %}selected{% endif %}>
+                Highest AI score
+            </option>
         </select>
     </div>
 
+    <!-- Actions -->
     <div class="filter-actions">
-        <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary" title="Reset Filters">↺</a>
-        <button type="submit" class="btn btn-primary" {% if offline %}disabled{% endif %}>Apply</button>
+        <a
+            href="{{ url_for('main.dashboard') }}"
+            class="btn btn-secondary"
+            title="Reset filters"
+        >
+            ↺
+        </a>
+
+        <button
+            type="submit"
+            class="btn btn-primary"
+            {% if offline %}disabled{% endif %}
+        >
+            Apply
+        </button>
     </div>
+
 
 </form>
 
