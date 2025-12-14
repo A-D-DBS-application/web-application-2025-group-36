@@ -20,7 +20,7 @@
           method="post"
           enctype="multipart/form-data"
           onsubmit="showLoader()">
-        
+
         <div class="upload-layout">
 
             <div class="upload-details">
@@ -34,25 +34,15 @@
                     <!-- Paper Title -->
                     <div>
                         <label class="form-label">Paper Title *</label>
-                        <input
-                            type="text"
-                            name="title"
-                            required
-                            class="form-control"
-                            placeholder="e.g. Advances in Robotics..."
-                        >
+                        <input type="text" name="title" required class="form-control"
+                               placeholder="e.g. Advances in Robotics...">
                     </div>
 
                     <!-- Abstract -->
                     <div>
                         <label class="form-label">Abstract *</label>
-                        <textarea
-                            name="abstract"
-                            required
-                            rows="5"
-                            class="form-control"
-                            placeholder="Paste the abstract here..."
-                        ></textarea>
+                        <textarea name="abstract" required rows="5" class="form-control"
+                                  placeholder="Paste the abstract here..."></textarea>
                         <p class="form-help">
                             The AI uses this to double-check the domain analysis.
                         </p>
@@ -61,44 +51,32 @@
                     <!-- Research Domain + Facility -->
                     <div class="form-grid-2" style="margin-top: 0; gap: 1rem;">
 
-                        <!-- Research Domain -->
                         <div>
                             <label class="form-label">Research Domain *</label>
-                            <select
-                                name="research_domain"
-                                required
-                                class="form-control"
-                                id="researchDomainSelect"
-                            >
+                            <select name="research_domain" required class="form-control"
+                                    id="researchDomainSelect">
                                 <option value="" disabled selected>
                                     -- Select a domain --
                                 </option>
-
                                 {% for value, label in research_domains %}
                                     <option value="{{ value }}">{{ label }}</option>
                                 {% endfor %}
                             </select>
 
-                            <!-- Custom Domain (only for Other) -->
-                            <div id="customDomainGroup" style="display: none; margin-top: 0.5rem;">
-                                <input
-                                    type="text"
-                                    name="custom_domain"
-                                    class="form-control"
-                                    placeholder="Please specify your research domain..."
-                                    style="font-size: 0.9rem;"
-                                >
+                            <div id="customDomainGroup"
+                                 style="display: none; margin-top: 0.5rem;">
+                                <input type="text"
+                                       name="custom_domain"
+                                       class="form-control"
+                                       placeholder="Please specify your research domain..."
+                                       style="font-size: 0.9rem;">
                             </div>
                         </div>
 
-                        <!-- Research Facility -->
                         <div>
                             <label class="form-label">Research Facility</label>
                             <select name="company_id" class="form-control">
-                                <option value="">
-                                    -- Independent --
-                                </option>
-
+                                <option value="">-- Independent --</option>
                                 {% for company in companies %}
                                     <option value="{{ company.company_id }}">
                                         {{ company.name }}
@@ -108,27 +86,18 @@
                         </div>
                     </div>
 
-                    <!-- New Facility (optional) -->
+                    <!-- New Facility -->
                     <div class="new-facility-box">
                         <p class="stat-label-simple">
                             Or register new facility (optional)
                         </p>
-
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-                            <input
-                                type="text"
-                                name="new_company"
-                                placeholder="New Lab Name"
-                                class="form-control"
-                                style="font-size: 0.9rem;"
-                            >
-                            <input
-                                type="text"
-                                name="new_company_industry"
-                                placeholder="Focus Area"
-                                class="form-control"
-                                style="font-size: 0.9rem;"
-                            >
+                            <input type="text" name="new_company"
+                                   placeholder="New Lab Name"
+                                   class="form-control" style="font-size: 0.9rem;">
+                            <input type="text" name="new_company_industry"
+                                   placeholder="Focus Area"
+                                   class="form-control" style="font-size: 0.9rem;">
                         </div>
                     </div>
 
@@ -139,7 +108,10 @@
             <div class="upload-drop-area">
                 
                 <div style="text-align: center; margin-bottom: 1.5rem;">
-                    <div style="width: 4rem; height: 4rem; background-color: white; border-radius: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1rem auto; color: var(--accent);">
+                    <div style="width: 4rem; height: 4rem; background-color: white;
+                                border-radius: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                                display: flex; align-items: center; justify-content: center;
+                                font-size: 2rem; margin: 0 auto 1rem auto; color: var(--accent);">
                         📄
                     </div>
                     <h3>Upload PDF</h3>
@@ -148,34 +120,30 @@
                     </p>
                 </div>
 
-                <!-- File Dropzone -->
                 <div id="dropzone" class="dropzone">
-                    <input
-                        type="file"
-                        id="file-input"
-                        name="file"
-                        accept="application/pdf"
-                        required
-                        class="dropzone-input"
-                        onchange="updateFileName(this)"
-                    >
+                    <input type="file"
+                           id="file-input"
+                           name="file"
+                           accept="application/pdf"
+                           required
+                           class="dropzone-input"
+                           onchange="updateFileName(this)">
                     
                     <div style="text-align: center; pointer-events: none; padding: 1rem;">
                         <p id="file-label-main" style="font-weight: 700;">
                             Drag & Drop or Click
                         </p>
-                        <p id="file-label-sub" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
+                        <p id="file-label-sub"
+                           style="font-size: 0.8rem; color: var(--text-muted);
+                                  margin-top: 0.5rem;">
                             .PDF files only
                         </p>
                     </div>
                 </div>
 
-                <!-- Submit Button -->
-                <button
-                    type="submit"
-                    class="btn btn-primary btn-lg btn-shimmer"
-                    style="width: 100%; margin-top: 2rem; padding: 1rem;"
-                >
+                <button type="submit"
+                        class="btn btn-primary btn-lg btn-shimmer"
+                        style="width: 100%; margin-top: 2rem; padding: 1rem;">
                     🚀 Analyze & Submit
                 </button>
 
@@ -190,16 +158,19 @@
     <div class="loader-circle-container">
         <div class="loader-ring"></div>
         <div class="loader-ring-spin"></div>
-        <div style="position: absolute; inset: 1rem; background-color: rgba(59, 191, 181, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+        <div style="position: absolute; inset: 1rem;
+                    background-color: rgba(59,191,181,0.1);
+                    border-radius: 50%; display: flex;
+                    align-items: center; justify-content: center;">
             <span style="font-size: 2.5rem;">🤖</span>
         </div>
     </div>
-
     <h2>Analyzing Paper...</h2>
     <p id="loading-text">Connecting to AI Neural Network...</p>
 </div>
 
 <script>
+/* DOMAIN OTHER TOGGLE */
 document.addEventListener('DOMContentLoaded', function () {
     const domainSelect = document.getElementById('researchDomainSelect');
     const customGroup = document.getElementById('customDomainGroup');
@@ -210,6 +181,40 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+/* FILE NAME PREVIEW */
+function updateFileName(input) {
+    if (input.files && input.files.length > 0) {
+        document.getElementById('file-label-main').textContent = input.files[0].name;
+        document.getElementById('file-label-sub').textContent = "Ready to upload";
+    }
+}
+
+/* AI LOADER */
+function showLoader() {
+    const loader = document.getElementById('ai-loader');
+    if (!loader) return;
+
+    loader.classList.add('flex');
+
+    const texts = [
+        "Parsing abstract and metadata...",
+        "Categorizing research domain...",
+        "Analyzing paper content...",
+        "Calculating business potential...",
+        "Evaluating academic rigor...",
+        "Finalizing scores..."
+    ];
+
+    let i = 0;
+    const textEl = document.getElementById('loading-text');
+
+    setInterval(() => {
+        if (i < texts.length) {
+            textEl.innerText = texts[i++];
+        }
+    }, 1200);
+}
 </script>
 
 {% endblock %}

@@ -108,6 +108,9 @@ def about():
 # ---------------------------------------------------
 # DASHBOARD HELPERS
 # ---------------------------------------------------
+# NOTE: Personalization scoring helpers (reserved for future work).
+# Not used in current MVP dashboard rendering, kept for planned improvements.
+
 def get_user_domain_preferences(user: User):
     """Return normalized preference scores per domain for this user."""
     counts = Counter()
@@ -229,8 +232,12 @@ def get_dashboard_data(args, sess):
         )
     elif sort == "ai_score":
         query = query.order_by(
-            (Paper.ai_business_score + Paper.ai_academic_score).desc()
-        )
+        (
+            func.coalesce(Paper.ai_business_score, 0)
+            + func.coalesce(Paper.ai_academic_score, 0)
+        ).desc()
+    )
+
     else:
         # newest
         query = query.order_by(Paper.upload_date.desc())
@@ -260,11 +267,17 @@ def get_dashboard_data(args, sess):
 
     # TOP 5 AI PAPERS
     top5 = (
-        Paper.query.filter(Paper.ai_status == "done")
-        .order_by((Paper.ai_business_score + Paper.ai_academic_score).desc())
-        .limit(5)
-        .all()
+    Paper.query.filter(Paper.ai_status == "done")
+    .order_by(
+        (
+            func.coalesce(Paper.ai_business_score, 0)
+            + func.coalesce(Paper.ai_academic_score, 0)
+        ).desc()
     )
+    .limit(5)
+    .all()
+)
+
 
     # INTERESTED LIST
     interested_ids = set()
@@ -297,6 +310,9 @@ def get_dashboard_data(args, sess):
         "interested_ids": interested_ids,
         "top5": top5,
         "active_filters": active_filters,
+        "offline": False,
+        "offline_error": None,
+
     }
 
 
@@ -336,10 +352,7 @@ def download_paper(paper_id):
 # ---------------------------------------------------
 # UPLOAD PAPER HELPERS (AANGEPAST VOOR SUPABASE)
 # ---------------------------------------------------
-def get_upload_paper_context():
-    companies = Company.query.order_by(Company.name).all()
-    domains = ["AI", "Robotics", "Biotech", "Software"]
-    return {"companies": companies, "domains": domains, "title": "Upload Paper"}
+
 
 
 def process_paper_upload(user_id: int):
@@ -488,8 +501,7 @@ def upload_paper():
     if request.method == "POST":
         return process_paper_upload(session["user_id"])
 
-    context = get_upload_paper_context()
-    return render_template("upload_paper.html", **context)
+    
 
 
 # ---------------------------------------------------
