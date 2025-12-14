@@ -244,7 +244,7 @@
 
         {% set interest_count = (p.companies | selectattr('relation_type', 'equalto', 'interest') | list | length) %}
         {% if interest_count > 0 %}
-           <span class="company-tag interest">⭐ {{ interest_count }} interested</span>
+          <span class="company-tag interest">⭐ {{ interest_count }} interested</span>
         {% endif %}
       </div>
 

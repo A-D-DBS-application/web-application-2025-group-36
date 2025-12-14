@@ -13,12 +13,13 @@ RESEARCH_DOMAINS = [
     ('Other', 'Other')
 ]
 USER_ROLES = [
-    ( 'Researcher'),
-    ( 'Reviewer'),
-    ('Company'),
-    ('System/Admin'),
-    ('Founder')
+    ('Researcher', 'Researcher'),
+    ('Reviewer', 'Reviewer'),
+    ('Company', 'Company'),
+    ('System/Admin', 'System/Admin'),
+    ('Founder', 'Founder')
 ]
+ADMIN_ACCESS_PASSWORD = "reviewr"
 PUBLIC_REGISTER_ROLES = [
     "Researcher",
     "Reviewer",

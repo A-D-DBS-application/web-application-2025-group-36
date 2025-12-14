@@ -1,33 +1,37 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="auth-container">
-  <div class="auth-card">
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="auth-card">
 
-    <h2 class="auth-title">
-      Login
-    </h2>
+        <h2 class="auth-title">
+          Login
+        </h2>
 
-    <form method="post">
+        <form method="post">
 
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <input type="email" name="email" required class="form-control">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" required class="form-control">
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">
+            Login
+          </button>
+
+        </form>
+
+        <div class="auth-footer">
+          No account yet?
+          <a href="{{ url_for('main.register') }}" class="auth-link">
+            Create one
+          </a>
+        </div>
+
       </div>
-
-      <button type="submit" class="btn btn-primary btn-full">
-        Login
-      </button>
-
-    </form>
-
-    <div class="auth-footer">
-      No account yet?
-      <a href="{{ url_for('main.register') }}" class="auth-link">
-        Create one
-      </a>
     </div>
-
   </div>
 </div>
 
