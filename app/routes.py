@@ -802,6 +802,17 @@ def change_role():
             flash("Only the designated founder email can have this role.", "error")
             return redirect(url_for("main.change_role"))
 
+        # ✅ FIX: als je naar Company switcht, zorg dat er een Company-profiel bestaat
+        if new_role == "Company":
+            existing_company = Company.query.filter_by(name=user.name).first()
+            if not existing_company:
+                db.session.add(
+                    Company(
+                        name=user.name,
+                        industry=None
+                    )
+                )
+
         user.role = new_role
         db.session.commit()
 
@@ -818,7 +829,6 @@ def change_role():
         roles=role_values,
         user=user
     )
-
 
 
 # ---------------------------------------------------
@@ -1104,20 +1114,35 @@ def handle_edit_profile_post(user: User):
     new_name = (request.form.get("name") or "").strip()
     new_email = (request.form.get("email") or "").strip()
 
+    old_name = user.name
+
+    # Update user fields
     user.name = new_name or user.name
     user.email = new_email or user.email
 
     if user.role == "Company" and company:
+        # ✅ Sync Company.name if user name changes
+        if new_name and new_name != old_name:
+            conflict = Company.query.filter_by(name=new_name).first()
+            if conflict and conflict.company_id != company.company_id:
+                flash("This company name is already taken.", "error")
+                return redirect(url_for("main.edit_profile"))
+
+            company.name = new_name
+
+        # Update interests
         selected_interests = request.form.getlist("interests")
         company.interests = ",".join(selected_interests) if selected_interests else None
 
     db.session.commit()
 
+    # Update session
     session["user_name"] = user.name
     session["user_email"] = user.email
 
     flash("Profile updated successfully!", "success")
     return redirect(url_for("main.profile"))
+
 
 
 # ---------------------------------------------------
