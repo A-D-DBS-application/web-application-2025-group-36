@@ -28,19 +28,24 @@
         </div>
     </div>
 
+    <!-- STATS -->
     <div class="dashboard-stats-grid">
         <div class="stat-box">
             <div class="stat-box-label">Papers</div>
             <div class="stat-box-value">{{ papers|length }}</div>
         </div>
+
         <div class="stat-box">
             <div class="stat-box-label">Domains</div>
             <div class="stat-box-value">{{ domains|length }}</div>
         </div>
+
+        <!-- ✅ RENAMED: Companies (was Facilities) -->
         <div class="stat-box">
-            <div class="stat-box-label">Facilities</div>
+            <div class="stat-box-label">Companies</div>
             <div class="stat-box-value">{{ companies|length }}</div>
         </div>
+
         <div class="stat-box active-filters">
             <div class="stat-box-label">Active Filters</div>
             <div class="stat-box-value">{{ active_filters }}</div>
@@ -138,7 +143,7 @@
 </div>
 
 <style>
-/* INTERESTED BUTTON STYLING */
+/* INTERESTED BUTTON */
 .interested-btn {
     font-weight: 700;
     background: linear-gradient(135deg, #3bbfb5, #2fa59c);
@@ -170,6 +175,8 @@
 </style>
 
 {% endblock %}
+
+
 
 
 
