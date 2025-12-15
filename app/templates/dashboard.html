@@ -25,7 +25,6 @@
         </div>
     </div>
 
-    <!-- STATS -->
     <div class="dashboard-stats-grid">
         <div class="stat-box">
             <div class="stat-box-label">Papers</div>
@@ -37,7 +36,6 @@
             <div class="stat-box-value">{{ domains|length }}</div>
         </div>
 
-        <!-- ✅ RENAMED: Companies (was Facilities) -->
         <div class="stat-box">
             <div class="stat-box-label">Companies</div>
             <div class="stat-box-value">{{ companies|length }}</div>
@@ -66,7 +64,6 @@
     <div style="display: flex; flex-direction: column;">
         {% for p in top5 %}
         <div class="top-paper-card">
-            
             <div class="rank-circle rank-{{ loop.index }}">
                 #{{ loop.index }}
             </div>
@@ -88,7 +85,6 @@
                     <span class="score-box-value" style="font-size: 1rem;">{{ p.ai_academic_score }}</span>
                 </div>
             </div>
-
         </div>
         {% endfor %}
     </div>
@@ -96,7 +92,6 @@
 {% endif %}
 
 <form method="get" class="filter-bar">
-    
     <div class="filter-group filter-group-search">
         <label class="form-label">Search</label>
         <input type="text" name="q" placeholder="Keywords, title..." value="{{ query }}" class="form-control">
@@ -113,9 +108,9 @@
     </div>
 
     <div class="filter-group">
-        <label class="form-label">Facility</label>
+        <label class="form-label">Company</label>
         <select name="company" class="form-control">
-            <option value="" {% if not selected_company %}selected{% endif %}>All facilities</option>
+            <option value="" {% if not selected_company %}selected{% endif %}>All companies</option>
             {% for company in companies %}
             <option value="{{ company.name }}" {% if selected_company == company.name %}selected{% endif %}>{{ company.name }}</option>
             {% endfor %}
@@ -141,7 +136,6 @@
         <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary" title="Reset Filters">↺</a>
         <button type="submit" class="btn btn-primary" {% if offline %}disabled{% endif %}>Apply</button>
     </div>
-
 </form>
 
 <div class="features-grid" style="margin-top: 2rem;">
@@ -150,14 +144,12 @@
   {% set stats = score_map.get(p.paper_id) %}
 
   <article class="paper-grid-card">
-    
     <div class="paper-meta-header">
         <span class="meta-date">{{ p.upload_date.strftime('%b %d, %Y') if p.upload_date else 'Unknown' }}</span>
         <span class="meta-domain">{{ p.research_domain }}</span>
     </div>
 
     <div class="paper-card-body flex-grow">
-      
       <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">
         <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id) }}">{{ p.title }}</a>
       </h3>
@@ -173,23 +165,17 @@
       </div>
       {% endif %}
 
-        <p class="paper-abstract">
+      <p class="paper-abstract">
         {{ p.abstract or 'No abstract available.' }}
-            </p>
+      </p>
 
       <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: auto; margin-bottom: 1rem;">
-        {% for link in p.companies if link.relation_type == 'facility' %}
-           <span class="company-tag">🏥 {{ link.company.name }}</span>
+        {% for link in p.companies %}
+           <span class="company-tag">🏢 {{ link.company.name }}</span>
         {% endfor %}
-
-        {% set interest_count = (p.companies | selectattr('relation_type', 'equalto', 'interest') | list | length) %}
-        {% if interest_count > 0 %}
-           <span class="company-tag interest">⭐ {{ interest_count }} interested</span>
-        {% endif %}
       </div>
 
       <div class="card-footer">
-        
         <div class="review-stat-small">
             <div class="review-score-circle">
                 {{ stats.avg if stats and stats.avg else '-' }}
@@ -214,9 +200,7 @@
                </a>
             {% endif %}
         </div>
-
       </div>
-
     </div>
   </article>
   {% else %}
@@ -229,7 +213,6 @@
 </div>
 
 <style>
-/* INTERESTED BUTTON STYLING */
 .interested-btn {
     font-weight: 700;
     background: linear-gradient(135deg, #3bbfb5, #2fa59c);
@@ -240,19 +223,15 @@
     transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
     box-shadow: 0 4px 10px rgba(59, 191, 181, 0.35);
 }
-
 .interested-btn:hover {
     transform: translateY(-1px);
     box-shadow: 0 6px 16px rgba(59, 191, 181, 0.45);
     opacity: 0.95;
 }
-
 .interested-btn.active {
     background: linear-gradient(135deg, #256f68, #1f5e57);
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
 }
-
-/* REVIEW BUTTON */
 .review-btn {
     background-color: var(--text-main);
     color: white;
@@ -261,6 +240,3 @@
 </style>
 
 {% endblock %}
-
-
-

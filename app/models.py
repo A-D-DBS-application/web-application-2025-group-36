@@ -132,7 +132,6 @@ class PaperCompany(db.Model):
         primary_key=True
     )
 
-    relation_type = db.Column(db.String(20), nullable=False, default="facility")
 
     paper = db.relationship('Paper', back_populates='companies')
     company = db.relationship('Company', back_populates='papers')
@@ -174,3 +173,21 @@ class Complaint(db.Model):
 
     def __repr__(self):
         return f"<Complaint Paper={self.paper_id}, Category={self.category}>"
+    
+class CompanyInterest(db.Model):
+    __tablename__ = "CompanyInterest"
+
+    company_id = db.Column(
+        db.Integer,
+        db.ForeignKey("Company.company_id", ondelete="CASCADE"),
+        primary_key=True
+    )
+    paper_id = db.Column(
+        db.Integer,
+        db.ForeignKey("Paper.paper_id", ondelete="CASCADE"),
+        primary_key=True
+    )
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    company = db.relationship("Company", backref="interested_papers")
+    paper = db.relationship("Paper", backref="interested_companies")

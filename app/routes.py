@@ -24,7 +24,7 @@ from sqlalchemy.orm import joinedload
 from werkzeug.utils import secure_filename
 from pypdf import PdfReader # Zorg dat je pypdf geinstalleerd hebt
 
-from .models import db, User, Company, Paper, Review, PaperCompany, Complaint
+from .models import db, User, Company, Paper, Review, PaperCompany, Complaint, CompanyInterest
 # We gebruiken analyze_paper_text nog steeds, maar extract_text_from_pdf doen we nu inline
 from app.services.ai_analysis import analyze_paper_text
 # Import alleen HIER in routes
@@ -213,7 +213,6 @@ def get_dashboard_data(args, sess):
             query.join(PaperCompany, PaperCompany.paper_id == Paper.paper_id)
             .join(Company, Company.company_id == PaperCompany.company_id)
             .filter(
-                PaperCompany.relation_type == "facility",
                 Company.name == selected_company,
             )
         )
@@ -295,11 +294,13 @@ def get_dashboard_data(args, sess):
     if sess.get("user_role") == "Company":
         user = User.query.get(sess["user_id"])
         company = Company.query.filter_by(name=user.name).first()
+
         if company:
-            links = PaperCompany.query.filter_by(
-                company_id=company.company_id, relation_type="interest"
-            ).all()
+            links = CompanyInterest.query.filter_by(
+                company_id=company.company_id
+         ).all()
             interested_ids = {l.paper_id for l in links}
+
 
     # FILTER POPULATION
     domain_filters = sorted(
@@ -874,15 +875,13 @@ def handle_update_paper_post(paper: Paper):
 
     if company_obj:
         PaperCompany.query.filter_by(
-            paper_id=paper.paper_id,
-            relation_type="facility",
+            paper_id=paper.paper_id
         ).delete()
 
         db.session.add(
             PaperCompany(
                 paper_id=paper.paper_id,
                 company_id=company_obj.company_id,
-                relation_type="facility",
             )
         )
 
@@ -899,6 +898,7 @@ def handle_update_paper_post(paper: Paper):
 def update_paper(paper_id):
     paper = Paper.query.get_or_404(paper_id)
 
+    # Access control
     if session.get("user_id") != paper.user_id and session.get("user_role") not in [
         "System/Admin",
         "Founder",
@@ -906,19 +906,23 @@ def update_paper(paper_id):
         flash("Access denied.", "error")
         return redirect(url_for("main.dashboard"))
 
-    facility_link = PaperCompany.query.filter_by(
-        paper_id=paper.paper_id, relation_type="facility"
+    # Get current company link (NO relation_type)
+    current_company_link = PaperCompany.query.filter_by(
+        paper_id=paper.paper_id
     ).first()
 
-    current_facility = (
-        Company.query.get(facility_link.company_id) if facility_link else None
+    current_company = (
+        Company.query.get(current_company_link.company_id)
+        if current_company_link
+        else None
     )
 
     if request.method == "POST":
         return handle_update_paper_post(paper)
 
-    context = build_update_paper_context(paper, current_facility)
+    context = build_update_paper_context(paper, current_company)
     return render_template("update_paper.html", **context)
+
 
 
 # ---------------------------------------------------
@@ -1014,15 +1018,14 @@ def get_profile_data(user_id: int):
     if user.role == "Company":
         company = Company.query.filter_by(name=user.name).first()
         if company:
-            links = (
-                PaperCompany.query.filter_by(
-                    company_id=company.company_id, relation_type="interest"
-                )
-                .join(Paper, Paper.paper_id == PaperCompany.paper_id)
-                .options(joinedload(PaperCompany.paper).joinedload(Paper.author))
+            interested_papers = (
+                Paper.query
+                .join(CompanyInterest, CompanyInterest.paper_id == Paper.paper_id)
+                .filter(CompanyInterest.company_id == company.company_id)
+                .order_by(Paper.upload_date.desc())
                 .all()
-            )
-            interested_papers = [link.paper for link in links]
+        )
+        
 
             if company.interests:
                 tags = [t.strip() for t in company.interests.split(",") if t.strip()]
@@ -1186,37 +1189,35 @@ def stats():
 def toggle_interest(paper_id):
     if session.get("user_role") != "Company":
         flash("Only company users can mark interest.", "error")
-        return redirect(url_for("main.login"))
+        return redirect(url_for("main.dashboard"))
 
     user = User.query.get(session["user_id"])
-
     company = Company.query.filter_by(name=user.name).first()
     if not company:
         flash(
-            "Your account is not linked to a company (no Company with this name found).",
-            "error",
-        )
-        return redirect(url_for("main.dashboard"))
+        "Your account is not linked to a company profile. Please contact an administrator, or make an account as a company.",
+        "error"
+    )
+    return redirect(request.referrer or url_for("main.dashboard"))
 
     paper = Paper.query.get_or_404(paper_id)
 
-    interest_link = PaperCompany.query.filter_by(
-        paper_id=paper.paper_id,
+    link = CompanyInterest.query.filter_by(
         company_id=company.company_id,
-        relation_type="interest",
+        paper_id=paper.paper_id
     ).first()
 
-    if interest_link:
-        db.session.delete(interest_link)
-        flash("Paper removed from your company's interest list.", "success")
+    if link:
+        db.session.delete(link)
+        flash("Interest removed.", "success")
     else:
-        new_interest = PaperCompany(
-            paper_id=paper.paper_id,
-            company_id=company.company_id,
-            relation_type="interest",
+        db.session.add(
+            CompanyInterest(
+                company_id=company.company_id,
+                paper_id=paper.paper_id
+            )
         )
-        db.session.add(new_interest)
-        flash("Paper marked as interesting for your company.", "success")
+        flash("Paper marked as interesting.", "success")
 
     db.session.commit()
     return redirect(request.referrer or url_for("main.dashboard"))

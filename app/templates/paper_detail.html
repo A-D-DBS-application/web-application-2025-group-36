@@ -8,8 +8,8 @@
     <div class="paper-tags">
         <span class="tag tag-accent">Research Paper</span>
         <span class="tag tag-dashed">{{ paper.research_domain }}</span>
-        {% for link in paper.companies if link.relation_type == 'facility' %}
-            <span class="tag tag-gray">🏥 {{ link.company.name }}</span>
+        {% for link in paper.companies %}
+            <span class="tag tag-gray">🏢 {{ link.company.name }}</span>
         {% endfor %}
     </div>
 
@@ -139,12 +139,12 @@
 
     <!-- RIGHT COLUMN -->
     <div>
-            <!-- CTA TO REPORT -->
-            <div class="review-report-cta">
-                <a href="#report-block" class="btn btn-secondary btn-sm">
-                    🚩 Report this paper
-                </a>
-            </div>        
+        <div class="review-report-cta">
+            <a href="#report-block" class="btn btn-secondary btn-sm">
+                🚩 Report this paper
+            </a>
+        </div>        
+
         <div class="sidebar-card">
             <h3 class="sidebar-title">Review</h3>
 
@@ -233,7 +233,6 @@
           action="{{ url_for('main.submit_complaint', paper_id=paper.paper_id) }}"
           class="report-form">
 
-        <!-- CATEGORY -->
         <div class="form-group">
             <label class="form-label">Complaint category *</label>
             <select name="complaint_category" class="form-control" required>
@@ -247,7 +246,6 @@
             </select>
         </div>
 
-        <!-- DESCRIPTION -->
         <div class="form-group">
             <label class="form-label">Description *</label>
             <textarea name="complaint_description"
@@ -257,9 +255,7 @@
                       required></textarea>
         </div>
 
-        <!-- OPTIONAL REPORTER INFO -->
         <div class="form-grid">
-
             <div class="form-group">
                 <label class="form-label">Your name (optional)</label>
                 <input type="text"
@@ -275,10 +271,8 @@
                        class="form-control"
                        placeholder="you@example.com">
             </div>
-
         </div>
 
-        <!-- SUBMIT -->
         <button type="submit"
                 class="btn btn-danger"
                 onclick="return confirm('Are you sure you want to submit this report?');">
@@ -287,6 +281,5 @@
 
     </form>
 </div>
-
 
 {% endblock %}
