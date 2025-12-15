@@ -120,10 +120,10 @@ https://lovable.dev/projects/4b212f05-6181-4bad-b4f4-01cc5bc567d5
 ## 8. Setup – AI Analysis Configuration
 
 To enable AI analysis locally, create a `.flaskenv` file with the following content:
-> FLASK_APP=run.py
-> FLASK_ENV=development
-> GEMINI_API_KEY=AIxxxx --> Key you made yourself.
-> DATABASE_URL=postgresql://postgres.ebokqkhwotfewvpsfemj:3R9TrLYvLG7lIx7Y@aws-1-eu-west-1.pooler.supabase.com:6543/postgres
+- FLASK_APP=run.py
+- FLASK_ENV=development
+- GEMINI_API_KEY=AIxxxx --> Key you made yourself.
+- DATABASE_URL=postgresql://postgres.ebokqkhwotfewvpsfemj:3R9TrLYvLG7lIx7Y@aws-1-eu-west-1.pooler.supabase.com:6543/postgres
 
 Create a Gemini API key here:  
 https://aistudio.google.com/api-keys
