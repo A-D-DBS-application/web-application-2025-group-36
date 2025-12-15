@@ -19,15 +19,18 @@
         {{ paper.abstract }}
     </p>
 
-    <div class="paper-actions">
+    <!-- ACTION BAR -->
+    <div class="paper-actions" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+
         <a href="{{ pdf_url }}" target="_blank" class="btn btn-primary">
-            ⬇ Download PDF
+            Download PDF
         </a>
 
         <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">
             ← Back to archive
         </a>
 
+        <!-- ⭐ INTERESTED BUTTON (COMPANY ONLY) -->
         {% if session.get("user_role") == "Company" %}
         <form method="post"
               action="{{ url_for('main.toggle_interest', paper_id=paper.paper_id) }}"
@@ -40,7 +43,7 @@
         {% endif %}
 
         {% if session.get("user_id") == paper.user_id or session.get("user_role") in ["System/Admin", "Founder"] %}
-        <div class="admin-actions">
+        <div style="margin-left: auto; display: flex; gap: 0.5rem;">
             <a href="{{ url_for('main.update_paper', paper_id=paper.paper_id) }}"
                class="btn btn-warning">
                 Edit
@@ -85,9 +88,9 @@
             <div class="meta-box">
                 <div class="meta-label">AI Status</div>
                 <div class="meta-value">
-                    {% if paper.ai_status == "done" %}✅ Completed
-                    {% elif paper.ai_status == "pending" %}⏳ Pending
-                    {% elif paper.ai_status == "failed" %}❌ Failed
+                    {% if paper.ai_status == "done" %}Completed
+                    {% elif paper.ai_status == "pending" %}Pending
+                    {% elif paper.ai_status == "failed" %}Failed
                     {% else %}—{% endif %}
                 </div>
             </div>
@@ -149,7 +152,7 @@
             <h3 class="sidebar-title">Review</h3>
 
             {% if can_review %}
-            <form method="post" class="form-stack">
+            <form method="post" style="display: flex; flex-direction: column; gap: 1rem;">
                 <select name="score" class="form-control">
                     <option value="">-- Select score --</option>
                     <option value="2">0 – 3 (Poor)</option>
@@ -179,114 +182,45 @@
 <!-- ================= REVIEWS ================= -->
 <hr class="divider">
 
-<div class="reviews-section">
-    <h3 class="reviews-title">Reviews</h3>
+<h3 class="mb-3">Reviews</h3>
 
-    {% if reviews_sorted %}
-    <div class="reviews-grid">
-        {% for r in reviews_sorted %}
-        <div class="review-card">
-            <div class="review-top">
-                <div class="review-author">
-                    <div class="review-avatar">
-                        {{ r.reviewer.name[0] if r.reviewer else "?" }}
-                    </div>
-                    <div>
-                        <div class="review-name">
-                            {{ r.reviewer.name if r.reviewer else "Anonymous" }}
-                        </div>
-                        {% if r.company %}
-                        <div class="review-meta">
-                            {{ r.company.name }}
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-                {% if r.score %}
-                <span class="tag tag-accent">{{ r.score }}</span>
-                {% endif %}
-            </div>
-
-            <div class="review-body">
-                {{ r.comments or "No comment provided." }}
-            </div>
+{% if reviews_sorted %}
+<div class="list-group">
+    {% for r in reviews_sorted %}
+    <div class="list-group-item">
+        <strong>{{ r.reviewer.name if r.reviewer else "Anonymous" }}</strong>
+        {% if r.company %}
+            <span class="text-muted"> — {{ r.company.name }}</span>
+        {% endif %}
+        <div class="mt-2">
+            {% if r.score %}
+                <span class="badge bg-primary">Score: {{ r.score }}</span>
+            {% endif %}
+            <p class="mt-2 mb-0">{{ r.comments }}</p>
         </div>
-        {% endfor %}
     </div>
-    {% else %}
-    <div class="reviews-empty">
-        <p class="reviews-empty-text">No reviews yet.</p>
-    </div>
-    {% endif %}
+    {% endfor %}
 </div>
+{% else %}
+<p class="text-muted">No reviews yet.</p>
+{% endif %}
 
-<!-- REPORT BLOCK -->
-<div id="report-block" class="report-section">
+<style>
+/* INTERESTED BUTTON */
+.interested-btn {
+    font-weight: 700;
+    background: linear-gradient(135deg, #3bbfb5, #2fa59c);
+    color: white;
+    border: none;
+    padding: 0.5rem 0.9rem;
+    border-radius: 0.6rem;
+    box-shadow: 0 4px 12px rgba(59,191,181,0.4);
+}
 
-    <h3>🚩 Report this paper</h3>
-    <p class="report-hint">
-        Use this form to report inappropriate, misleading, or problematic content.
-        Our team will review your report confidentially.
-    </p>
-
-    <form method="post"
-          action="{{ url_for('main.submit_complaint', paper_id=paper.paper_id) }}"
-          class="report-form">
-
-        <!-- CATEGORY -->
-        <div class="form-group">
-            <label class="form-label">Complaint category *</label>
-            <select name="complaint_category" class="form-control" required>
-                <option value="">-- Select a category --</option>
-                <option value="Ethical issue">Ethical issue</option>
-                <option value="Plagiarism">Plagiarism</option>
-                <option value="False or misleading data">False or misleading data</option>
-                <option value="Conflict of interest">Conflict of interest</option>
-                <option value="Inappropriate content">Inappropriate content</option>
-                <option value="Other">Other</option>
-            </select>
-        </div>
-
-        <!-- DESCRIPTION -->
-        <div class="form-group">
-            <label class="form-label">Description *</label>
-            <textarea name="complaint_description"
-                      rows="4"
-                      class="form-control"
-                      placeholder="Describe the issue in detail..."
-                      required></textarea>
-        </div>
-
-        <!-- OPTIONAL REPORTER INFO -->
-        <div class="form-grid">
-
-            <div class="form-group">
-                <label class="form-label">Your name (optional)</label>
-                <input type="text"
-                       name="reporter_name"
-                       class="form-control"
-                       placeholder="Your name">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Your email (optional)</label>
-                <input type="email"
-                       name="reporter_email"
-                       class="form-control"
-                       placeholder="you@example.com">
-            </div>
-
-        </div>
-
-        <!-- SUBMIT -->
-        <button type="submit"
-                class="btn btn-danger"
-                onclick="return confirm('Are you sure you want to submit this report?');">
-            🚩 Submit report
-        </button>
-
-    </form>
-</div>
-
+.interested-btn.active {
+    background: linear-gradient(135deg, #256f68, #1f5e57);
+}
+</style>
 
 {% endblock %}
+

@@ -25,19 +25,24 @@
         </div>
     </div>
 
+    <!-- STATS -->
     <div class="dashboard-stats-grid">
         <div class="stat-box">
             <div class="stat-box-label">Papers</div>
             <div class="stat-box-value">{{ papers|length }}</div>
         </div>
+
         <div class="stat-box">
             <div class="stat-box-label">Domains</div>
             <div class="stat-box-value">{{ domains|length }}</div>
         </div>
+
+        <!-- ✅ RENAMED: Companies (was Facilities) -->
         <div class="stat-box">
-            <div class="stat-box-label">Facilities</div>
+            <div class="stat-box-label">Companies</div>
             <div class="stat-box-value">{{ companies|length }}</div>
         </div>
+
         <div class="stat-box active-filters">
             <div class="stat-box-label">Active Filters</div>
             <div class="stat-box-value">{{ active_filters }}</div>
@@ -223,4 +228,39 @@
   {% endfor %}
 </div>
 
+<style>
+/* INTERESTED BUTTON STYLING */
+.interested-btn {
+    font-weight: 700;
+    background: linear-gradient(135deg, #3bbfb5, #2fa59c);
+    color: white;
+    border: none;
+    padding: 0.4rem 0.75rem;
+    border-radius: 0.6rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    box-shadow: 0 4px 10px rgba(59, 191, 181, 0.35);
+}
+
+.interested-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(59, 191, 181, 0.45);
+    opacity: 0.95;
+}
+
+.interested-btn.active {
+    background: linear-gradient(135deg, #256f68, #1f5e57);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
+}
+
+/* REVIEW BUTTON */
+.review-btn {
+    background-color: var(--text-main);
+    color: white;
+    font-weight: 600;
+}
+</style>
+
 {% endblock %}
+
+
+
