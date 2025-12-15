@@ -13,7 +13,7 @@ REVIEWR is a web platform that connects **academic research** with **reviewers a
 external organizations**.
 
 The database supports:
-- User management (authors and reviewers)
+- User management (researchers, users & companies)
 - Storage of academic papers and metadata
 - Linking papers to companies
 - Structured reviews
