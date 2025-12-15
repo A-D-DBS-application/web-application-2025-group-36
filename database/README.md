@@ -1,93 +1,168 @@
-# REVIEWR Database Documentation
+# REVIEWR – Database Documentation
 
-This document describes the structure and relationships of the database for the REVIEWR web application.
+This document describes the **database structure, entities, and relationships** of the
+REVIEWR web application.  
+The database is designed to support the core MVP functionality while remaining
+**normalized, scalable, and extensible**.
 
 ---
 
-## Overview
+## 1. Overview
 
-REVIEWR is a platform connecting academic research with companies.  
+REVIEWR is a web platform that connects **academic research** with **reviewers and
+external organizations**.
+
 The database supports:
+- User management (authors and reviewers)
+- Storage of academic papers and metadata
+- Linking papers to companies
+- Structured reviews
+- Complaint and moderation tracking
+- AI-assisted analysis results
 
-- User management (writers and reviewers)  
-- Storage of papers and metadata  
-- Linking papers to companies  
-- Reviews by users  
-- Complaint tracking
-
-The database runs on **PostgreSQL** (Supabase-managed).
-
----
-
-## Tables and Columns
-
-### 1. users
-- **user_id** (SERIAL, PRIMARY KEY) – Unique ID for each user  
-- **name** (VARCHAR, NOT NULL) – Name of the user  
-- **email** (VARCHAR, UNIQUE, NOT NULL) – Email of the user  
-- **role** (VARCHAR, NOT NULL, CHECK in ['writer','reviewer']) – Role of the user  
-
-### 2. company
-- **company_id** (SERIAL, PRIMARY KEY) – Unique ID for each company  
-- **name** (VARCHAR, NOT NULL) – Company name  
-- **industry** (VARCHAR) – Industry or sector  
-
-### 3. paper
-- **paper_id** (SERIAL, PRIMARY KEY) – Unique ID for each paper  
-- **user_id** (INT, FOREIGN KEY → users.user_id) – Author of the paper  
-- **title** (VARCHAR, NOT NULL) – Paper title  
-- **abstract** (TEXT) – Paper abstract  
-- **upload_date** (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP) – Upload date  
-- **file_path** (VARCHAR, NOT NULL) – File path of the uploaded paper  
-- **research_domain** (VARCHAR, NOT NULL) – Research domain  
-- **ai_business_score** (INT) – AI-generated business relevance score  
-- **ai_academic_score** (INT) – AI-generated academic score  
-- **ai_summary** (TEXT) – AI-generated summary  
-- **ai_strengths** (TEXT) – AI-detected strengths  
-- **ai_weaknesses** (TEXT) – AI-detected weaknesses  
-- **ai_status** (VARCHAR) – AI evaluation status  
-
-### 4. papercompany
-- **paper_id** (INT, FOREIGN KEY → paper.paper_id) – Paper ID  
-- **company_id** (INT, FOREIGN KEY → company.company_id) – Company ID  
-- **relation_type** (VARCHAR, DEFAULT 'related', NOT NULL) – Type of relationship  
-- **PRIMARY KEY** (paper_id, company_id) – Composite primary key  
-
-### 5. review
-- **review_id** (SERIAL, PRIMARY KEY) – Unique review ID  
-- **paper_id** (INT, FOREIGN KEY → paper.paper_id) – Paper being reviewed  
-- **reviewer_id** (INT, FOREIGN KEY → users.user_id) – Reviewer of the paper  
-- **score** (FLOAT) – Review score  
-- **comments** (TEXT) – Review comments  
-- **date_submitted** (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP) – Submission date  
-- **company_id** (INT, FOREIGN KEY → company.company_id) – Optional company associated  
-
-### 6. complaint
-- **complaint_id** (SERIAL, PRIMARY KEY) – Unique complaint ID  
-- **paper_id** (INT, FOREIGN KEY → paper.paper_id) – Paper related to the complaint  
-- **reporter_name** (VARCHAR) – Name of the reporter  
-- **reporter_email** (VARCHAR) – Email of the reporter  
-- **category** (VARCHAR, DEFAULT 'General', NOT NULL) – Complaint category  
-- **description** (TEXT, NOT NULL) – Complaint description  
-- **created_at** (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP) – Date of submission  
-
-### 7. alembic_version
-- **version_num** (VARCHAR, PRIMARY KEY) – Tracks Alembic migration version  
+The database runs on **PostgreSQL**, managed via **Supabase**, and is accessed through
+**SQLAlchemy ORM**.
 
 ---
 
-## Relationships Overview
+## 2. Database Tables
 
-- **users → paper**: A user (writer) can author multiple papers (one-to-many).  
-- **paper → papercompany → company**: A paper can be linked to multiple companies, and a company can be linked to multiple papers (many-to-many).  
-- **users → review → paper**: A user (reviewer) can review multiple papers; a paper can have multiple reviews (many-to-many).  
-- **company → review → paper**: A review can optionally be associated with a company.  
-- **paper → complaint**: A paper can have multiple complaints (one-to-many).  
+### 2.1 `users`
+
+Stores user accounts and roles within the platform.
+
+| Column | Type | Description |
+|------|------|-------------|
+| user_id | SERIAL (PK) | Unique user identifier |
+| name | VARCHAR | User name |
+| email | VARCHAR (UNIQUE) | User email address |
+| role | VARCHAR | User role (`writer`, `reviewer`) |
 
 ---
 
-## Backup & Restore
+### 2.2 `company`
 
-- **Backup:** see `database_backup.sql` in the project.  
-- **Restore:** via Supabase SQL Editor or `psql`:
+Represents external organizations linked to academic papers.
 
+| Column | Type | Description |
+|------|------|-------------|
+| company_id | SERIAL (PK) | Unique company identifier |
+| name | VARCHAR | Company name |
+| industry | VARCHAR | Industry or sector |
+
+---
+
+### 2.3 `paper`
+
+Stores uploaded academic papers and related metadata.
+
+| Column | Type | Description |
+|------|------|-------------|
+| paper_id | SERIAL (PK) | Unique paper identifier |
+| user_id | INT (FK → users.user_id) | Author of the paper |
+| title | VARCHAR | Paper title |
+| abstract | TEXT | Paper abstract |
+| upload_date | TIMESTAMP | Date of upload |
+| file_path | VARCHAR | Storage path of the PDF |
+| research_domain | VARCHAR | Research domain |
+| ai_business_score | INT | AI-generated business relevance score |
+| ai_academic_score | INT | AI-generated academic score |
+| ai_summary | TEXT | AI-generated summary |
+| ai_strengths | TEXT | AI-detected strengths |
+| ai_weaknesses | TEXT | AI-detected weaknesses |
+| ai_status | VARCHAR | AI analysis status |
+
+---
+
+### 2.4 `papercompany`
+
+Association table implementing the **many-to-many relationship** between papers and
+companies.
+
+| Column | Type | Description |
+|------|------|-------------|
+| paper_id | INT (FK → paper.paper_id) | Linked paper |
+| company_id | INT (FK → company.company_id) | Linked company |
+| relation_type | VARCHAR | Nature of the relationship |
+| **PRIMARY KEY** | (paper_id, company_id) | Composite primary key |
+
+---
+
+### 2.5 `review`
+
+Stores structured reviews submitted by reviewers.
+
+| Column | Type | Description |
+|------|------|-------------|
+| review_id | SERIAL (PK) | Unique review identifier |
+| paper_id | INT (FK → paper.paper_id) | Reviewed paper |
+| reviewer_id | INT (FK → users.user_id) | Reviewer |
+| score | FLOAT | Review score |
+| comments | TEXT | Review comments |
+| date_submitted | TIMESTAMP | Submission date |
+| company_id | INT (FK → company.company_id) | Optional company context |
+
+---
+
+### 2.6 `complaint`
+
+Stores complaints related to papers for moderation purposes.
+
+| Column | Type | Description |
+|------|------|-------------|
+| complaint_id | SERIAL (PK) | Unique complaint identifier |
+| paper_id | INT (FK → paper.paper_id) | Related paper |
+| reporter_name | VARCHAR | Name of reporter |
+| reporter_email | VARCHAR | Email of reporter |
+| category | VARCHAR | Complaint category |
+| description | TEXT | Complaint description |
+| created_at | TIMESTAMP | Creation timestamp |
+
+---
+
+### 2.7 `alembic_version`
+
+Tracks database migration versions.
+
+| Column | Type | Description |
+|------|------|-------------|
+| version_num | VARCHAR (PK) | Alembic migration identifier |
+
+---
+
+## 3. Relationships Overview
+
+- **User → Paper**  
+  One user (author) can upload multiple papers (1-to-many)
+
+- **Paper ↔ Company**  
+  Many-to-many relationship implemented via `papercompany`
+
+- **User → Review → Paper**  
+  A reviewer can submit multiple reviews; a paper can receive multiple reviews
+
+- **Company → Review (optional)**  
+  Reviews can optionally be linked to a company context
+
+- **Paper → Complaint**  
+  A paper can have multiple complaints (1-to-many)
+
+---
+
+## 4. Design Considerations
+
+- Fully normalized relational schema
+- Clear separation of concerns
+- Referential integrity enforced via foreign keys
+- Scalable design for future extensions (notifications, moderation, analytics)
+- AI-generated data stored separately from human reviews
+
+---
+
+## 5. Backup & Restore
+
+- **Backup:** `database_backup.sql` included in the repository  
+- **Restore:** via Supabase SQL Editor or `psql`
+
+```bash
+psql -h <host> -U <user> -d <database> -f database_backup.sql
