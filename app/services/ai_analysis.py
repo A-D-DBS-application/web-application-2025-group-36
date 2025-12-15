@@ -31,15 +31,16 @@ def analyze_paper_text(full_text: str):
     # Configure Gemini
     genai.configure(api_key=api_key)
 
-    # This is the CORRECT model for your installed SDK version
     model = genai.GenerativeModel("models/gemini-flash-latest")
 
-    # Prompt for the AI
     prompt = f"""
     You are an expert scientific evaluator.
     Analyze the following research paper text.
 
     Respond ONLY with valid JSON in this exact schema:
+    - No trailing commas
+    - No markdown
+    - No explanations
 
     {{
         "business_score": number,
@@ -54,7 +55,6 @@ def analyze_paper_text(full_text: str):
     """
 
     try:
-        # Generate AI output
         response = model.generate_content(
             prompt,
             generation_config={"temperature": 0.2}
@@ -62,15 +62,32 @@ def analyze_paper_text(full_text: str):
 
         raw = response.text
 
-        # Remove codeblock formatting
+        # --------------------------------
+        # 🔧 HARDENED JSON CLEAN & PARSE
+        # --------------------------------
+
+        # 1️⃣ Remove markdown/code fences
         cleaned = clean_json_output(raw)
 
-        # Try to parse JSON
+        # 2️⃣ Extract FIRST JSON object only
+        match = re.search(r"\{[\s\S]*\}", cleaned)
+        if not match:
+            print("❌ No JSON object found")
+            print("Raw output:", cleaned)
+            return None
+
+        json_text = match.group()
+
+        # 3️⃣ REMOVE ALL TRAILING COMMAS (Gemini-safe)
+        while re.search(r",\s*[}\]]", json_text):
+            json_text = re.sub(r",\s*([}\]])", r"\1", json_text)
+
+        # 4️⃣ Final parse
         try:
-            return json.loads(cleaned)
+            return json.loads(json_text)
         except Exception as e:
             print("❌ JSON decode failed:", e)
-            print("Raw cleaned output:", cleaned)
+            print("Raw cleaned output:", json_text)
             return None
 
     except Exception as e:

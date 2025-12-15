@@ -432,26 +432,23 @@ def process_paper_upload(user_id: int):
     db.session.flush()
 
 
-    # AUTOMATIC AI ANALYSIS (Aangepast voor In-Memory PDF)
+    # AUTOMATIC AI ANALYSIS (In-Memory PDF)
     print(f"🔍 Starting automatic AI analysis for: {unique_name}")
 
     try:
-        # We gebruiken de bytes die we net hebben geupload (file_content)
-        # We wrappen dit in io.BytesIO zodat PyPDF denkt dat het een bestand is
         pdf_stream = io.BytesIO(file_content)
-        
         reader = PdfReader(pdf_stream)
+
         full_text = "\n".join(page.extract_text() or "" for page in reader.pages)
 
-        # Roep de AI service aan
         ai_result = analyze_paper_text(full_text)
 
         if ai_result:
-            paper.ai_business_score = ai_result.get("business_score")
-            paper.ai_academic_score = ai_result.get("academic_score")
-            paper.ai_summary = ai_result.get("summary")
-            paper.ai_strengths = ai_result.get("strengths")
-            paper.ai_weaknesses = ai_result.get("weaknesses")
+            paper.ai_business_score = float(ai_result.get("business_score", 0))
+            paper.ai_academic_score = float(ai_result.get("academic_score", 0))
+            paper.ai_summary = (ai_result.get("summary") or "").strip()
+            paper.ai_strengths = (ai_result.get("strengths") or "").strip()
+            paper.ai_weaknesses = (ai_result.get("weaknesses") or "").strip()
             paper.ai_status = "done"
         else:
             paper.ai_status = "failed"
@@ -463,8 +460,7 @@ def process_paper_upload(user_id: int):
     db.session.commit()
 
     flash("Paper uploaded and analyzed automatically!", "success")
-    return redirect(url_for("main.dashboard"))
-
+    return redirect(url_for("main.paper_detail", paper_id=paper.paper_id))
 
 # ---------------------------------------------------
 # UPLOAD PAPER – Researcher / Founder / Admin
@@ -562,7 +558,7 @@ def handle_review_post(paper: Paper, can_review: bool):
     )
     db.session.add(review)
     db.session.commit()
-    flash("Review gepubliceerd en zichtbaar voor iedereen.", "success")
+    flash("Review published and visible to everyone.", "success")
     return redirect(url_for("main.paper_detail", paper_id=paper.paper_id))
 
 
