@@ -425,32 +425,6 @@ def process_paper_upload(user_id: int):
     db.session.add(paper)
     db.session.flush()
 
-    # LINK FACILITY
-    selected_company_id = request.form.get("company_id")
-    new_company_name = (request.form.get("new_company") or "").strip()
-    new_company_industry = (request.form.get("new_company_industry") or "").strip()
-
-    company_obj = None
-
-    if new_company_name:
-        company_obj = Company(
-            name=new_company_name, industry=new_company_industry or None
-        )
-        db.session.add(company_obj)
-        db.session.flush()
-    elif selected_company_id:
-        company_obj = Company.query.get(int(selected_company_id))
-
-    if company_obj:
-        db.session.add(
-            PaperCompany(
-                paper_id=paper.paper_id,
-                company_id=company_obj.company_id,
-                relation_type="facility",
-            )
-        )
-
-    db.session.commit()
 
     # AUTOMATIC AI ANALYSIS (Aangepast voor In-Memory PDF)
     print(f"🔍 Starting automatic AI analysis for: {unique_name}")
@@ -491,21 +465,29 @@ def process_paper_upload(user_id: int):
 # ---------------------------------------------------
 @main.route("/upload_paper", methods=["GET", "POST"])
 @login_required
-@roles_required("Researcher", "Founder", "System/Admin")
 def upload_paper():
+
+    # 🔒 Enkel deze rollen mogen uploaden
+    if session.get("user_role") not in ["Researcher", "Company", "Founder", "System/Admin"]:
+        flash(
+            "Only researchers and companies can upload papers. Users can view papers and leave reviews.",
+            "error",
+        )
+        return redirect(url_for("main.index"))
+
+    # GET: form tonen
     if request.method == "GET":
-        # Krijg companies zoals voorheen
         companies = Company.query.order_by(Company.name).all()
-        
-        # Geef dropdowns door aan template
         return render_template(
             "upload_paper.html",
             companies=companies,
             paper_categories=PAPER_CATEGORIES,
             research_domains=RESEARCH_DOMAINS
-        )   
-    if request.method == "POST":
-        return process_paper_upload(session["user_id"])
+        )
+
+    # POST: upload verwerken
+    return process_paper_upload(session["user_id"])
+
 
     
 
@@ -557,8 +539,17 @@ def handle_review_post(paper: Paper, can_review: bool):
             return redirect(url_for("main.paper_detail", paper_id=paper.paper_id))
 
     company_obj = None
-    if company_id:
+
+    # ✅ Als ingelogde user een Company is: automatisch koppelen aan hun Company record
+    if session.get("user_role") == "Company":
+        user = User.query.get(session.get("user_id"))
+        if user:
+         company_obj = Company.query.filter_by(name=user.name).first()
+
+    # (optioneel) als je later nog wil toelaten dat niet-company users een company kiezen:
+    elif company_id:
         company_obj = Company.query.get(int(company_id))
+
 
     review = Review(
         paper_id=paper.paper_id,
@@ -711,30 +702,47 @@ def login():
 
 @main.route("/register", methods=["GET", "POST"])
 def register():
-    if request.method == 'GET':
-        return render_template('register.html', 
-                             user_roles=USER_ROLES,  # <-- NIEUW
-                             title='Register')
-    
+
+    # -----------------------
+    # GET: toon register form
+    # -----------------------
+    if request.method == "GET":
+        # Enkel publieke rollen tonen (Researcher, User, Company)
+        public_role_tuples = [
+            (v, l) for (v, l) in USER_ROLES if v in PUBLIC_REGISTER_ROLES
+        ]
+
+        return render_template(
+            "register.html",
+            user_roles=public_role_tuples,
+            title="Register"
+        )
+
+    # -----------------------
+    # POST: account aanmaken
+    # -----------------------
     if request.method == "POST":
         name = request.form.get("name")
         email = request.form.get("email")
         role = request.form.get("role")
-        admin_password = (request.form.get("admin_password") or "").strip()
 
-        restricted_roles = {"Founder", "System/Admin"}
-        if role in restricted_roles and admin_password != ADMIN_ACCESS_PASSWORD:
-            flash("Invalid access password for the selected role.", "error")
+        # 🔒 EXTRA VEILIGHEID:
+        # alleen publieke rollen mogen via register
+        if role not in PUBLIC_REGISTER_ROLES:
+            flash("You are not allowed to register with this role.", "error")
             return redirect(url_for("main.register"))
 
+        # Email moet uniek zijn
         if User.query.filter_by(email=email).first():
             flash("Email already exists.", "error")
             return redirect(url_for("main.register"))
 
+        # User aanmaken
         user = User(name=name, email=email, role=role)
         db.session.add(user)
-        db.session.flush()  # zodat user.user_id al bestaat
+        db.session.flush()  # zodat user.user_id bestaat
 
+        # Als Company → company record aanmaken (zoals jullie logica)
         if role == "Company":
             existing_company = Company.query.filter_by(name=name).first()
             if not existing_company:
@@ -743,6 +751,7 @@ def register():
 
         db.session.commit()
 
+        # Automatisch inloggen
         session["user_id"] = user.user_id
         session["user_name"] = user.name
         session["user_role"] = user.role
@@ -750,7 +759,6 @@ def register():
         flash("Account created successfully.", "success")
         return redirect(url_for("main.index"))
 
-    return render_template("register.html", title="Register")
 
 
 # ---------------------------------------------------

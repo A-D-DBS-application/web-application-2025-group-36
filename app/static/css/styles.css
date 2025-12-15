@@ -1553,3 +1553,135 @@ body { display: flex; flex-direction: column; }
 .team-avatar:not(:first-child) { margin-left: -1rem; }
 .avatar-1 { background-color: #d1d5db; }
 .avatar-2 { background-color: #9ca3af; }
+
+/* ---------------------------
+   Reviews (paper detail)
+--------------------------- */
+
+.reviews-section {
+  margin-top: 1rem;
+}
+
+.reviews-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.reviews-title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.reviews-subtitle {
+  margin: 0.35rem 0 0 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  max-width: 50rem;
+}
+
+.reviews-summary {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.reviews-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.9rem;
+}
+
+@media (min-width: 900px) {
+  .reviews-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.review-card {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  backdrop-filter: blur(8px);
+}
+
+.review-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 0.85rem;
+}
+
+.review-author {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.review-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  background: rgba(59, 191, 181, 0.15);
+  color: var(--text-main);
+  border: 1px solid rgba(59, 191, 181, 0.25);
+}
+
+.review-name {
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.review-meta {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 0.3rem;
+}
+
+.review-date {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.review-score {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.review-body {
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--text-main);
+  white-space: pre-wrap;
+  border-top: 1px dashed rgba(15, 23, 42, 0.10);
+  padding-top: 0.85rem;
+}
+
+.review-body-muted {
+  color: var(--text-muted);
+}
+
+.reviews-empty {
+  padding: 1.25rem;
+  border: 1px dashed rgba(15, 23, 42, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.reviews-empty-text {
+  margin: 0.75rem 0 0 0;
+  color: var(--text-muted);
+}

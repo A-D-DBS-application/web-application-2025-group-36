@@ -12,16 +12,18 @@ RESEARCH_DOMAINS = [
     ('Software', 'Software Engineering'),
     ('Other', 'Other')
 ]
+
 USER_ROLES = [
-    ('Researcher', 'Researcher'),
-    ('Reviewer', 'Reviewer'),
-    ('Company', 'Company'),
-    ('System/Admin', 'System/Admin'),
-    ('Founder', 'Founder')
+    ("Researcher", "Researcher"),
+    ("User", "User"),
+    ("Company", "Company"),
+    ("System/Admin", "System/Admin"),
+    ("Founder", "Founder"),
 ]
-ADMIN_ACCESS_PASSWORD = "reviewr"
+
 PUBLIC_REGISTER_ROLES = [
     "Researcher",
-    "Reviewer",
+    "User",
     "Company",
 ]
+ADMIN_ACCESS_PASSWORD = "reviewr"

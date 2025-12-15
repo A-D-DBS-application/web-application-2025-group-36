@@ -14,11 +14,14 @@
         <p>
             Access a curated stream of scientific papers. Use our AI-powered scores to quickly identify research with high business potential.
         </p>
-        
+
         <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-            <a href="{{ url_for('main.upload_paper') }}" class="btn btn-primary">
-                <span style="font-size: 1.2rem; margin-right: 0.5rem;">+</span> Submit Paper
-            </a>
+            {% if session.get("user_role") in ["Researcher", "Company", "Founder", "System/Admin"] %}
+              <a href="{{ url_for('main.upload_paper') }}" class="btn btn-primary">
+                  <span style="font-size: 1.2rem; margin-right: 0.5rem;">+</span> Submit Paper
+              </a>
+            {% endif %}
+
             <a href="{{ url_for('main.list_companies') }}" class="btn btn-secondary">
                 🏢 View Companies
             </a>
@@ -45,247 +48,128 @@
     </div>
 </div>
 
-{% if offline %}
-<div class="alert alert-error">
-    ⚠️ <span style="font-weight: 600;">System Alert:</span> {{ offline_error }}
-</div>
-{% endif %}
-
-{% if top5 %}
-<div class="top-list-section">
-    <div class="top-list-header">
-        <h2>🏆 Top 5 AI-Analyzed Papers</h2>
-        <span class="tag tag-gray">Highest Combined Score</span>
-    </div>
-
-    <div style="display: flex; flex-direction: column;">
-        {% for p in top5 %}
-        <div class="top-paper-card">
-            
-            <div class="rank-circle rank-{{ loop.index }}">
-                #{{ loop.index }}
-            </div>
-
-            <div class="top-paper-info">
-                <h3 style="font-size: 1.1rem; margin-bottom: 0.25rem;">
-                    <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id) }}">{{ p.title }}</a>
-                </h3>
-                <div class="tag tag-accent" style="font-size: 0.7rem;">{{ p.research_domain }}</div>
-            </div>
-
-            <div class="top-scores"> 
-                <div class="score-box score-green" style="width: 5rem; height: 3rem;">
-                    <span class="score-box-label">Business</span>
-                    <span class="score-box-value" style="font-size: 1rem;">{{ p.ai_business_score }}</span>
-                </div>
-                <div class="score-box score-blue" style="width: 5rem; height: 3rem;">
-                    <span class="score-box-label">Academic</span>
-                    <span class="score-box-value" style="font-size: 1rem;">{{ p.ai_academic_score }}</span>
-                </div>
-            </div>
-
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-
 <form method="get" class="filter-bar">
-
-    <!-- Search -->
     <div class="filter-group filter-group-search">
         <label class="form-label">Search</label>
-        <input
-            type="text"
-            name="q"
-            placeholder="Keywords, title..."
-            value="{{ query }}"
-            class="form-control"
-        >
+        <input type="text" name="q" value="{{ query }}" class="form-control">
     </div>
 
-    <!-- Domain filter -->
     <div class="filter-group">
         <label class="form-label">Domain</label>
         <select name="domain" class="form-control">
-            <option value="all" {% if selected_domain == 'all' %}selected{% endif %}>
-                All domains
-            </option>
-
+            <option value="all" {% if selected_domain == 'all' %}selected{% endif %}>All domains</option>
             {% for d in domains %}
-                <option value="{{ d }}" {% if selected_domain == d %}selected{% endif %}>
-                    {{ d }}
-                </option>
+                <option value="{{ d }}" {% if selected_domain == d %}selected{% endif %}>{{ d }}</option>
             {% endfor %}
         </select>
     </div>
 
-    <!-- Facility filter -->
-    <div class="filter-group">
-        <label class="form-label">Facility</label>
-        <select name="company" class="form-control">
-            <option value="" {% if not selected_company %}selected{% endif %}>
-                All facilities
-            </option>
-
-            {% for company in companies %}
-                <option
-                    value="{{ company.name }}"
-                    {% if selected_company == company.name %}selected{% endif %}
-                >
-                    {{ company.name }}
-                </option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <!-- Minimum score -->
-    <div class="filter-group filter-group-small">
-        <label class="form-label">Score ≥</label>
-        <input
-            type="number"
-            step="0.1"
-            min="0"
-            max="10"
-            name="min_score"
-            value="{{ min_score }}"
-            class="form-control"
-            style="text-align: center; font-weight: bold;"
-        >
-    </div>
-
-    <!-- Sort -->
-    <div class="filter-group">
-        <label class="form-label">Sort by</label>
-        <select name="sort" class="form-control">
-            <option value="newest" {% if sort == 'newest' %}selected{% endif %}>
-                Newest
-            </option>
-            <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>
-                Oldest
-            </option>
-            <option value="best" {% if sort == 'best' %}selected{% endif %}>
-                Best reviewed
-            </option>
-            <option value="most_reviewed" {% if sort == 'most_reviewed' %}selected{% endif %}>
-                Most reviewed
-            </option>
-            <option value="a_to_z" {% if sort == 'a_to_z' %}selected{% endif %}>
-                Title A → Z
-            </option>
-            <option value="z_to_a" {% if sort == 'z_to_a' %}selected{% endif %}>
-                Title Z → A
-            </option>
-            <option value="ai_score" {% if sort == 'ai_score' %}selected{% endif %}>
-                Highest AI score
-            </option>
-        </select>
-    </div>
-
-    <!-- Actions -->
     <div class="filter-actions">
-        <a
-            href="{{ url_for('main.dashboard') }}"
-            class="btn btn-secondary"
-            title="Reset filters"
-        >
-            ↺
-        </a>
-
-        <button
-            type="submit"
-            class="btn btn-primary"
-            {% if offline %}disabled{% endif %}
-        >
-            Apply
-        </button>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">↺</a>
+        <button type="submit" class="btn btn-primary">Apply</button>
     </div>
-
-
 </form>
 
 <div class="features-grid" style="margin-top: 2rem;">
-  {% for p in papers %}
-  {% set pdf_url = url_for('main.download_paper', paper_id=p.paper_id) %}
-  {% set stats = score_map.get(p.paper_id) %}
+{% for p in papers %}
+{% set stats = score_map.get(p.paper_id) %}
 
-  <article class="paper-grid-card">
-    
+<article class="paper-grid-card">
+
     <div class="paper-meta-header">
-        <span class="meta-date">{{ p.upload_date.strftime('%b %d, %Y') if p.upload_date else 'Unknown' }}</span>
-        <span class="meta-domain">{{ p.research_domain }}</span>
+        <span>{{ p.upload_date.strftime('%b %d, %Y') if p.upload_date else 'Unknown' }}</span>
+        <span>{{ p.research_domain }}</span>
     </div>
 
-    <div class="paper-card-body flex-grow">
-      
-      <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">
-        <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id) }}">{{ p.title }}</a>
-      </h3>
+    <div class="paper-card-body">
 
-      {% if p.ai_status == "done" %}
-      <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-         <div class="ai-score-badge business">
-             <div class="score-dot biz"></div> Business: {{ p.ai_business_score }}
-         </div>
-         <div class="ai-score-badge academic">
-             <div class="score-dot aca"></div> Academic: {{ p.ai_academic_score }}
-         </div>
-      </div>
-      {% endif %}
+        <h3>
+            <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id) }}">{{ p.title }}</a>
+        </h3>
 
-      <p class="paper-abstract">
-    {{ p.abstract or 'No abstract available.' }}
-        </p>
-        
-      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: auto; margin-bottom: 1rem;">
-        {% for link in p.companies if link.relation_type == 'facility' %}
-           <span class="company-tag">🏥 {{ link.company.name }}</span>
-        {% endfor %}
-
-        {% set interest_count = (p.companies | selectattr('relation_type', 'equalto', 'interest') | list | length) %}
-        {% if interest_count > 0 %}
-          <span class="company-tag interest">⭐ {{ interest_count }} interested</span>
+        {% if p.ai_status == "done" %}
+        <div class="ai-scores">
+            <span>Business: {{ p.ai_business_score }}</span>
+            <span>Academic: {{ p.ai_academic_score }}</span>
+        </div>
         {% endif %}
-      </div>
 
-      <div class="card-footer">
-        
-        <div class="review-stat-small">
-            <div class="review-score-circle">
-                {{ stats.avg if stats and stats.avg else '-' }}
+        <p>{{ p.abstract or "No abstract available." }}</p>
+
+        <div class="card-footer">
+
+            <div class="review-stat-small">
+                <div class="review-score-circle">
+                    {{ stats.avg if stats and stats.avg else "-" }}
+                </div>
+                <small>{{ stats.count if stats else 0 }} reviews</small>
             </div>
-            <span style="font-size: 0.8rem; color: var(--text-muted);">{{ stats.count if stats else 0 }} reviews</span>
+
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+
+                {% if session.get('user_role') == 'Company' %}
+                <form method="post"
+                      action="{{ url_for('main.toggle_interest', paper_id=p.paper_id) }}">
+                    <button type="submit"
+                            class="btn btn-sm interested-btn {% if p.paper_id in interested_ids %}active{% endif %}">
+                        Interested
+                    </button>
+                </form>
+                {% endif %}
+
+                <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id) }}"
+                   class="btn btn-sm review-btn">
+                    Review
+                </a>
+
+            </div>
+
         </div>
 
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <a href="{{ pdf_url }}" target="_blank" class="btn-icon" title="Download PDF">
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-            </a>
-            
-            {% if session.get('user_role') == 'Company' %}
-            <form method="post" action="{{ url_for('main.toggle_interest', paper_id=p.paper_id) }}">
-               <button type="submit" class="btn btn-sm {% if p.paper_id in interested_ids %}btn-primary{% else %}btn-secondary{% endif %}">
-                  {{ 'Interested' if p.paper_id in interested_ids else '+ Connect' }}
-               </button>
-            </form>
-            {% else %}
-               <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id) }}" class="btn btn-sm" style="background-color: var(--text-main); color: white;">
-                   Review
-               </a>
-            {% endif %}
-        </div>
-
-      </div>
-
     </div>
-  </article>
-  {% else %}
-    <div style="grid-column: 1 / -1; text-align: center; padding: 4rem;">
-        <h3>No papers found</h3>
-        <p>Try adjusting your filters or search terms.</p>
-        <a href="{{ url_for('main.dashboard') }}" class="text-accent">Clear all filters</a>
-    </div>
-  {% endfor %}
+</article>
+
+{% else %}
+<div style="grid-column: 1 / -1; text-align: center; padding: 4rem;">
+    <h3>No papers found</h3>
+    <a href="{{ url_for('main.dashboard') }}">Clear filters</a>
+</div>
+{% endfor %}
 </div>
 
+<style>
+/* INTERESTED BUTTON STYLING */
+.interested-btn {
+    font-weight: 700;
+    background: linear-gradient(135deg, #3bbfb5, #2fa59c);
+    color: white;
+    border: none;
+    padding: 0.4rem 0.75rem;
+    border-radius: 0.6rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    box-shadow: 0 4px 10px rgba(59, 191, 181, 0.35);
+}
+
+.interested-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(59, 191, 181, 0.45);
+    opacity: 0.95;
+}
+
+.interested-btn.active {
+    background: linear-gradient(135deg, #256f68, #1f5e57);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
+}
+
+/* REVIEW BUTTON */
+.review-btn {
+    background-color: var(--text-main);
+    color: white;
+    font-weight: 600;
+}
+</style>
+
 {% endblock %}
+
+
+
