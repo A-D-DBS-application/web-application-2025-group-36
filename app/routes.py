@@ -160,15 +160,20 @@ def get_dashboard_data(args, sess):
     # ACTIVE FILTERS
     # ------------------------------
     active_filters = 0
-    if search: active_filters += 1
-    if selected_domain != "all": active_filters += 1
-    if selected_company: active_filters += 1
+    if search:
+        active_filters += 1
+    if selected_domain != "all":
+        active_filters += 1
+    if selected_company:
+        active_filters += 1
     if min_score:
         try:
             float(min_score)
             active_filters += 1
         except ValueError:
             pass
+    if sort != "newest":
+        active_filters += 1
 
     # ------------------------------
     # SCORE SUBQUERY
@@ -273,16 +278,16 @@ def get_dashboard_data(args, sess):
 
     # TOP 5 AI PAPERS
     top5 = (
-    Paper.query.filter(Paper.ai_status == "done")
-    .order_by(
-        (
-            func.coalesce(Paper.ai_business_score, 0)
-            + func.coalesce(Paper.ai_academic_score, 0)
-        ).desc()
+        Paper.query.filter(Paper.ai_status == "done")
+        .order_by(
+            (
+                func.coalesce(Paper.ai_business_score, 0)
+                + func.coalesce(Paper.ai_academic_score, 0)
+            ).desc()
+        )
+        .limit(5)
+        .all()
     )
-    .limit(5)
-    .all()
-)
 
 
     # INTERESTED LIST
@@ -343,15 +348,15 @@ def search_papers():
 @main.route("/paper/<int:paper_id>/download")
 def download_paper(paper_id):
     paper = Paper.query.get_or_404(paper_id)
-    
-    # We bouwen de publieke URL naar Supabase
+
     supabase_url = current_app.config["SUPABASE_URL"]
-    
-    # URL Formaat: https://[PROJECT_ID].supabase.co/storage/v1/object/public/[BUCKET]/[PATH]
-    # Let op: 'paper.file_path' is nu alleen de unieke bestandsnaam (bijv. "12_178383_thesis.pdf")
-    public_url = f"{supabase_url}/storage/v1/object/public/{BUCKET_NAME}/{paper.file_path}"
-    
-    # We redirecten de gebruiker naar Supabase, waar de browser de PDF zal openen/downloaden
+
+    # paper.file_path MUST include folders
+    public_url = (
+        f"{supabase_url}/storage/v1/object/public/"
+        f"{BUCKET_NAME}/{paper.file_path}"
+    )
+
     return redirect(public_url)
 
 
@@ -487,10 +492,6 @@ def upload_paper():
 
     # POST: upload verwerken
     return process_paper_upload(session["user_id"])
-
-
-    
-
 
 # ---------------------------------------------------
 # PAPER DETAIL + REVIEWS HELPERS

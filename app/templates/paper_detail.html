@@ -3,8 +3,9 @@
 
 {% set pdf_url = url_for('main.download_paper', paper_id=paper.paper_id) %}
 
+<!-- ================= PAPER HEADER ================= -->
 <div class="paper-header">
-    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+    <div class="paper-tags">
         <span class="tag tag-accent">Research Paper</span>
         <span class="tag tag-dashed">{{ paper.research_domain }}</span>
         {% for link in paper.companies if link.relation_type == 'facility' %}
@@ -14,13 +15,11 @@
 
     <h1 class="paper-title">{{ paper.title }}</h1>
 
-    <p style="max-width: 60rem;">
+    <p class="paper-abstract-full">
         {{ paper.abstract }}
     </p>
 
-    <!-- ACTION BAR -->
-    <div class="paper-actions" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
-
+    <div class="paper-actions">
         <a href="{{ pdf_url }}" target="_blank" class="btn btn-primary">
             ⬇ Download PDF
         </a>
@@ -29,20 +28,19 @@
             ← Back to archive
         </a>
 
-        <!-- ⭐ INTERESTED BUTTON (COMPANY ONLY) -->
         {% if session.get("user_role") == "Company" %}
         <form method="post"
               action="{{ url_for('main.toggle_interest', paper_id=paper.paper_id) }}"
-              style="margin-left: auto;">
+              class="ml-auto">
             <button type="submit"
-                    class="btn interested-btn {% if paper.paper_id in interested_ids %}active{% endif %}">
+                    class="interested-btn {% if paper.paper_id in interested_ids %}active{% endif %}">
                 Interested
             </button>
         </form>
         {% endif %}
 
         {% if session.get("user_id") == paper.user_id or session.get("user_role") in ["System/Admin", "Founder"] %}
-        <div style="margin-left: auto; display: flex; gap: 0.5rem;">
+        <div class="admin-actions">
             <a href="{{ url_for('main.update_paper', paper_id=paper.paper_id) }}"
                class="btn btn-warning">
                 Edit
@@ -60,13 +58,15 @@
     </div>
 </div>
 
-<hr class="my-4">
+<hr class="divider">
 
+<!-- ================= CONTENT GRID ================= -->
 <div class="paper-content-grid">
 
-    <!-- LEFT -->
+    <!-- LEFT COLUMN -->
     <div>
 
+        <!-- META -->
         <div class="meta-grid">
             <div class="meta-box">
                 <div class="meta-label">Uploaded</div>
@@ -94,10 +94,11 @@
         </div>
 
         {% if paper.ai_status == "done" %}
-        <div style="margin: 2.5rem 0;">
+        <!-- ================= AI ANALYSIS ================= -->
+        <div class="ai-section">
             <h2>AI Analysis</h2>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="ai-score-grid">
                 <div class="analysis-card green">
                     <div class="meta-label">Business</div>
                     <div class="score-big">{{ paper.ai_business_score }}</div>
@@ -113,26 +114,42 @@
                 <p>{{ paper.ai_summary }}</p>
             </div>
 
-            <div class="analysis-card gray">
-                <h3>Strengths</h3>
-                <p style="white-space: pre-line;">{{ paper.ai_strengths }}</p>
-            </div>
+            <div class="ai-sw-grid">
+                <div class="analysis-card gray">
+                    <h3>Strengths</h3>
+                    <ul class="ai-list">
+                        {% for s in paper.ai_strengths.split('\n') if s.strip() %}
+                            <li>{{ s }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
 
-            <div class="analysis-card gray">
-                <h3>Weaknesses</h3>
-                <p style="white-space: pre-line;">{{ paper.ai_weaknesses }}</p>
+                <div class="analysis-card gray">
+                    <h3>Weaknesses</h3>
+                    <ul class="ai-list">
+                        {% for w in paper.ai_weaknesses.split('\n') if w.strip() %}
+                            <li>{{ w }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
         </div>
         {% endif %}
     </div>
 
-    <!-- RIGHT -->
+    <!-- RIGHT COLUMN -->
     <div>
+            <!-- CTA TO REPORT -->
+            <div class="review-report-cta">
+                <a href="#report-block" class="btn btn-secondary btn-sm">
+                    🚩 Report this paper
+                </a>
+            </div>        
         <div class="sidebar-card">
             <h3 class="sidebar-title">Review</h3>
 
             {% if can_review %}
-            <form method="post" style="display: flex; flex-direction: column; gap: 1rem;">
+            <form method="post" class="form-stack">
                 <select name="score" class="form-control">
                     <option value="">-- Select score --</option>
                     <option value="2">0 – 3 (Poor)</option>
@@ -157,49 +174,119 @@
             {% endif %}
         </div>
     </div>
-
 </div>
 
-<hr class="my-4">
+<!-- ================= REVIEWS ================= -->
+<hr class="divider">
 
-<h3 class="mb-3">Reviews</h3>
+<div class="reviews-section">
+    <h3 class="reviews-title">Reviews</h3>
 
-{% if reviews_sorted %}
-<div class="list-group">
-    {% for r in reviews_sorted %}
-    <div class="list-group-item">
-        <strong>{{ r.reviewer.name if r.reviewer else "Anonymous" }}</strong>
-        {% if r.company %}
-            <span class="text-muted"> — {{ r.company.name }}</span>
-        {% endif %}
-        <div class="mt-2">
-            {% if r.score %}
-                <span class="badge bg-primary">Score: {{ r.score }}</span>
-            {% endif %}
-            <p class="mt-2 mb-0">{{ r.comments }}</p>
+    {% if reviews_sorted %}
+    <div class="reviews-grid">
+        {% for r in reviews_sorted %}
+        <div class="review-card">
+            <div class="review-top">
+                <div class="review-author">
+                    <div class="review-avatar">
+                        {{ r.reviewer.name[0] if r.reviewer else "?" }}
+                    </div>
+                    <div>
+                        <div class="review-name">
+                            {{ r.reviewer.name if r.reviewer else "Anonymous" }}
+                        </div>
+                        {% if r.company %}
+                        <div class="review-meta">
+                            {{ r.company.name }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if r.score %}
+                <span class="tag tag-accent">{{ r.score }}</span>
+                {% endif %}
+            </div>
+
+            <div class="review-body">
+                {{ r.comments or "No comment provided." }}
+            </div>
         </div>
+        {% endfor %}
     </div>
-    {% endfor %}
+    {% else %}
+    <div class="reviews-empty">
+        <p class="reviews-empty-text">No reviews yet.</p>
+    </div>
+    {% endif %}
 </div>
-{% else %}
-<p class="text-muted">No reviews yet.</p>
-{% endif %}
 
-<style>
-/* INTERESTED BUTTON */
-.interested-btn {
-    font-weight: 700;
-    background: linear-gradient(135deg, #3bbfb5, #2fa59c);
-    color: white;
-    border: none;
-    padding: 0.5rem 0.9rem;
-    border-radius: 0.6rem;
-    box-shadow: 0 4px 12px rgba(59,191,181,0.4);
-}
+<!-- REPORT BLOCK -->
+<div id="report-block" class="report-section">
 
-.interested-btn.active {
-    background: linear-gradient(135deg, #256f68, #1f5e57);
-}
-</style>
+    <h3>🚩 Report this paper</h3>
+    <p class="report-hint">
+        Use this form to report inappropriate, misleading, or problematic content.
+        Our team will review your report confidentially.
+    </p>
+
+    <form method="post"
+          action="{{ url_for('main.submit_complaint', paper_id=paper.paper_id) }}"
+          class="report-form">
+
+        <!-- CATEGORY -->
+        <div class="form-group">
+            <label class="form-label">Complaint category *</label>
+            <select name="complaint_category" class="form-control" required>
+                <option value="">-- Select a category --</option>
+                <option value="Ethical issue">Ethical issue</option>
+                <option value="Plagiarism">Plagiarism</option>
+                <option value="False or misleading data">False or misleading data</option>
+                <option value="Conflict of interest">Conflict of interest</option>
+                <option value="Inappropriate content">Inappropriate content</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <!-- DESCRIPTION -->
+        <div class="form-group">
+            <label class="form-label">Description *</label>
+            <textarea name="complaint_description"
+                      rows="4"
+                      class="form-control"
+                      placeholder="Describe the issue in detail..."
+                      required></textarea>
+        </div>
+
+        <!-- OPTIONAL REPORTER INFO -->
+        <div class="form-grid">
+
+            <div class="form-group">
+                <label class="form-label">Your name (optional)</label>
+                <input type="text"
+                       name="reporter_name"
+                       class="form-control"
+                       placeholder="Your name">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Your email (optional)</label>
+                <input type="email"
+                       name="reporter_email"
+                       class="form-control"
+                       placeholder="you@example.com">
+            </div>
+
+        </div>
+
+        <!-- SUBMIT -->
+        <button type="submit"
+                class="btn btn-danger"
+                onclick="return confirm('Are you sure you want to submit this report?');">
+            🚩 Submit report
+        </button>
+
+    </form>
+</div>
+
 
 {% endblock %}

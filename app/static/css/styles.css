@@ -892,6 +892,7 @@ body { display: flex; flex-direction: column; }
 /* =========================================
    17. PAPER DETAIL SPECIFICS
    ========================================= */
+
 .paper-header {
   background: linear-gradient(to right, rgba(59, 191, 181, 0.1), white, #eff6ff);
   border: 1px solid var(--border-color);
@@ -899,6 +900,14 @@ body { display: flex; flex-direction: column; }
   padding: 2.5rem;
   margin-bottom: 2rem;
   box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+}
+
+/* TAGS */
+.paper-tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .paper-title {
@@ -909,6 +918,12 @@ body { display: flex; flex-direction: column; }
   color: var(--text-main);
 }
 
+.paper-abstract-full {
+  max-width: 60rem;
+  color: var(--text-muted);
+}
+
+/* ACTION BAR */
 .paper-actions {
   display: flex;
   flex-wrap: wrap;
@@ -917,11 +932,23 @@ body { display: flex; flex-direction: column; }
   align-items: center;
 }
 
+.paper-actions .ml-auto,
+.paper-actions form.ml-auto {
+  margin-left: auto;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
 /* Layout Grid: Main Content + Sidebar */
 .paper-content-grid {
   display: grid;
   gap: 2.5rem;
 }
+
 @media (min-width: 992px) {
   .paper-content-grid {
     grid-template-columns: 2fr 1fr;
@@ -942,19 +969,68 @@ body { display: flex; flex-direction: column; }
   border-radius: 1rem;
   padding: 1rem;
 }
-.meta-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem; }
-.meta-value { font-size: 1.125rem; font-weight: 700; color: var(--text-main); }
 
-/* Analysis Cards */
+.meta-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.meta-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* AI ANALYSIS */
+.ai-section {
+  margin-top: 2.5rem;
+}
+
+.ai-score-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
 .analysis-card {
   border: 1px solid var(--border-color);
   border-radius: 1rem;
   padding: 1.5rem;
-  margin-bottom: 1rem;
 }
-.analysis-card.green { background-color: #f0fdf4; border-color: #bbf7d0; }
-.analysis-card.blue { background-color: #eff6ff; border-color: #bfdbfe; }
-.analysis-card.gray { background-color: #f9fafb; }
+
+.analysis-card.green {
+  background-color: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.analysis-card.blue {
+  background-color: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.analysis-card.gray {
+  background-color: #f9fafb;
+}
+
+/* Strengths / Weaknesses grid */
+.ai-sw-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.ai-list {
+  margin-top: 0.5rem;
+  padding-left: 1.2rem;
+}
+
+.ai-list li {
+  margin-bottom: 0.4rem;
+  line-height: 1.4;
+}
 
 /* Sticky Review Sidebar */
 .sidebar-card {
@@ -963,28 +1039,169 @@ body { display: flex; flex-direction: column; }
   padding: 1.5rem;
   border-radius: 1rem;
   position: sticky;
-  top: 6rem; /* Stick below navbar */
+  top: 6rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
-.sidebar-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; color: white; }
-.sidebar-text { font-size: 0.875rem; color: #d1d5db; margin-bottom: 1.5rem; }
-.sidebar-label { color: #d1d5db; font-size: 0.875rem; margin-bottom: 0.25rem; display: block; }
 
-/* Danger & Warning Buttons */
-.btn-danger { background-color: #dc2626; color: white; }
-.btn-danger:hover { background-color: #b91c1c; }
-
-.btn-warning { background-color: #eab308; color: #1f2937; }
-.btn-warning:hover { background-color: #ca8a04; }
-
-/* Report Section */
-.report-block {
-  background-color: white;
-  border: 1px solid var(--border-color);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  margin-top: 3rem;
+.sidebar-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: white;
 }
+
+/* Buttons */
+.btn-danger {
+  background-color: #dc2626;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #b91c1c;
+}
+
+.btn-warning {
+  background-color: #eab308;
+  color: #1f2937;
+}
+
+.btn-warning:hover {
+  background-color: #ca8a04;
+}
+
+/* INTERESTED BUTTON */
+.interested-btn {
+  font-weight: 700;
+  background: linear-gradient(135deg, #3bbfb5, #2fa59c);
+  color: white;
+  border: none;
+  padding: 0.5rem 0.9rem;
+  border-radius: 0.6rem;
+  box-shadow: 0 4px 12px rgba(59,191,181,0.4);
+}
+
+.interested-btn.active {
+  background: linear-gradient(135deg, #256f68, #1f5e57);
+}
+
+/* REPORT BLOCK */
+.report-section {
+  background-color: #fff5f5;
+  border: 1px solid #f1caca;
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-top: 4rem;
+  max-width: 52rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.report-section h3 {
+  color: #b91c1c;
+  margin-bottom: 0.5rem;
+}
+
+.report-hint {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.report-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Responsive fixes */
+@media (max-width: 640px) {
+  .ai-score-grid,
+  .ai-sw-grid,
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .paper-title {
+    font-size: 2rem;
+  }
+}
+
+/* ========== MICRO-INNOVATION & UX POLISH ========== */
+
+/* Soft hover elevation for cards */
+.analysis-card,
+.meta-box,
+.sidebar-card,
+.report-section {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.analysis-card:hover,
+.meta-box:hover,
+.report-section:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px -10px rgba(0, 0, 0, 0.15);
+}
+
+/* Animated AI score emphasis */
+.score-big {
+  font-size: 2.5rem;
+  font-weight: 800;
+  animation: popIn 0.4s ease-out;
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Gradient divider */
+.divider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(59,191,181,0.4),
+    transparent
+  );
+  margin: 3rem 0;
+}
+
+/* Strength / Weakness icons */
+.ai-list li::marker {
+  color: #3bbfb5;
+}
+
+/* Sticky sidebar glass effect */
+.sidebar-card {
+  backdrop-filter: blur(6px);
+  background: linear-gradient(
+    180deg,
+    rgba(17,24,39,0.95),
+    rgba(17,24,39,0.85)
+  );
+}
+
+/* Subtle focus glow */
+.form-control:focus {
+  box-shadow: 0 0 0 3px rgba(59,191,181,0.25);
+  border-color: #3bbfb5;
+}
+
+
 
 /* =========================================
    18. PROFILE PAGE
