@@ -207,7 +207,7 @@ def get_dashboard_data(args, sess):
     if selected_domain != "all":
         query = query.filter(Paper.research_domain == selected_domain)
 
-    # COMPANY (facility)
+    # COMPANY filter
     if selected_company:
         query = (
             query.join(PaperCompany, PaperCompany.paper_id == Paper.paper_id)
@@ -828,13 +828,13 @@ def change_role():
 # ---------------------------------------------------
 # UPDATE PAPER HELPERS
 # ---------------------------------------------------
-def build_update_paper_context(paper: Paper, current_facility):
+def build_update_paper_context(paper: Paper, current_company):
     companies = Company.query.order_by(Company.name).all()
 
     return {
         "paper": paper,
         "companies": companies,
-        "current_facility": current_facility,
+        "current_company": current_company,
         "research_domains": RESEARCH_DOMAINS,  # 👈 CRUCIAAL
         "title": "Update Paper",
         "edit": True,
@@ -1024,9 +1024,7 @@ def get_profile_data(user_id: int):
                 .filter(CompanyInterest.company_id == company.company_id)
                 .order_by(Paper.upload_date.desc())
                 .all()
-        )
-        
-
+            )
             if company.interests:
                 tags = [t.strip() for t in company.interests.split(",") if t.strip()]
                 if tags:
@@ -1198,7 +1196,7 @@ def toggle_interest(paper_id):
         "Your account is not linked to a company profile. Please contact an administrator, or make an account as a company.",
         "error"
     )
-    return redirect(request.referrer or url_for("main.dashboard"))
+        return redirect(request.referrer or url_for("main.dashboard"))
 
     paper = Paper.query.get_or_404(paper_id)
 

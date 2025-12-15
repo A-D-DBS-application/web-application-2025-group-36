@@ -46,10 +46,10 @@ class Company(db.Model):
     __tablename__ = "Company"
 
     company_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(255), nullable=False)
+    name = db.Column(db.String(255), nullable=False, unique =True)
     industry = db.Column(db.String(255))
 
-    # 🔹 Interests die we net toegevoegd hebben (MVP)
+    # 🔹 Domains of interests (MVP)
     interests = db.Column(db.String(255))  # bijv. "AI,Robotics,Biotech"
 
     # 🔹 N-M relatie via koppeltabel PaperCompany
@@ -68,7 +68,7 @@ class Paper(db.Model):
     __tablename__ = "Paper"
 
     paper_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('User.user_id', ondelete='CASCADE'))
+    user_id = db.Column(db.Integer, db.ForeignKey('User.user_id', ondelete='CASCADE'),nullable =False)
     title = db.Column(db.String(255), nullable=False)
     abstract = db.Column(db.Text)
     research_domain = db.Column(db.String(120), default="General", nullable=False)
