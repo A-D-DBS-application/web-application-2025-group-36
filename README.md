@@ -1,36 +1,148 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/DxqGQVx4)
 
-# Project A&D - DBS _ ReviewR (Group 36)
+# Project A&D – DBS  
+## ReviewR (Group 36)
 
-## Description
-Reviewr is a web platform that simplifies and improves the academic peer review process.
-It allows researchers to upload their papers, receive structured feedback, and gain visibility for their work, while reviewers can easily browse available papers and share valuable insights.
-Our goal is to make academic reviewing faster, fairer, and more transparent, fostering collaboration and trust within the research community.
-### Vision
-> To create a world where academic knowledge flows freely and feedback drives innovation. (Making research more open, collaborative, and impactful for everyone.)
+---
 
-## Kanban board
-URL_Miro = https://miro.com/app/board/uXjVJwVsXsc=/ 
+## 1. Project Description
 
-## UI Prototype (Lovable)
-URL = https://lovable.dev/projects/4b212f05-6181-4bad-b4f4-01cc5bc567d5 
+**ReviewR** is a web-based Minimum Viable Product (MVP) that supports and improves the
+academic peer-review process by offering a **structured, transparent, and efficient**
+way to evaluate research papers.
 
-## Other Links/Info
-### AI Analysis
-For the analysis to work you need to create a local file ".flaskenv" where you copy-paste this:
->FLASK_APP=run.py
+Researchers can upload academic papers and receive feedback, while reviewers can
+browse available papers and provide **academic** as well as **business-oriented**
+evaluations.  
+The platform aims to increase clarity, fairness, and usefulness of academic reviews.
 
->FLASK_ENV=development
+---
 
->GEMINI_API_KEY=AIxxxxxxx --> you need to create your own Gemini API Key: https://aistudio.google.com/api-keys
+## 2. Vision
 
->DATABASE_URL=postgresql://postgres.ebokqkhwotfewvpsfemj:3R9TrLYvLG7lIx7Y@aws-1-eu-west-1.pooler.supabase.com:6543/postgres
+> To create a world where academic knowledge flows freely and structured feedback
+> accelerates innovation, collaboration, and real-world impact.
 
-### Supabase
-https://supabase.com/dashboard/project/ebokqkhwotfewvpsfemj 
+---
 
-### Test Users (feedback + experience)
-https://docs.google.com/spreadsheets/d/11K7iOIe6oSJGhSPdlgt530r-ltxOYVHAc8Jt30kQidU/edit?gid=1419989020#gid=1419989020 
+## 3. Core Functionalities (MVP Scope)
 
-### Database Dump
-De database_dump dateerd van 9/12/2025, 9:40.
+The application supports the following core features, aligned with the A&D / DBS
+assignment requirements:
+
+- User roles (author, reviewer)
+- Uploading academic papers (PDF)
+- Browsing and filtering available papers
+- Viewing detailed paper information
+- Submitting structured reviews
+- Scoring papers on **academic quality** and **business relevance**
+- Linking papers to external organizations or companies
+- Persistent data storage using a relational database
+
+Security features (advanced authentication, payments, messaging) are intentionally
+kept minimal, as allowed for an MVP.
+
+---
+
+## 4. Algorithmic Component – AI-Assisted Analysis
+
+ReviewR includes an **AI-assisted analysis component** that adds value beyond basic CRUD
+functionality.
+
+### Purpose
+- Support reviewers with an initial structured evaluation
+- Improve consistency and speed of the review process
+
+### Output
+- Academic score
+- Business relevance score
+- Short summary
+- Strengths and weaknesses
+
+### Important Notes
+- The AI component acts as **decision support**, not as an autonomous evaluator
+- Final assessments remain under human control
+- The AI is fully integrated into the application workflow
+
+---
+
+## 5. Database Design
+
+The application uses a **PostgreSQL relational database** (Supabase), implemented using
+SQLAlchemy.
+
+### Main Entities
+- User
+- Paper
+- Review
+- Company
+- PaperCompany (association table)
+
+The database is normalized and designed to be **scalable** for future extensions.
+
+📦 A database dump is included  
+(backup date: **09/12/2025 – 09:40**)
+
+---
+
+## 6. Technology Stack
+
+- Backend: Flask (Python)
+- Frontend: HTML, Tailwind CSS
+- Database: PostgreSQL (Supabase)
+- ORM: SQLAlchemy
+- AI Analysis: Google Gemini API
+- Storage: Supabase Storage
+- Deployment: Render
+
+---
+
+## 7. Agile Development & Validation
+
+The project was developed following **Agile principles**, using multiple sprints with
+iterative improvements.
+
+Feedback was collected through:
+- User testing
+- Feedback and experience sessions
+- Continuous refinement of UI and functionality
+
+### Kanban Board
+https://miro.com/app/board/uXjVJwVsXsc=/
+
+### UI Prototype (Lovable)
+https://lovable.dev/projects/4b212f05-6181-4bad-b4f4-01cc5bc567d5
+
+---
+
+## 8. Setup – AI Analysis Configuration
+
+To enable AI analysis locally, create a `.flaskenv` file with the following content:
+    FLASK_APP=run.py
+    FLASK_ENV=development
+    GEMINI_API_KEY=AIxxxx --> Key you made yourself.
+    DATABASE_URL=postgresql://postgres.ebokqkhwotfewvpsfemj:3R9TrLYvLG7lIx7Y@aws-1-eu-west-1.pooler.supabase.com:6543/postgres
+
+Create a Gemini API key here:  
+https://aistudio.google.com/api-keys
+
+---
+
+## 9. Additional Links & Resources
+
+### Supabase Project
+https://supabase.com/dashboard/project/ebokqkhwotfewvpsfemj
+
+### Test Users & Feedback
+https://docs.google.com/spreadsheets/d/11K7iOIe6oSJGhSPdlgt530r-ltxOYVHAc8Jt30kQidU/edit
+
+---
+
+## 10. Scope Disclaimer
+
+ReviewR is a **Minimum Viable Product** developed for an academic assignment.
+The focus lies on core functionality, database design, and algorithmic value creation,
+not on production-level security or deployment.
+
+---
+
