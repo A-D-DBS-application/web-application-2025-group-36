@@ -36,7 +36,7 @@ Stores user accounts and roles within the platform.
 | user_id | SERIAL (PK) | Unique user identifier |
 | name | VARCHAR | User name |
 | email | VARCHAR (UNIQUE) | User email address |
-| role | VARCHAR | User role (`writer`, `reviewer`) |
+| role | VARCHAR | User role (`researcher`, `user`) |
 
 ---
 
