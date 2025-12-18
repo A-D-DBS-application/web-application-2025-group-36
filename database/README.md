@@ -185,8 +185,9 @@ Tracks database migration versions managed by Flask-Migrate.
 
 ## 5. Schema & Reproducibility
 
-- The logical database schema is provided in `schema.sql`
-- A visual representation is provided in `ERD.png`
+- The logical database schema is provided in `ddl.sql`
+- A visual representation is provided in `ERD_Final Delivery.png`
+- The database dump is from 18/12/2025, 12:36 and is provided in `Dataabse_dump.sql`
 
 No physical database dump is included, as the project uses a **managed PostgreSQL
 platform (Supabase)**.  
