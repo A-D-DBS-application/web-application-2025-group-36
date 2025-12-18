@@ -14,7 +14,7 @@ REVIEWR supports:
 - Writing academic and business-oriented reviews
 - AI-powered paper analysis using Google Gemini
 - Complaint tracking and moderation
-- Role-based access (writers and reviewers)
+- Role-based access (Researcher, User, Company, System/Admin & Founder)
 
 The database is **fully normalized** and designed to be **scalable for future extensions**.
 
@@ -83,6 +83,7 @@ Make sure the following are installed:
 
 ```bash
 git clone https://github.com/A-D-DBS-application/web-application-2025-group-36.git
+``` 
 
 ---
 
@@ -94,7 +95,9 @@ python -m venv venv
 ---
 
 ### 6.4 Install Dependencies
+```bash
 pip install -r requirements.txt
+``` 
 
 ---
 
@@ -105,6 +108,7 @@ FLASK_APP=run.py
 FLASK_ENV=development
 GEMINI_API_KEY=AIxxxx
 DATABASE_URL=postgresql://postgres.ebokqkhwotfewvpsfemj:Projectgroep36@aws-1-eu-west-1.pooler.supabase.com:6543/postgres
+``` 
 
 Create a Gemini API key here:
 https://aistudio.google.com/api-keys 
@@ -127,6 +131,7 @@ https://supabase.com/dashboard/project/ebokqkhwotfewvpsfemj
 ## 9. Running the Application Locally
 ```bash
 flask run
+``` 
 
 The application will be available at:
 http://127.0.0.1:5000
@@ -153,13 +158,6 @@ Supabase is used for database management and file storage in production.
 
 ---
 © 2025 – Group 36 – Project A&D DBS
-
-
-
-
-
-
-
 
 cd web-application-2025-group-36
 
