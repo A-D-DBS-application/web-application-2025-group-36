@@ -88,9 +88,17 @@ git clone https://github.com/A-D-DBS-application/web-application-2025-group-36.g
 ---
 
 ### 6.3 Create and Activate a Virtual Environment
+```bash
 python -m venv venv
-- Windows: venv\Scripts\activate
-- macOS/Linux: source venv/bin/activate
+``` 
+- Windows: 
+```bash
+venv\Scripts\activate
+``` 
+- macOS/Linux:
+```bash
+source venv/bin/activate
+``` 
 
 ---
 
