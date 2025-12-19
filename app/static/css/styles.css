@@ -71,7 +71,7 @@ li { margin-bottom: 0.5rem; }
   padding-right: 1rem;
 }
 /* =========================================
-   3. NAVBAR (FINAL LAYOUT FIX)
+   2. NAVBAR (FINAL LAYOUT FIX)
    ========================================= */
 .main-navbar {
     background-color: rgba(255, 255, 255, 0.95);
@@ -206,6 +206,35 @@ li { margin-bottom: 0.5rem; }
     
     .profile-btn { width: 100%; justify-content: center; }
 }
+/* =========================================
+   2.1: PROFILE DROPDOWN POSITIONING (FIXED)
+   ========================================= */
+
+.profile-wrapper {
+    position: relative;
+}
+
+/* Desktop: dropdown under the profile button */
+.profile-wrapper .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;     
+    left: auto;
+    margin-top: 0.5rem;
+    min-width: 220px;
+    z-index: 1050;
+}
+
+/* Mobile: full width under button (UNCHANGED) */
+@media (max-width: 991px) {
+    .profile-wrapper .dropdown-menu {
+        position: static;
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+}
+
+
 /* =========================================
    3. CARDS & PAPERS
    ========================================= */
@@ -357,9 +386,6 @@ li { margin-bottom: 0.5rem; }
 
 /* =========================================
    6. DASHBOARD SPECIFICS
-   ========================================= */
-/* =========================================
-   6. DASHBOARD SPECIFICS (UPDATED)
    ========================================= */
 
 /* --- Hero Section --- */
