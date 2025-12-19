@@ -70,7 +70,7 @@
 
             <div class="top-paper-info">
                 <h3 style="font-size: 1.1rem; margin-bottom: 0.25rem;">
-                    <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id) }}">{{ p.title }}</a>
+                    <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id, **request.args) }}" class="paper-link">{{ p.title }}</a>
                 </h3>
                 <div class="tag tag-accent" style="font-size: 0.7rem;">{{ p.research_domain }}</div>
             </div>
@@ -126,6 +126,7 @@
         <label class="form-label">Sort By</label>
         <select name="sort" class="form-control">
             <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest</option>
+            <option value="recommended" {% if sort == 'recommended' %}selected{% endif %}>Recommended for You ✨</option>
             <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest</option>
             <option value="best" {% if sort == 'best' %}selected{% endif %}>Best Reviews</option>
             <option value="ai_score" {% if sort == 'ai_score' %}selected{% endif %}>High AI Score</option>
@@ -137,6 +138,13 @@
         <button type="submit" class="btn btn-primary" {% if offline %}disabled{% endif %}>Apply</button>
     </div>
 </form>
+
+{% if sort == 'recommended' %}
+<div style="margin-top: 1.5rem; margin-bottom: -1rem; display: flex; align-items: center; gap: 0.5rem; color: #4F46E5; font-weight: 600;">
+    <span>✨ Personalized Feed Active</span>
+    <span style="font-size: 0.8rem; background: #e0e7ff; padding: 0.2rem 0.5rem; border-radius: 4px; color: #3730a3;">Based on your activity</span>
+</div>
+{% endif %}
 
 <div class="features-grid" style="margin-top: 2rem;">
   {% for p in papers %}
@@ -151,7 +159,7 @@
 
     <div class="paper-card-body flex-grow">
       <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">
-        <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id) }}">{{ p.title }}</a>
+        <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id, **request.args) }}" class="paper-link">{{ p.title }}</a>
       </h3>
 
       {% if p.ai_status == "done" %}
@@ -190,12 +198,12 @@
             
             {% if session.get('user_role') == 'Company' %}
             <form method="post" action="{{ url_for('main.toggle_interest', paper_id=p.paper_id) }}">
-               <button type="submit" class="btn btn-sm {% if p.paper_id in interested_ids %}btn-primary{% else %}btn-secondary{% endif %}">
+               <button type="submit" class="interested-btn {% if p.paper_id in interested_ids %}active{% endif %}">
                   {{ 'Interested' if p.paper_id in interested_ids else '+ Connect' }}
                </button>
             </form>
             {% else %}
-               <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id) }}" class="btn btn-sm" style="background-color: var(--text-main); color: white;">
+               <a href="{{ url_for('main.paper_detail', paper_id=p.paper_id, **request.args) }}" class="btn btn-sm" style="background-color: var(--text-main); color: white;">
                    Review
                </a>
             {% endif %}
@@ -212,31 +220,23 @@
   {% endfor %}
 </div>
 
-<style>
-.interested-btn {
-    font-weight: 700;
-    background: linear-gradient(135deg, #3bbfb5, #2fa59c);
-    color: white;
-    border: none;
-    padding: 0.4rem 0.75rem;
-    border-radius: 0.6rem;
-    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
-    box-shadow: 0 4px 10px rgba(59, 191, 181, 0.35);
-}
-.interested-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(59, 191, 181, 0.45);
-    opacity: 0.95;
-}
-.interested-btn.active {
-    background: linear-gradient(135deg, #256f68, #1f5e57);
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
-}
-.review-btn {
-    background-color: var(--text-main);
-    color: white;
-    font-weight: 600;
-}
-</style>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. Restore scroll position if it exists in Session Storage
+        const scrollPos = sessionStorage.getItem("dashboardScroll");
+        if (scrollPos) {
+            window.scrollTo(0, scrollPos);
+            sessionStorage.removeItem("dashboardScroll"); // Clear after restoring
+        }
+
+        // 2. Save scroll position ONLY when clicking a paper link
+        const paperLinks = document.querySelectorAll(".paper-link");
+        paperLinks.forEach(link => {
+            link.addEventListener("click", function() {
+                sessionStorage.setItem("dashboardScroll", window.scrollY);
+            });
+        });
+    });
+</script>
 
 {% endblock %}

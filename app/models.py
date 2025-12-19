@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.dialects.postgresql import JSON
 db = SQLAlchemy()
 
 # ================================
@@ -10,8 +11,13 @@ class User(db.Model):
     user_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
-    role = db.Column(db.String(100), nullable=False, default ='User')
+    role = db.Column(db.String(100), nullable=False, default='User')
     
+    # --- NEW COLUMN FOR ALGORITHM ---
+    # This stores data like {"AI": 5, "Health": 2} so the algorithm knows what you like.
+    preferences = db.Column(JSON, default={}) 
+    # --------------------------------
+
     @property
     def role_display(self):
         """Get readable role name"""

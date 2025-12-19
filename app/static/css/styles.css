@@ -70,42 +70,142 @@ li { margin-bottom: 0.5rem; }
   padding-left: 1rem;
   padding-right: 1rem;
 }
-
 /* =========================================
-   2. NAVIGATION BAR (Base Styles)
+   3. NAVBAR (FINAL LAYOUT FIX)
    ========================================= */
 .main-navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 5rem;
-  background-color: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border-color);
-  z-index: 50;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 0.75rem 0;
 }
 
 .nav-container {
-  height: 100%;
-  padding: 0 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-  max-width: 80rem;
-  margin: 0 auto;
+    display: flex;
+    align-items: center;
+    /* Use 'normal' flow so flex-grow works */
+    justify-content: normal; 
+    flex-wrap: wrap; 
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
 }
 
+/* --- 1. Logo Section --- */
+.nav-header {
+    display: flex;
+    align-items: center;
+    margin-right: 2rem; 
+}
+
+.nav-logo {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--text-main);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+/* --- 2. Menu Container (The flexible part) --- */
+.nav-collapse {
+    display: flex;
+    align-items: center;
+    /* THIS IS THE KEY: It forces the container to fill all remaining width */
+    flex-grow: 1; 
+    width: auto;
+}
+
+/* --- 3. Center Links --- */
+.nav-links-center {
+    display: flex;
+    gap: 2rem;
+    /* This pushes the links to the middle by pushing against the right side */
+    margin-right: auto; 
+}
+
+/* --- 4. Profile/Actions (FORCE RIGHT) --- */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    /* This ensures it sits on the far right edge */
+    margin-left: auto; 
+}
+
+/* Links Styling */
 .nav-link-custom {
-  color: #374151;
-  font-weight: 500;
-  font-size: 1.0625rem;
+    color: #4b5563;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
 }
-.nav-link-custom:hover, .nav-link-custom.active { color: var(--accent); }
+.nav-link-custom:hover { color: var(--accent); }
 
+/* Profile Button */
+.profile-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    height: 40px; 
+    border-radius: 0.5rem;
+}
+.profile-name { font-weight: 700; }
+.caret { font-size: 0.7rem; margin-left: auto; }
+
+/* Hamburger (Mobile) */
+.mobile-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+/* =========================================
+   MOBILE BREAKPOINT
+   ========================================= */
+@media (max-width: 991px) {
+    .nav-container { justify-content: space-between; } /* Revert for mobile header */
+    
+    .nav-header { 
+        width: 100%; 
+        justify-content: space-between; 
+        margin-right: 0;
+    }
+    
+    .mobile-toggle { display: block; }
+
+    .nav-collapse {
+        display: none; 
+        flex-direction: column;
+        width: 100%;
+        border-top: 1px solid #e5e7eb;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        gap: 1rem;
+    }
+    
+    .nav-collapse.show { display: flex; }
+
+    .nav-links-center { 
+        margin-right: 0; 
+        flex-direction: column; 
+        width: 100%; 
+        text-align: center;
+    }
+
+    .nav-actions { 
+        margin-left: 0; 
+        flex-direction: column; 
+        width: 100%; 
+    }
+    
+    .profile-btn { width: 100%; justify-content: center; }
+}
 /* =========================================
    3. CARDS & PAPERS
    ========================================= */
@@ -258,35 +358,319 @@ li { margin-bottom: 0.5rem; }
 /* =========================================
    6. DASHBOARD SPECIFICS
    ========================================= */
-.dashboard-header {
-  background: linear-gradient(to right, #f0fdfa, #ffffff, #eff6ff);
-  border: 1px solid var(--border-color);
-  border-radius: 1.5rem;
-  padding: 2.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+/* =========================================
+   6. DASHBOARD SPECIFICS (UPDATED)
+   ========================================= */
+
+/* --- Hero Section --- */
+.dashboard-hero {
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    margin-bottom: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
 
-.kpi-card {
-  background-color: rgba(255, 255, 255, 0.7);
-  border: 1px solid var(--border-color);
-  border-radius: 1rem;
-  padding: 1rem;
+@media (min-width: 992px) {
+    .dashboard-hero { 
+        flex-direction: row; 
+        align-items: flex-start; 
+        justify-content: space-between; 
+    }
+    .dashboard-hero-content { 
+        max-width: 60%; 
+        position: relative; 
+        z-index: 10; 
+    }
+    .dashboard-stats-grid { 
+        width: auto; 
+        min-width: 320px; 
+    }
 }
-.kpi-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem; }
-.kpi-value { font-size: 1.5rem; font-weight: 700; color: var(--text-main); line-height: 1; }
 
+/* Background Blur Blob */
+.dashboard-blob {
+    position: absolute; 
+    top: -50%; 
+    right: -10%;
+    width: 500px; 
+    height: 500px;
+    background: radial-gradient(circle, rgba(59,191,181,0.15) 0%, rgba(255,255,255,0) 70%);
+    border-radius: 50%; 
+    z-index: 0; 
+    pointer-events: none;
+}
+
+/* --- Live Badge & Text --- */
+.live-badge {
+    display: inline-flex; 
+    align-items: center; 
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem; 
+    background-color: #ecfdf5;
+    color: #047857; 
+    font-size: 0.75rem; 
+    font-weight: 700;
+    text-transform: uppercase; 
+    letter-spacing: 0.05em; 
+    border-radius: 9999px;
+    margin-bottom: 1rem;
+    border: 1px solid #a7f3d0;
+}
+
+.pulse-dot {
+    width: 8px; 
+    height: 8px; 
+    background-color: #10b981;
+    border-radius: 50%; 
+    animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* --- Stats Grid --- */
+.dashboard-stats-grid {
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+    gap: 1rem;
+    position: relative; 
+    z-index: 10;
+}
+
+.stat-box {
+    background-color: rgba(255,255,255,0.8);
+    backdrop-filter: blur(4px);
+    border: 1px solid var(--border-color);
+    padding: 1rem; 
+    border-radius: 1rem;
+    text-align: center;
+}
+
+.stat-box-label {
+    font-size: 0.7rem; 
+    color: var(--text-muted); 
+    font-weight: 700;
+    text-transform: uppercase; 
+    letter-spacing: 0.05em; 
+    margin-bottom: 0.25rem;
+}
+
+.stat-box-value { 
+    font-size: 1.75rem; 
+    font-weight: 900; 
+    color: var(--text-main); 
+    line-height: 1; 
+}
+
+.stat-box.active-filters {
+    background-color: #f0fdfa;
+    border-color: var(--accent);
+}
+.stat-box.active-filters .stat-box-value { color: var(--accent); }
+
+/* --- Top 5 List (Algorithm Results) --- */
+.top-list-section { 
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.top-list-header { 
+    display: flex; 
+    justify-content: space-between;
+    align-items: center; 
+    margin-bottom: 1rem; 
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+
+.top-paper-card {
+    display: flex; 
+    flex-direction: column; 
+    gap: 1rem;
+    background-color: white; 
+    border-radius: 0.75rem; 
+    padding: 0.75rem; 
+    margin-bottom: 0.5rem;
+    transition: background 0.2s;
+}
+
+.top-paper-card:hover {
+    background-color: #f9fafb;
+}
+
+@media (min-width: 768px) {
+    .top-paper-card { flex-direction: row; align-items: center; }
+    .top-paper-info { flex-grow: 1; }
+}
+
+.rank-circle {
+    width: 2.5rem; 
+    height: 2.5rem; 
+    border-radius: 50%;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    font-weight: 900; 
+    font-size: 0.9rem; 
+    flex-shrink: 0;
+    color: white;
+}
+.rank-1 { background: #F59E0B; box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3); }
+.rank-2 { background: #94A3B8; }
+.rank-3 { background: #B45309; }
+.rank-4, .rank-5 { background: #E5E7EB; color: #6B7280; }
+
+/* Score Boxes inside Top 5 */
+.top-scores { display: flex; gap: 0.5rem; }
+
+.score-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+}
+.score-green { background: #ecfdf5; border-color: #a7f3d0; color: #047857; }
+.score-blue { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+.score-box-label { font-size: 0.6rem; text-transform: uppercase; font-weight: 700; opacity: 0.7; }
+.score-box-value { font-weight: 800; line-height: 1; }
+
+
+/* --- Paper Grid Cards --- */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.paper-grid-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+}
+.paper-grid-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+.paper-meta-header {
+    padding: 1rem 1.25rem; 
+    border-bottom: 1px solid #f3f4f6;
+    background-color: #f9fafb;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+}
+.paper-card-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.meta-date { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+.meta-domain {
+    font-size: 0.75rem; font-weight: 600; color: var(--accent);
+    background-color: rgba(59, 191, 181, 0.1); padding: 0.1rem 0.5rem; border-radius: 99px;
+}
+
+/* --- AI Badges --- */
+.ai-score-badge {
+    display: inline-flex; 
+    align-items: center; 
+    gap: 0.4rem; 
+    padding: 0.25rem 0.6rem;
+    border-radius: 0.4rem; 
+    font-size: 0.75rem; 
+    font-weight: 600;
+}
+.ai-score-badge.business { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+.ai-score-badge.academic { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+
+.score-dot { width: 6px; height: 6px; border-radius: 50%; }
+.score-dot.biz { background: #10b981; }
+.score-dot.aca { background: #3b82f6; }
+
+/* --- Footer & Buttons --- */
+.card-footer {
+    padding-top: 1rem; 
+    margin-top: auto; 
+    border-top: 1px solid #f3f4f6;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+}
+
+.review-stat-small { display: flex; align-items: center; gap: 0.5rem; }
+.review-score-circle {
+    width: 2rem; height: 2rem; border-radius: 50%; background-color: #f9fafb;
+    border: 1px solid var(--border-color); font-size: 0.75rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+}
+
+.company-tag {
+    display: inline-flex; align-items: center; gap: 0.25rem;
+    padding: 0.2rem 0.5rem; background-color: #f3f4f6; border: 1px solid #e5e7eb;
+    border-radius: 0.375rem; font-size: 0.75rem; color: #4b5563;
+}
+
+/* Button Styles */
+.btn-icon {
+    width: 2.25rem; height: 2.25rem; border-radius: 0.5rem;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted); transition: all 0.2s;
+    background: transparent;
+}
+.btn-icon:hover { background-color: #f3f4f6; color: var(--text-main); }
+
+.interested-btn {
+    font-weight: 700;
+    background: linear-gradient(135deg, #3bbfb5, #2fa59c);
+    color: white;
+    border: none;
+    padding: 0.4rem 0.75rem;
+    border-radius: 0.6rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    box-shadow: 0 4px 10px rgba(59, 191, 181, 0.35);
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+.interested-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(59, 191, 181, 0.45);
+    opacity: 0.95;
+}
+.interested-btn.active {
+    background: linear-gradient(135deg, #256f68, #1f5e57);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+/* General Tags */
 .tag {
-  display: inline-flex;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border: 1px solid transparent;
+    display: inline-flex; padding: 0.25rem 0.75rem; border-radius: 9999px;
+    font-size: 0.75rem; font-weight: 600; border: 1px solid transparent;
 }
 .tag-accent { background-color: rgba(59, 191, 181, 0.1); color: var(--accent); }
 .tag-gray { background-color: #f3f4f6; color: #374151; border-color: #e5e7eb; }
-.tag-green { background-color: #ecfdf5; color: #047857; border-color: #a7f3d0; }
-.tag-dashed { background-color: #f9fafb; color: #9ca3af; border: 1px dashed #d1d5db; }
 
 /* =========================================
    7. FILTER BARS
@@ -514,159 +898,7 @@ body { display: flex; flex-direction: column; }
 .stat-divider { width: 1px; height: 3rem; background-color: rgba(255,255,255,0.2); }
 
 /* =========================================
-   13. DASHBOARD & LIST STYLES
-   ========================================= */
-
-/* --- Dashboard Hero Section --- */
-.dashboard-hero {
-  background-color: white;
-  border: 1px solid var(--border-color);
-  border-radius: 2rem;
-  padding: 2.5rem;
-  margin-bottom: 2.5rem;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-/* Background Blur Blob */
-.dashboard-blob {
-  position: absolute; top: 0; right: 0;
-  width: 400px; height: 400px;
-  background: linear-gradient(135deg, #f0fdfa, #eff6ff);
-  border-radius: 50%; filter: blur(60px);
-  z-index: 0; transform: translate(30%, -30%);
-  opacity: 0.6; pointer-events: none;
-}
-
-@media (min-width: 992px) {
-  .dashboard-hero { flex-direction: row; align-items: flex-start; justify-content: space-between; }
-  .dashboard-hero-content { max-width: 60%; position: relative; z-index: 10; }
-  .dashboard-stats-grid { width: auto; min-width: 320px; }
-}
-
-.live-badge {
-  display: inline-flex; align-items: center; gap: 0.5rem;
-  padding: 0.25rem 0.75rem; background-color: rgba(59, 191, 181, 0.1);
-  color: var(--accent); font-size: 0.75rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.05em; border-radius: 9999px;
-  margin-bottom: 1rem;
-}
-.pulse-dot {
-  width: 0.5rem; height: 0.5rem; background-color: var(--accent);
-  border-radius: 50%; animation: pulse-soft 2s infinite;
-}
-
-/* --- Stats Grid (Right side of Hero) --- */
-.dashboard-stats-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;
-  position: relative; z-index: 10;
-}
-
-.stat-box {
-  background-color: rgba(255,255,255,0.6);
-  backdrop-filter: blur(4px);
-  border: 1px solid var(--border-color);
-  padding: 1rem; border-radius: 1rem;
-}
-.stat-box-label {
-  font-size: 0.7rem; color: var(--text-muted); font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;
-}
-.stat-box-value { font-size: 1.5rem; font-weight: 900; color: var(--text-main); line-height: 1; }
-
-.stat-box.active-filters {
-  background-color: rgba(59, 191, 181, 0.05);
-  border-color: rgba(59, 191, 181, 0.2);
-}
-.stat-box.active-filters .stat-box-value { color: var(--accent); }
-
-/* --- Top 5 List --- */
-.top-list-section { margin-bottom: 3rem; }
-.top-list-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
-
-.top-paper-card {
-  display: flex; flex-direction: column; gap: 1rem;
-  background-color: white; border: 1px solid var(--border-color);
-  border-radius: 1rem; padding: 1rem; margin-bottom: 0.75rem;
-  transition: all 0.2s; position: relative;
-}
-.top-paper-card:hover {
-  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: var(--accent);
-}
-@media (min-width: 768px) {
-  .top-paper-card { flex-direction: row; align-items: center; }
-  .top-paper-info { flex-grow: 1; }
-}
-
-.rank-circle {
-  width: 3rem; height: 3rem; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 900; font-size: 1.25rem; flex-shrink: 0;
-  border: 1px solid var(--border-color); background-color: white; color: var(--text-muted);
-}
-/* Gold, Silver, Bronze */
-.rank-1 { background-color: #fefce8; color: #ca8a04; border-color: #fef08a; }
-.rank-2 { background-color: #f3f4f6; color: #4b5563; border-color: #e5e7eb; }
-.rank-3 { background-color: #ffedd5; color: #c2410c; border-color: #fed7aa; }
-
-.top-scores { display: flex; gap: 0.75rem; }
-
-/* --- Paper Card Internals --- */
-.paper-meta-header {
-  padding: 1rem 1.5rem; border-bottom: 1px solid #f3f4f6;
-  background-color: rgba(249, 250, 251, 0.5);
-  display: flex; justify-content: space-between; align-items: center;
-}
-.meta-date { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
-.meta-domain {
-  font-size: 0.75rem; font-weight: 600; color: var(--accent);
-  background-color: rgba(59, 191, 181, 0.1); padding: 0.1rem 0.5rem; border-radius: 99px;
-}
-
-.ai-score-badge {
-  display: flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.6rem;
-  border-radius: 0.5rem; font-size: 0.75rem; font-weight: 700; border: 1px solid transparent;
-}
-.ai-score-badge.business { background-color: #f0fdf4; border-color: #dcfce7; color: #166534; }
-.ai-score-badge.academic { background-color: #eff6ff; border-color: #dbeafe; color: #1e40af; }
-.score-dot { width: 6px; height: 6px; border-radius: 50%; }
-.score-dot.biz { background-color: #22c55e; }
-.score-dot.aca { background-color: #3b82f6; }
-
-.company-tag {
-  display: inline-flex; align-items: center; gap: 0.25rem;
-  padding: 0.2rem 0.5rem; background-color: #f3f4f6; border: 1px solid #e5e7eb;
-  border-radius: 0.375rem; font-size: 0.75rem; color: #4b5563;
-}
-.company-tag.interest { background-color: #fefce8; border-color: #fef9c3; color: #b45309; }
-
-.card-footer {
-  padding-top: 1rem; margin-top: auto; border-top: 1px solid #f3f4f6;
-  display: flex; justify-content: space-between; align-items: center;
-}
-
-/* Review Stats (Small) */
-.review-stat-small { display: flex; align-items: center; gap: 0.5rem; }
-.review-score-circle {
-  width: 2rem; height: 2rem; border-radius: 50%; background-color: #f9fafb;
-  border: 1px solid var(--border-color); font-size: 0.75rem; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-}
-
-.btn-icon {
-  width: 2.25rem; height: 2.25rem; border-radius: 0.5rem;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text-muted); transition: all 0.2s;
-}
-.btn-icon:hover { background-color: #f3f4f6; color: var(--text-main); }
-.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 0.5rem; }
-
-/* =========================================
-   14. FORM SPECIFICS & CHECKBOX GRIDS
+   13. FORM SPECIFICS & CHECKBOX GRIDS
    ========================================= */
 .checkbox-grid {
   display: grid;
@@ -709,7 +941,7 @@ body { display: flex; flex-direction: column; }
 }
 
 /* =========================================
-   15. COMPANY LIST & SEARCH SPECIFICS
+   14. COMPANY LIST & SEARCH SPECIFICS
    ========================================= */
 
 /* --- Page Header & Search --- */
@@ -831,24 +1063,27 @@ body { display: flex; flex-direction: column; }
 }
 
 /* =========================================
-   16. AUTHENTICATION PAGES
+   15. AUTHENTICATION PAGES (UPDATED)
    ========================================= */
-.auth-container {
+
+/* Wrapper handles the centering */
+.auth-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 60vh; /* Centers vertically within the content area */
-  padding: 2rem 0;
+  min-height: 80vh; /* Increased from 60vh to 80vh for better vertical centering */
+  width: 100%;
+  padding: 2rem 1rem; /* Added horizontal padding for mobile screens */
 }
 
 .auth-card {
   width: 100%;
-  max-width: 28rem; /* Standard login card width */
+  max-width: 28rem;
   background-color: white;
   border: 1px solid var(--border-color);
   border-radius: 1.5rem;
   padding: 2.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); /* Slightly softer shadow */
 }
 
 .auth-title {
@@ -869,12 +1104,7 @@ body { display: flex; flex-direction: column; }
   font-weight: 600;
   margin-bottom: 0.5rem;
   color: var(--text-main);
-}
-
-.btn-full {
-  width: 100%;
-  justify-content: center;
-  margin-top: 1rem;
+  text-align: left; /* Ensure labels align left */
 }
 
 .auth-footer {
@@ -883,14 +1113,26 @@ body { display: flex; flex-direction: column; }
   font-size: 0.95rem;
   color: var(--text-muted);
 }
+
 .auth-link {
   color: var(--accent);
   font-weight: 600;
+  text-decoration: none;
 }
-.auth-link:hover { text-decoration: underline !important; }
+
+.auth-link:hover { 
+  text-decoration: underline !important; 
+}
+
+/* Ensure the button matches your style */
+.btn-full {
+  width: 100%;
+  justify-content: center;
+  margin-top: 1rem;
+}
 
 /* =========================================
-   17. PAPER DETAIL SPECIFICS
+   16. PAPER DETAIL SPECIFICS
    ========================================= */
 
 .paper-header {
@@ -1204,7 +1446,7 @@ body { display: flex; flex-direction: column; }
 
 
 /* =========================================
-   18. PROFILE PAGE
+   17. PROFILE PAGE
    ========================================= */
 .profile-header {
   background-color: white;
@@ -1300,7 +1542,7 @@ body { display: flex; flex-direction: column; }
 }
 
 /* =========================================
-   19. STATS PAGE
+   18. STATS PAGE
    ========================================= */
 .stats-header {
   text-align: center;
@@ -1448,7 +1690,7 @@ body { display: flex; flex-direction: column; }
 .chart-col:hover .bar-teal { background-color: #2dd4bf; }
 
 /* =========================================
-   20. UPLOAD PAPER PAGE
+   19. UPLOAD PAPER PAGE
    ========================================= */
 .upload-header {
   text-align: center;
@@ -1564,7 +1806,7 @@ body { display: flex; flex-direction: column; }
 }
 
 /* =========================================
-   21. ADVANCED FORM LAYOUTS
+   20. ADVANCED FORM LAYOUTS
    ========================================= */
 .form-grid-2 {
   display: grid;
@@ -1613,7 +1855,7 @@ body { display: flex; flex-direction: column; }
 }
 
 /* =========================================
-   22. VISION PAGE
+   21. VISION PAGE
    ========================================= */
 /* Hero Section */
 .vision-hero {

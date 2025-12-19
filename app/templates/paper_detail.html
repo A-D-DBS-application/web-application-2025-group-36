@@ -3,7 +3,6 @@
 
 {% set pdf_url = url_for('main.download_paper', paper_id=paper.paper_id) %}
 
-<!-- ================= PAPER HEADER ================= -->
 <div class="paper-header">
     <div class="paper-tags">
         <span class="tag tag-accent">Research Paper</span>
@@ -24,7 +23,7 @@
             ⬇ Download PDF
         </a>
 
-        <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">
+        <a href="{{ url_for('main.dashboard', **request.args) }}" class="btn btn-secondary">
             ← Back to archive
         </a>
 
@@ -60,13 +59,10 @@
 
 <hr class="divider">
 
-<!-- ================= CONTENT GRID ================= -->
 <div class="paper-content-grid">
 
-    <!-- LEFT COLUMN -->
     <div>
 
-        <!-- META -->
         <div class="meta-grid">
             <div class="meta-box">
                 <div class="meta-label">Uploaded</div>
@@ -94,7 +90,6 @@
         </div>
 
         {% if paper.ai_status == "done" %}
-        <!-- ================= AI ANALYSIS ================= -->
         <div class="ai-section">
             <h2>AI Analysis</h2>
 
@@ -137,7 +132,6 @@
         {% endif %}
     </div>
 
-    <!-- RIGHT COLUMN -->
     <div>
         <div class="review-report-cta">
             <a href="#report-block" class="btn btn-secondary btn-sm">
@@ -176,7 +170,6 @@
     </div>
 </div>
 
-<!-- ================= REVIEWS ================= -->
 <hr class="divider">
 
 <div class="reviews-section">
@@ -220,7 +213,6 @@
     {% endif %}
 </div>
 
-<!-- REPORT BLOCK -->
 <div id="report-block" class="report-section">
 
     <h3>🚩 Report this paper</h3>

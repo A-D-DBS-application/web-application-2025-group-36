@@ -114,7 +114,6 @@ def about():
 # ---------------------------------------------------
 # DASHBOARD HELPERS
 # ---------------------------------------------------
-# NOTE: Personalization scoring helpers (reserved for future work).
 # Not used in current MVP dashboard rendering, kept for planned improvements.
 
 def get_user_domain_preferences(user: User):
@@ -132,22 +131,52 @@ def get_user_domain_preferences(user: User):
 
     return {domain: count / total for domain, count in counts.items()}
 
-
+# ---------------------------------------------------
+# ALGORITHM: PRIORITY SCORING / RECOMMENDATION ENGINE
+# ---------------------------------------------------
 def compute_paper_score(paper: Paper, user_prefs, score_map, now: datetime):
-    """Combine personalization, popularity, and recency into one score."""
+    """
+    Implements a Multi-Criteria Decision Analysis (MCDA) for paper ranking.
+    This creates the 'Value-Added' feature by combining:
+    1. Personalization (Implicit Feedback / Click History)
+    2. Social Proof (Average Rating)
+    3. Freshness (Time Decay)
+    """
+    
+    # --- 1. Personalization Score (Normalized) ---
+    # user_prefs is a dict of {domain: click_count}
+    # We find the max clicks to normalize this domain's score to 0.0 - 1.0
     domain = paper.research_domain
-    pref_score = user_prefs.get(domain, 0)
+    user_clicks_on_domain = user_prefs.get(domain, 0)
+    
+    # Avoid division by zero
+    max_clicks = max(user_prefs.values()) if user_prefs and max(user_prefs.values()) > 0 else 1
+    
+    # Score is 0.0 to 1.0
+    pref_score = user_clicks_on_domain / max_clicks 
 
-    pop_score = 0
+    # --- 2. Popularity Score (Normalized) ---
+    pop_score = 0.0
     if paper.paper_id in score_map and score_map[paper.paper_id]["avg"] is not None:
-        pop_score = score_map[paper.paper_id]["avg"] / 5.0
+        # Normalize 5-star rating to 0-1
+        pop_score = score_map[paper.paper_id]["avg"] / 5.0 
 
+    # --- 3. Recency Score (Time Decay Function) ---
     days_old = (now - paper.upload_date).days if paper.upload_date else 365
-    recency_score = max(0, 1 - (days_old / 30))
+    # Decay: Score drops to 0 after 90 days. 
+    # Using max() ensures we don't get negative scores.
+    recency_score = max(0.0, 1.0 - (days_old / 90.0))
 
-    return 0.5 * pref_score + 0.3 * pop_score + 0.2 * recency_score
+    # --- Final Weighted Score ---
+    # Weights: 50% Personal Preference, 30% Quality, 20% Freshness
+    final_score = (0.5 * pref_score) + (0.3 * pop_score) + (0.2 * recency_score)
+    
+    return final_score
 
 
+# ---------------------------------------------------
+# DASHBOARD LOGIC
+# ---------------------------------------------------
 def get_dashboard_data(args, sess):
     """Shared dashboard logic: filters, sorting, scores & context."""
     search = args.get("q", "").strip()
@@ -227,7 +256,11 @@ def get_dashboard_data(args, sess):
         except ValueError:
             pass
 
-    # SORTING
+    # ------------------------------
+    # SORTING LOGIC
+    # ------------------------------
+    use_python_sort = False  # Flag to trigger the algorithm
+
     if sort == "best":
         query = query.order_by(func.coalesce(avg_subq.c.avg_score, 0).desc())
     elif sort == "oldest":
@@ -247,9 +280,14 @@ def get_dashboard_data(args, sess):
             + func.coalesce(Paper.ai_academic_score, 0)
         ).desc()
     )
-
+    elif sort == "recommended":
+        # ALGORITHM TRIGGER:
+        # We cannot easily sort personalization in SQL because the preference data 
+        # is inside a JSON blob. We fetch results first, then sort in Python.
+        use_python_sort = True
+        # We don't add an order_by here, waiting for Python sort
     else:
-        # newest
+        # newest (default)
         query = query.order_by(Paper.upload_date.desc())
 
     # EXECUTE WITH JOINEDLOAD
@@ -262,7 +300,7 @@ def get_dashboard_data(args, sess):
         ).all()
     )
 
-    # SCORE MAP
+    # SCORE MAP (Required for the algorithm)
     score_map = {
         row.paper_id: {
             "avg": round(float(row.avg_score), 1) if row.avg_score else None,
@@ -275,6 +313,28 @@ def get_dashboard_data(args, sess):
         ).all()
     }
 
+    # ------------------------------
+    # APPLY ALGORITHM (IF RECOMMENDED SELECTED)
+    # ------------------------------
+    if use_python_sort and sess.get("user_id"):
+        # Fetch current user to get their latest preferences
+        user = User.query.get(sess["user_id"])
+        user_prefs = user.preferences if user.preferences else {}
+        now = datetime.utcnow()
+        
+        # Sort the list in-place using the weighted score
+        papers.sort(
+            key=lambda p: compute_paper_score(p, user_prefs, score_map, now),
+            reverse=True # Highest score first
+        )
+    elif use_python_sort and not sess.get("user_id"):
+        # Fallback: If user selects 'recommended' but is not logged in,
+        # we can't personalize. Fallback to 'best' or 'newest'.
+        pass 
+
+    # ------------------------------
+    # OTHER CONTEXT DATA
+    # ------------------------------
     # TOP 5 AI PAPERS
     top5 = (
         Paper.query.filter(Paper.ai_status == "done")
@@ -288,7 +348,6 @@ def get_dashboard_data(args, sess):
         .all()
     )
 
-
     # INTERESTED LIST
     interested_ids = set()
     if sess.get("user_role") == "Company":
@@ -300,7 +359,6 @@ def get_dashboard_data(args, sess):
                 company_id=company.company_id
          ).all()
             interested_ids = {l.paper_id for l in links}
-
 
     # FILTER POPULATION
     domain_filters = sorted(
@@ -324,7 +382,6 @@ def get_dashboard_data(args, sess):
         "active_filters": active_filters,
         "offline": False,
         "offline_error": None,
-
     }
 
 
@@ -594,7 +651,6 @@ def build_paper_detail_context(
         "complaint_submitted": complaint_submitted,
     }
 
-
 # ---------------------------------------------------
 # PAPER DETAIL + REVIEWS
 # ---------------------------------------------------
@@ -604,6 +660,27 @@ def paper_detail(paper_id):
     companies = Company.query.order_by(Company.name).all()
     can_review = bool(session.get("user_id"))
 
+    # --- ALGORITHM: IMPLICIT FEEDBACK TRACKING ---
+    # This creates the "Smart Personalization" by learning what the user views.
+    if request.method == "GET" and session.get("user_id"):
+        try:
+            current_user = User.query.get(session["user_id"])
+            if current_user and paper.research_domain:
+                # 1. Get current preferences (JSON) or start empty
+                # specific syntax ensures SQLAlchemy detects the change in JSON
+                current_prefs = dict(current_user.preferences) if current_user.preferences else {}
+                
+                # 2. Increment score for this domain
+                domain = paper.research_domain
+                current_prefs[domain] = current_prefs.get(domain, 0) + 1
+                
+                # 3. Save back to DB
+                current_user.preferences = current_prefs
+                db.session.commit()
+        except Exception as e:
+            print(f"⚠️ Error updating user preferences: {e}")
+    # ---------------------------------------------
+
     if request.method == "POST":
         return handle_review_post(paper, can_review)
 
@@ -612,7 +689,6 @@ def paper_detail(paper_id):
         paper, companies, can_review, complaint_submitted
     )
     return render_template("paper_detail.html", **context)
-
 
 # ---------------------------------------------------
 # REPORT / COMPLAINT
@@ -1318,5 +1394,8 @@ def analyze_paper(paper_id):
         flash("AI analysis failed.", "error")
 
     return redirect(url_for("main.paper_detail", paper_id=paper_id))
+
+
+
 # ---------------------------------------------------
 # END OF FILE
