@@ -148,6 +148,7 @@ http://127.0.0.1:5000
 
 ## 10. Additional Resources
 - Test Users & Feedback: https://docs.google.com/spreadsheets/d/11K7iOIe6oSJGhSPdlgt530r-ltxOYVHAc8Jt30kQidU/edit
+- Presentation in PPT: https://ugentbe-my.sharepoint.com/:p:/r/personal/thowaelk_waelkens_ugent_be/Documents/group%2036.pptx?d=wf406c760cead42709014da4043348aa7&csf=1&web=1&e=04sEE8 
 
 ---
 
