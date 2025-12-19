@@ -1,6 +1,3 @@
--- WARNING: This schema is for context only and is not meant to be run.
--- Table order and constraints may not be valid for execution.
-
 CREATE TABLE public.Company (
   company_id integer NOT NULL DEFAULT nextval('"Company_company_id_seq"'::regclass),
   name character varying NOT NULL UNIQUE,
@@ -69,6 +66,7 @@ CREATE TABLE public.User (
   name character varying NOT NULL,
   email character varying NOT NULL UNIQUE,
   role character varying NOT NULL CHECK (role::text = ANY (ARRAY['Researcher'::character varying::text, 'Reviewer'::character varying::text, 'Company'::character varying::text, 'User'::character varying::text, 'System/Admin'::character varying::text, 'Founder'::character varying::text])),
+  preferences json,
   CONSTRAINT User_pkey PRIMARY KEY (user_id)
 );
 CREATE TABLE public.alembic_version (
